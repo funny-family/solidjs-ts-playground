@@ -1,7 +1,7 @@
 import { createUniqueId, onMount, Ref } from 'solid-js';
 import { Title } from 'solid-start';
 import type { NodeRef } from '~/@types';
-import { Counter } from '~/components/Counter';
+import { Counter } from '~/components/counter/Counter';
 // import type {  } from '~/components/Counter';
 
 type TypeWithGeneric<T> = T[];

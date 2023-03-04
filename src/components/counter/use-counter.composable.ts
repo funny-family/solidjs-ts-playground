@@ -7,7 +7,6 @@ type UseCounterArgs = { min: number; max: number; initialValue: number };
 type UseCounter = (args: UseCounterArgs) => {
   min: () => number;
   max: () => number;
-  // initialValue: () => number;
   count: Accessor<number>;
   setCount: Setter<number>;
 };
@@ -58,7 +57,6 @@ export const useCounter: UseCounter = (args: UseCounterArgs) => {
   return {
     min,
     max,
-    // initialValue,
     count,
     setCount,
   };
