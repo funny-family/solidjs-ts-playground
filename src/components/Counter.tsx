@@ -96,7 +96,7 @@ Counter = ((incomingProps) => {
           >[1][1]
         ];
 
-        const [onDecrementHandler, onDecrementHandlerData] =
+        const [onDecrementHandler, onDecrementData] =
           props.onDecrement as UnionOfOnCLickHandler;
         onDecrementHandler(null, event);
 
@@ -131,7 +131,7 @@ Counter = ((incomingProps) => {
           >[1][1]
         ];
 
-        const [onIncrementHandler, onIncrementHandlerData] =
+        const [onIncrementHandler, onIncrementData] =
           props.onIncrement as UnionOfOnCLickHandler;
         onIncrementHandler(null, event);
 

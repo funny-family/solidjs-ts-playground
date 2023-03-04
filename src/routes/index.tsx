@@ -31,7 +31,7 @@ export default function Home() {
         id={createUniqueId()}
         min={-2}
         max={2}
-        initialValue={2}
+        initialValue={1}
         ref={counterRef}
         aria-label="counter"
         onClick={onCounterClick}
