@@ -1,65 +1,76 @@
-import { splitProps, mergeProps } from 'solid-js';
-import type { Ref, Component } from 'solid-js';
-import type { HTMLElementPropsOf, UnionToArray } from '~/@types';
+import { splitProps, mergeProps, Show } from 'solid-js';
+import type { Ref, Component, JSX } from 'solid-js';
+import type {
+  HTMLElementPropsOf,
+  Override,
+  UnionToArray,
+  UniqueArray,
+} from '~/@types';
 import { counterDefaultValue, useCounter } from './use-counter.composable';
+// import {
+//   DecrementButton,
+//   DecrementButtonExportedComponent,
+// } from './components/decrement-button/decrement-button.component';
+// import {
+//   IncrementButton,
+//   IncrementButtonExportedComponent,
+// } from './components/increment-button/increment-button.component';
 import './Counter.css';
+import { solidjsCustomAttrs } from '~/utils/attrs';
 
+type CounterRootElement = HTMLDivElement;
 type CounterForwardElement = HTMLDivElement;
-type CounterAttrs = HTMLElementPropsOf<'div'>;
+type CounterAttrs = Override<
+  JSX.HTMLElementTags['div'],
+  {
+    children?: ({
+      DecrementButton,
+      IncrementButton,
+      Count,
+    }: {
+      DecrementButton: Component<JSX.HTMLElementTags['button']>;
+      IncrementButton: Component<JSX.HTMLElementTags['button']>;
+      Count: Component;
+    }) => JSX.Element;
+  }
+>;
 type CounterProps = {
   min?: number;
   max?: number;
   initialValue?: number;
-  ref?: Ref<CounterForwardElement>;
-  onDecrement?: HTMLElementPropsOf<'button'>['onClick'];
-  onIncrement?: HTMLElementPropsOf<'button'>['onClick'];
+  onDecrement?: JSX.HTMLElementTags['button']['onClick'];
+  onIncrement?: JSX.HTMLElementTags['button']['onClick'];
 };
-type CounterAttrsAndProps = CounterAttrs & CounterProps;
-
-type CounterPropsKeys = (keyof CounterProps)[];
-
-type OmittedAttrs = 'innerHTML' | 'innerText' | 'textContent' | 'about';
-type OmittedProps = 'children';
-type OmittedAttrsAndProps = OmittedAttrs | OmittedProps;
-type OmittedAttrsAndPropsKeys = OmittedAttrsAndProps[];
-
-export type CounterExportedComponent = Component<
-  Omit<CounterAttrsAndProps, OmittedAttrs>
->;
+type CounterCustomAttrs = JSX.CustomAttributes<CounterRootElement>;
+type CounterAttrsAndProps = CounterAttrs & CounterCustomAttrs & CounterProps;
+type CounterExportedComponent = Component<CounterAttrsAndProps>;
 type CounterLocalComponent = Component<CounterAttrsAndProps>;
+type CounterComponent = Component<CounterAttrsAndProps>;
 
-export let Counter = undefined as unknown as CounterExportedComponent;
-Counter = ((incomingProps) => {
+export let Counter = undefined as unknown as CounterComponent;
+Counter = ((incomingAttrsAndProps) => {
   const defaultAttrsAndProps = {
     min: counterDefaultValue.min,
     max: counterDefaultValue.max,
     initialValue: counterDefaultValue.initialValue,
   } satisfies CounterAttrsAndProps;
-  incomingProps = mergeProps(defaultAttrsAndProps, incomingProps);
-  type IncomingProps = CounterAttrsAndProps & typeof defaultAttrsAndProps;
-  const [, props, attrs] = splitProps(
-    incomingProps as IncomingProps,
-    [
-      'children',
-      'innerHTML',
-      'innerText',
-      'textContent',
-      'about',
-    ] satisfies OmittedAttrsAndPropsKeys,
+  incomingAttrsAndProps = mergeProps(
+    defaultAttrsAndProps,
+    incomingAttrsAndProps
+  );
+  type IncomingAttrsAndProps = CounterAttrsAndProps &
+    typeof defaultAttrsAndProps;
+  const [props, customAttrs, attrs] = splitProps(
+    incomingAttrsAndProps as IncomingAttrsAndProps,
     [
       'min',
       'max',
       'initialValue',
-      'ref',
       'onDecrement',
       'onIncrement',
-    ] satisfies CounterPropsKeys
+    ] satisfies (keyof CounterProps)[],
+    solidjsCustomAttrs
   );
-
-  // console.group();
-  // console.log('props:', props);
-  // console.log('attrs:', attrs);
-  // console.groupEnd();
 
   const { min, max, count, setCount } = useCounter({
     min: props.min,
@@ -69,12 +80,6 @@ Counter = ((incomingProps) => {
   const isMinValueReached = () => min() === count();
   const isMaxValueReached = () => max() === count();
   const lengthOfCountNumber = Math.max(`${min()}`.length, `${max()}`.length);
-
-  console.group();
-  console.log('min:', min());
-  console.log('max:', max());
-  console.log('props.initialValue:', props.initialValue);
-  console.groupEnd();
 
   const onDecrement: HTMLElementPropsOf<'button'>['onClick'] = (event) => {
     console.log('"onDecrement" event:', event);
@@ -146,28 +151,59 @@ Counter = ((incomingProps) => {
     }
   };
 
+  const DecrementButton: Parameters<
+    NonNullable<CounterAttrs['children']>
+  >[0]['DecrementButton'] = (p) => (
+    <button
+      class="counter__button counter__decrement-button"
+      onClick={onDecrement}
+      disabled={isMinValueReached()}
+    >
+      -
+    </button>
+  );
+
+  const Count: Parameters<NonNullable<CounterAttrs['children']>>[0]['Count'] = (
+    p
+  ) => (
+    <span class="counter__count" style={{ width: `${lengthOfCountNumber}ch` }}>
+      {count()}
+    </span>
+  );
+
+  const IncrementButton: Parameters<
+    NonNullable<CounterAttrs['children']>
+  >[0]['IncrementButton'] = (p) => (
+    <button
+      class="counter__button counter__increment-button"
+      onClick={(event) => onIncrement(event)}
+      disabled={isMaxValueReached()}
+    >
+      +
+    </button>
+  );
+
   return (
-    <div {...attrs} ref={props.ref} class={`${attrs.class} counter`}>
-      <button
-        class="counter__decrement-button"
-        onClick={onDecrement}
-        disabled={isMinValueReached()}
-      >
-        -
-      </button>
-      <span
-        class="counter__count"
-        style={{ width: `${lengthOfCountNumber}ch` }}
-      >
-        {count()}
-      </span>
-      <button
-        class="counter__increment-button"
-        onClick={onIncrement}
-        disabled={isMaxValueReached()}
-      >
-        +
-      </button>
+    <div {...customAttrs} {...attrs} class={`${attrs.class} counter`}>
+      <Show
+        when={attrs.children != null}
+        fallback={
+          <>
+            {DecrementButton}
+            {Count}
+            {IncrementButton}
+          </>
+        }
+        children={
+          typeof attrs.children === 'function'
+            ? attrs.children({
+                DecrementButton,
+                IncrementButton,
+                Count,
+              })
+            : null
+        }
+      />
     </div>
   );
-}) satisfies CounterLocalComponent;
+}) satisfies CounterComponent;

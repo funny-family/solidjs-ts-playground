@@ -25,12 +25,18 @@
 
 .counter__count {
   display: inline-block;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.counter__button {
+  cursor: pointer;
 }
 
 .counter__increment-button {
-  cursor: pointer;
+  /*  */
 }
 
 .counter__decrement-button {
-  cursor: pointer;
+  /*  */
 }
