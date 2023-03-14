@@ -1,8 +1,12 @@
-import { createUniqueId, mergeProps, Show, splitProps } from 'solid-js';
+import {
+  createMemo,
+  createUniqueId,
+  mergeProps,
+  splitProps,
+} from 'solid-js';
 import type { Component, JSX } from 'solid-js';
-import './text-field.styles.css';
 import { solidjsCustomAttrs } from '~/utils/attrs';
-import type { KeysOf, Override } from '~/@types';
+import './text-field.styles.css';
 
 type TextFieldRootElement = HTMLDivElement;
 type TextFieldForwardElement = HTMLInputElement;
@@ -31,53 +35,55 @@ type TextFieldCustomAttrs = JSX.CustomAttributes<TextFieldRootElement>;
 type TextFieldAttrsAndProps = TextFieldAttrs &
   TextFieldCustomAttrs &
   TextFieldProps;
-type TextFieldExportedComponent = Component<TextFieldAttrsAndProps>;
-type TextFieldLocalComponent = Component<TextFieldAttrsAndProps>;
 type TextFieldComponent = Component<TextFieldAttrsAndProps>;
 
-// export let TextField = undefined as unknown as TextFieldComponent;
 export const TextField: TextFieldComponent = (attrsAndProps) => {
-  const forwardProps = { ...attrsAndProps.forwardProps };
-  delete attrsAndProps.forwardProps;
-  const rootElementAttrsAndProps = {
-    class: '',
-  } satisfies Omit<TextFieldAttrsAndProps, 'forwardProps'>;
-  const forwardElementAttrsAndProps = {
-    class: '',
-    type: 'text',
-    ...forwardProps,
-  } satisfies Pick<TextFieldAttrsAndProps, 'forwardProps'>['forwardProps'];
-  attrsAndProps = mergeProps(rootElementAttrsAndProps, attrsAndProps);
-  attrsAndProps.forwardProps = mergeProps(forwardElementAttrsAndProps);
-  type AttrsAndProps = TextFieldAttrsAndProps &
-    typeof rootElementAttrsAndProps & {
-      forwardProps: typeof forwardElementAttrsAndProps;
-    };
+  // console.log(23424, attrsAndProps);
+
+  // const forwardProps = { ...attrsAndProps.forwardProps };
+  // delete attrsAndProps.forwardProps;
+  // const rootElementAttrsAndProps = {
+  //   class: '',
+  // } satisfies Omit<TextFieldAttrsAndProps, 'forwardProps'>;
+  // const forwardElementAttrsAndProps = {
+  //   class: '',
+  //   type: 'text',
+  //   ...forwardProps,
+  // } satisfies Pick<TextFieldAttrsAndProps, 'forwardProps'>['forwardProps'];
+  // attrsAndProps = mergeProps(rootElementAttrsAndProps, attrsAndProps);
+  // attrsAndProps.forwardProps = mergeProps(forwardElementAttrsAndProps);
+  // type AttrsAndProps = TextFieldAttrsAndProps &
+  //   typeof rootElementAttrsAndProps & {
+  //     forwardProps: typeof forwardElementAttrsAndProps;
+  //   };
 
   const [props, customAttrs, attrs] = splitProps(
-    attrsAndProps as AttrsAndProps,
+    attrsAndProps,
     ['label', 'forwardProps'],
     solidjsCustomAttrs
   );
-  console.log(2, attrsAndProps);
-  const inputId = props.forwardProps?.id || createUniqueId();
+
+  console.log('"TextField" attrsAndProps:', attrsAndProps);
+
+  const rootPropsClass = () => attrs?.class || '';
+  const forwardPropsClass = () => props?.forwardProps?.class || '';
+  const forwardPropsType = () => props?.forwardProps?.type || 'text';
+  const forwardPropsId = createMemo(
+    () => props?.forwardProps?.id || createUniqueId()
+  );
 
   return (
-    <div {...customAttrs} class={`${attrs.class} text-field`}>
-      <Show
-        when={props.label != null}
-        fallback={null}
-        children={
-          <label class="text-field__label" for={inputId}>
-            {props.label}
-          </label>
-        }
-      />
+    <div {...customAttrs} class={`${rootPropsClass()} text-field`}>
+      {props?.label != null ? (
+        <label class="text-field__label" for={forwardPropsId()}>
+          {props.label}
+        </label>
+      ) : null}
       <input
-        {...props.forwardProps}
-        class={`${props.forwardProps.class} text-field__input`}
-        type={props.forwardProps.type}
-        id={inputId}
+        {...props?.forwardProps}
+        class={`${forwardPropsClass()} text-field__input`}
+        type={forwardPropsType()}
+        id={forwardPropsId()}
       />
     </div>
   );
