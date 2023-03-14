@@ -1,39 +1,23 @@
 import { splitProps, mergeProps, Show } from 'solid-js';
-import type { Ref, Component, JSX } from 'solid-js';
-import type {
-  HTMLElementPropsOf,
-  Override,
-  UnionToArray,
-  UniqueArray,
-} from '~/@types';
+import type { Component, JSX } from 'solid-js';
+import type { HTMLElementPropsOf, UnionToArray } from '~/@types';
 import { counterDefaultValue, useCounter } from './use-counter.composable';
-// import {
-//   DecrementButton,
-//   DecrementButtonExportedComponent,
-// } from './components/decrement-button/decrement-button.component';
-// import {
-//   IncrementButton,
-//   IncrementButtonExportedComponent,
-// } from './components/increment-button/increment-button.component';
 import './Counter.css';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 
 type CounterRootElement = HTMLDivElement;
 type CounterForwardElement = HTMLDivElement;
-type CounterAttrs = Override<
-  JSX.HTMLElementTags['div'],
-  {
-    children?: ({
-      DecrementButton,
-      IncrementButton,
-      Count,
-    }: {
-      DecrementButton: Component<JSX.HTMLElementTags['button']>;
-      IncrementButton: Component<JSX.HTMLElementTags['button']>;
-      Count: Component;
-    }) => JSX.Element;
-  }
->;
+type CounterAttrs = Omit<JSX.HTMLElementTags['div'], 'children'> & {
+  children?: ({
+    DecrementButton,
+    IncrementButton,
+    Count,
+  }: {
+    DecrementButton: Component<JSX.HTMLElementTags['button']>;
+    IncrementButton: Component<JSX.HTMLElementTags['button']>;
+    Count: Component<JSX.HTMLElementTags['span']>;
+  }) => JSX.Element;
+};
 type CounterProps = {
   min?: number;
   max?: number;
@@ -43,25 +27,21 @@ type CounterProps = {
 };
 type CounterCustomAttrs = JSX.CustomAttributes<CounterRootElement>;
 type CounterAttrsAndProps = CounterAttrs & CounterCustomAttrs & CounterProps;
-type CounterExportedComponent = Component<CounterAttrsAndProps>;
-type CounterLocalComponent = Component<CounterAttrsAndProps>;
 type CounterComponent = Component<CounterAttrsAndProps>;
 
 export let Counter = undefined as unknown as CounterComponent;
-Counter = ((incomingAttrsAndProps) => {
+Counter = ((attrsAndProps) => {
+  // console.log(678686, attrsAndProps);
+
   const defaultAttrsAndProps = {
     min: counterDefaultValue.min,
     max: counterDefaultValue.max,
     initialValue: counterDefaultValue.initialValue,
   } satisfies CounterAttrsAndProps;
-  incomingAttrsAndProps = mergeProps(
-    defaultAttrsAndProps,
-    incomingAttrsAndProps
-  );
-  type IncomingAttrsAndProps = CounterAttrsAndProps &
-    typeof defaultAttrsAndProps;
+  attrsAndProps = mergeProps(defaultAttrsAndProps, attrsAndProps);
+  type AttrsAndProps = CounterAttrsAndProps & typeof defaultAttrsAndProps;
   const [props, customAttrs, attrs] = splitProps(
-    incomingAttrsAndProps as IncomingAttrsAndProps,
+    attrsAndProps as AttrsAndProps,
     [
       'min',
       'max',
@@ -155,7 +135,8 @@ Counter = ((incomingAttrsAndProps) => {
     NonNullable<CounterAttrs['children']>
   >[0]['DecrementButton'] = (p) => (
     <button
-      class="counter__button counter__decrement-button"
+      {...p}
+      class={`${p?.class} counter__button counter__decrement-button`}
       onClick={onDecrement}
       disabled={isMinValueReached()}
     >
@@ -166,7 +147,11 @@ Counter = ((incomingAttrsAndProps) => {
   const Count: Parameters<NonNullable<CounterAttrs['children']>>[0]['Count'] = (
     p
   ) => (
-    <span class="counter__count" style={{ width: `${lengthOfCountNumber}ch` }}>
+    <span
+      {...p}
+      class={`${p?.class} counter__count`}
+      style={{ width: `${lengthOfCountNumber}ch` }}
+    >
       {count()}
     </span>
   );
@@ -175,13 +160,16 @@ Counter = ((incomingAttrsAndProps) => {
     NonNullable<CounterAttrs['children']>
   >[0]['IncrementButton'] = (p) => (
     <button
-      class="counter__button counter__increment-button"
+      {...p}
+      class={`${p?.class} counter__button counter__increment-button`}
       onClick={(event) => onIncrement(event)}
       disabled={isMaxValueReached()}
     >
       +
     </button>
   );
+
+  console.log('"Counter" attrsAndProps:', attrsAndProps);
 
   return (
     <div {...customAttrs} {...attrs} class={`${attrs.class} counter`}>
