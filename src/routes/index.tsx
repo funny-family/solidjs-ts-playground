@@ -2,16 +2,17 @@ import { createUniqueId, onMount, Ref } from 'solid-js';
 import { Title } from 'solid-start';
 import type { NodeRef } from '~/@types';
 import { Counter } from '~/components/counter/Counter';
+import { TextField } from '~/components/text-field/text-field.component';
 // import type {  } from '~/components/Counter';
 
-type TypeWithGeneric<T> = T[];
-type ExtractGeneric<Type> = Type extends TypeWithGeneric<infer X> ? X : never;
+// type TypeWithGeneric<T> = T[];
+// type ExtractGeneric<Type> = Type extends TypeWithGeneric<infer X> ? X : never;
 
-type Extracted = ExtractGeneric<TypeWithGeneric<number>>;
+// type Extracted = ExtractGeneric<TypeWithGeneric<number>>;
 
 export default function Home() {
   let h1Ref: NodeRef<HTMLHeadingElement> = undefined;
-  let counterRef: NodeRef<any> = undefined;
+  let counterRef: NodeRef<HTMLDivElement> = undefined;
 
   onMount(() => {
     console.log('h1Ref:', { h1Ref }, h1Ref);
@@ -25,17 +26,38 @@ export default function Home() {
   return (
     <main>
       <Title>Hello World</Title>
+      <div>
+        <TextField
+          label="Label"
+          forwardProps={{ id: createUniqueId(), type: 'number', class: 'TextField' }}
+        />
+      </div>
       <h1 ref={h1Ref}>Hello world!</h1>
       <Counter
         class="tttttt"
         id={createUniqueId()}
-        min={-2}
-        max={2}
+        // min={-2}
+        // max={2}
         initialValue={1}
         ref={counterRef}
         aria-label="counter"
-        onClick={onCounterClick}
-      />
+        onClick={(event) => onCounterClick(event)}
+        // children={({ DecrementButton, IncrementButton, Count }) => (
+        //   <div style={{ 'display': 'flex', 'flex-direction': 'column' }}>
+        //     <DecrementButton aria-label="decrement-button" />
+        //     <Count aria-label="count" />
+        //     <IncrementButton aria-label="increment-button" />
+        //   </div>
+        // )}
+      >
+        {({ DecrementButton, IncrementButton, Count }) => (
+          <div style={{ 'display': 'flex', 'flex-direction': 'column' }}>
+            <DecrementButton aria-label="decrement-button" />
+            <Count aria-label="count" />
+            <IncrementButton aria-label="increment-button" />
+          </div>
+        )}
+      </Counter>
       <p>
         Visit{' '}
         <a href="https://start.solidjs.com" target="_blank">
