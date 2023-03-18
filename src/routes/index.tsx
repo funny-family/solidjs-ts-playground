@@ -26,10 +26,17 @@ export default function Home() {
   return (
     <main>
       <Title>Hello World</Title>
+      {[1, 2, 3].map((v) => (
+        <p>{v}</p>
+      ))}
       <div>
         <TextField
           label="Label"
-          forwardProps={{ id: createUniqueId(), type: 'number', class: 'TextField' }}
+          forwardProps={{
+            id: createUniqueId(),
+            type: 'number',
+            class: 'TextField',
+          }}
         />
       </div>
       <h1 ref={h1Ref}>Hello world!</h1>
