@@ -3,12 +3,6 @@ import { Title } from 'solid-start';
 import type { NodeRef } from '~/@types';
 import { Counter } from '~/components/counter/Counter';
 import { TextField } from '~/components/text-field/text-field.component';
-// import type {  } from '~/components/Counter';
-
-// type TypeWithGeneric<T> = T[];
-// type ExtractGeneric<Type> = Type extends TypeWithGeneric<infer X> ? X : never;
-
-// type Extracted = ExtractGeneric<TypeWithGeneric<number>>;
 
 export default function Home() {
   let h1Ref: NodeRef<HTMLHeadingElement> = undefined;
