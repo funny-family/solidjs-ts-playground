@@ -20,9 +20,6 @@ export default function Home() {
   return (
     <main>
       <Title>Hello World</Title>
-      {[1, 2, 3].map((v) => (
-        <p>{v}</p>
-      ))}
       <div>
         <TextField
           label="Label"
