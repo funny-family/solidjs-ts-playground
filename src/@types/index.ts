@@ -55,16 +55,6 @@ export type UnionToArray<T, A extends unknown[] = []> = IsUnion<T> extends true
   : [T, ...A];
 // =========================================================================================
 
-// export type ExtractBoundEventHandler<T extends Array<any>> = UnionToArray<
-//   NonNullable<T>
-// >[1];
-
-// export type UnionToIntersection<U> = (
-//   U extends any ? (k: U) => void : never
-// ) extends (k: infer I) => void
-//   ? I
-//   : never;
-
 type InArray<T, X> = T extends readonly [X, ...infer _Rest]
   ? true
   : T extends readonly [X]
