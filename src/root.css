@@ -1,17 +1,13 @@
 body {
-  font-family: Gordita, Roboto, Oxygen, Ubuntu, Cantarell,
-    'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: Gordita, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+    'Helvetica Neue', sans-serif;
+  margin: 0;
 }
 
 a {
   margin-right: 1rem;
 }
-
-main {
-  padding: 1em;
-  margin: 0 auto;
-}
-
+s
 h1 {
   color: #335d92;
   text-transform: uppercase;
