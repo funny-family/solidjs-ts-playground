@@ -2,10 +2,6 @@ import type { JSX } from 'solid-js';
 
 export type NodeRef<T = HTMLElement> = T | undefined;
 
-// export type ForwardRefProp = {
-//   forwardRef?: unknown;
-// };
-
 /**
  * @see https://stackoverflow.com/questions/51851677/how-to-get-argument-types-from-function-in-typescript
  */
@@ -80,13 +76,14 @@ export type UniqueArray<T> = T extends readonly [infer X, ...infer Rest]
  *
  * @example
  * type Origin = {
- *    a: string;
- *    b: string;
- *    _c: string;
- *    _d: string;
- * };
- *
- * type Result = FilterStartsWith<Origin, '_'>; // { _c: string; _d: string; }
+ *  a: string,
+ *  b: string,
+ *  _c: string,
+ *  _d: string,
+ * }
+
+ * type FilteredKeys = FilterNotStartingWith<keyof Origin, '_'>;
+ * type NewOrigin = Pick<Origin, FilteredKeys>; // { a: string; b: string; }
  */
 export type FilterStartsWith<
   Set,
@@ -136,3 +133,34 @@ export type FilterNotStartingWith<
 export type Override<T1, T2> = Omit<T1, keyof T2> & T2;
 
 export type KeysOf<T> = Array<keyof T>;
+
+// export type BoundEventHandlerTuple<
+//   El extends keyof JSX.HTMLElementTags,
+//   Ev extends keyof Pick<
+//     JSX.DOMAttributes<any>,
+//     FilterStartsWith<keyof JSX.DOMAttributes<any>, 'on'>
+//   >
+// > = [
+//   UnionToArray<NonNullable<JSX.HTMLElementTags[El][Ev]>>[1][0],
+//   UnionToArray<NonNullable<JSX.HTMLElementTags[El][Ev]>>
+// ];
+
+/**
+ * @example
+ * type BoundEventHandlerTuple = EventHandlerUnionTuple<
+ *   'button',
+ *   'onClick'
+ * >[1];
+ *
+ * const [onClickHandler, onClickData] = props.onClick as [
+ *   BoundEventHandlerTuple[0],
+ *   BoundEventHandlerTuple[1]
+ * ];
+ */
+export type EventHandlerUnionTuple<
+  El extends keyof JSX.HTMLElementTags,
+  Ev extends keyof Pick<
+    JSX.DOMAttributes<any>,
+    FilterStartsWith<keyof JSX.DOMAttributes<any>, 'on'>
+  >
+> = UnionToArray<NonNullable<JSX.HTMLElementTags[El][Ev]>>;
