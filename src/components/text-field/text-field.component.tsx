@@ -1,4 +1,5 @@
 import {
+  Show,
   createMemo,
   createUniqueId,
   mergeProps,
@@ -74,11 +75,13 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
 
   return (
     <div {...customAttrs} class={`${rootPropsClass()} text-field`}>
-      {props?.label != null ? (
-        <label class="text-field__label" for={forwardPropsId()}>
-          {props.label}
-        </label>
-      ) : null}
+      <Show when={props?.label != null} fallback={null} keyed>
+        {() => (
+          <label class="text-field__label" for={forwardPropsId()}>
+            {props.label}
+          </label>
+        )}
+      </Show>
       <input
         {...props?.forwardProps}
         class={`${forwardPropsClass()} text-field__input`}
