@@ -1,10 +1,13 @@
 import { splitProps, mergeProps, Show } from 'solid-js';
 import type { Component, JSX } from 'solid-js';
-import type { HTMLElementPropsOf, UnionToArray } from '~/@types';
+import type {
+  EventHandlerUnionTuple,
+  HTMLElementPropsOf,
+  UnionToArray,
+} from '~/@types';
 import { counterDefaultValue, useCounter } from './use-counter.composable';
 import './Counter.css';
 import { solidjsCustomAttrs } from '~/utils/attrs';
-
 type CounterRootElement = HTMLDivElement;
 type CounterForwardElement = HTMLDivElement;
 type CounterAttrs = Omit<JSX.HTMLElementTags['div'], 'children'> & {
@@ -31,8 +34,6 @@ type CounterComponent = Component<CounterAttrsAndProps>;
 
 export let Counter = undefined as unknown as CounterComponent;
 Counter = ((attrsAndProps) => {
-  // console.log(678686, attrsAndProps);
-
   const defaultAttrsAndProps = {
     min: counterDefaultValue.min,
     max: counterDefaultValue.max,
@@ -61,7 +62,7 @@ Counter = ((attrsAndProps) => {
   const isMaxValueReached = () => max() === count();
   const lengthOfCountNumber = Math.max(`${min()}`.length, `${max()}`.length);
 
-  const onDecrement: HTMLElementPropsOf<'button'>['onClick'] = (event) => {
+  const onDecrement: JSX.HTMLElementTags['button']['onClick'] = (event) => {
     console.log('"onDecrement" event:', event);
 
     if (isMinValueReached()) {
@@ -72,17 +73,15 @@ Counter = ((attrsAndProps) => {
 
     if (props.onDecrement != null) {
       if (Array.isArray(props.onDecrement)) {
-        type UnionOfOnCLickHandler = [
-          UnionToArray<
-            NonNullable<HTMLElementPropsOf<'button'>['onClick']>
-          >[1][0],
-          UnionToArray<
-            NonNullable<HTMLElementPropsOf<'button'>['onClick']>
-          >[1][1]
-        ];
+        type BoundEventHandlerTuple = EventHandlerUnionTuple<
+          'button',
+          'onClick'
+        >[1];
 
-        const [onDecrementHandler, onDecrementData] =
-          props.onDecrement as UnionOfOnCLickHandler;
+        const [onDecrementHandler, onDecrementData] = props.onDecrement as [
+          BoundEventHandlerTuple[0],
+          BoundEventHandlerTuple[1]
+        ];
         onDecrementHandler(null, event);
 
         return;
@@ -96,7 +95,7 @@ Counter = ((attrsAndProps) => {
     }
   };
 
-  const onIncrement: HTMLElementPropsOf<'button'>['onClick'] = (event) => {
+  const onIncrement: JSX.HTMLElementTags['button']['onClick'] = (event) => {
     console.log('"onIncrement" event:', event);
 
     if (isMaxValueReached()) {
@@ -107,17 +106,14 @@ Counter = ((attrsAndProps) => {
 
     if (props.onIncrement != null) {
       if (Array.isArray(props.onIncrement)) {
-        type UnionOfOnCLickHandler = [
-          UnionToArray<
-            NonNullable<HTMLElementPropsOf<'button'>['onClick']>
-          >[1][0],
-          UnionToArray<
-            NonNullable<HTMLElementPropsOf<'button'>['onClick']>
-          >[1][1]
+        type BoundEventHandlerTuple = EventHandlerUnionTuple<
+          'button',
+          'onClick'
+        >[1];
+        const [onIncrementHandler, onIncrementData] = props.onIncrement as [
+          BoundEventHandlerTuple[0],
+          BoundEventHandlerTuple[1]
         ];
-
-        const [onIncrementHandler, onIncrementData] =
-          props.onIncrement as UnionOfOnCLickHandler;
         onIncrementHandler(null, event);
 
         return;
@@ -182,7 +178,8 @@ Counter = ((attrsAndProps) => {
             {IncrementButton}
           </>
         }
-        children={
+      >
+        {() =>
           typeof attrs.children === 'function'
             ? attrs.children({
                 DecrementButton,
@@ -191,7 +188,7 @@ Counter = ((attrsAndProps) => {
               })
             : null
         }
-      />
+      </Show>
     </div>
   );
 }) satisfies CounterComponent;
