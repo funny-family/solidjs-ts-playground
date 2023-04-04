@@ -11,12 +11,25 @@ import './text-field.styles.css';
 
 type TextFieldRootElement = HTMLDivElement;
 type TextFieldForwardElement = HTMLInputElement;
-type TextFieldAttrs = JSX.HTMLElementTags['div'];
+type TextFieldAttrs = Omit<JSX.HTMLElementTags['div'], 'children'>;
 type TextFieldProps = {
-  label?: JSX.Element;
-  forwardProps?: Omit<
+  label?: Omit<
+    JSX.HTMLElementTags['label'],
+    // omitted attrs
+    'for'
+  >;
+  input?: Omit<
     JSX.HTMLElementTags['input'],
-    'type' | 'accept' | 'checked' | 'height' | 'width' | 'list' | 'src'
+    // omitted attrs
+    | 'children'
+    | 'accept'
+    | 'checked'
+    | 'height'
+    | 'width'
+    | 'list'
+    | 'src'
+    // overwritten attrs
+    | 'type'
   > & {
     /**
      * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types
@@ -60,33 +73,50 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
 
   const [props, customAttrs, attrs] = splitProps(
     attrsAndProps,
-    ['label', 'forwardProps'],
+    ['label', 'input'],
     solidjsCustomAttrs
   );
 
   console.log('"TextField" attrsAndProps:', attrsAndProps);
 
   const rootPropsClass = () => attrs?.class || '';
-  const forwardPropsClass = () => props?.forwardProps?.class || '';
-  const forwardPropsType = () => props?.forwardProps?.type || 'text';
-  const forwardPropsId = createMemo(
-    () => props?.forwardProps?.id || createUniqueId()
-  );
+
+  const labelClass = () => `${props?.label?.class || ''} text-field__label`;
+
+  const inputClass = () => `${props?.input?.class || ''} text-field__input`;
+  const inputType = () => props?.input?.type || 'text';
+  const inputId = createMemo(() => props?.input?.id || createUniqueId());
 
   return (
     <div {...customAttrs} class={`${rootPropsClass()} text-field`}>
       <Show when={props?.label != null} fallback={null} keyed>
         {() => (
-          <label class="text-field__label" for={forwardPropsId()}>
-            {props.label}
+          <label {...props.label} for={inputId()} class={labelClass()}>
+            {props?.label?.children}
           </label>
         )}
       </Show>
       <input
-        {...props?.forwardProps}
-        class={`${forwardPropsClass()} text-field__input`}
-        type={forwardPropsType()}
-        id={forwardPropsId()}
+        {...props?.input}
+        // @ts-ignore
+        accept={/*@once*/ null}
+        // @ts-ignore
+        children={/*@once*/ null}
+        // @ts-ignore
+        accept={/*@once*/ null}
+        // @ts-ignore
+        checked={/*@once*/ null}
+        // @ts-ignore
+        height={/*@once*/ null}
+        // @ts-ignore
+        width={/*@once*/ null}
+        // @ts-ignore
+        list={/*@once*/ null}
+        // @ts-ignore
+        src={/*@once*/ null}
+        class={inputClass()}
+        type={inputType()}
+        id={inputId()}
       />
     </div>
   );
