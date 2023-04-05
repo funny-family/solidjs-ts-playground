@@ -164,3 +164,8 @@ export type EventHandlerUnionTuple<
     FilterStartsWith<keyof JSX.DOMAttributes<any>, 'on'>
   >
 > = UnionToArray<NonNullable<JSX.HTMLElementTags[El][Ev]>>;
+
+/**
+ * @see https://stackoverflow.com/questions/53527689/extend-a-typescript-interface-to-allow-its-keys-to-be-null
+ */
+export type OrNull<T> = { [K in keyof T]: T[K] | null };
