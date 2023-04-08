@@ -21,13 +21,27 @@ export default function Home() {
     <main>
       <Title>Hello World</Title>
       <div>
+        <input
+          type="text"
+          innerHTML="<div>THIS IS DIV!</div>"
+          children={<div>123</div>}
+        />
         <TextField
-          label="Label"
-          forwardProps={{
-            id: createUniqueId(),
-            type: 'number',
-            class: 'TextField',
+          label={{
+            children: /*@once*/ 'This is label',
+            // innerHTML: '<div>THIS IS DIV!</div>'
+            // innerText: '1231321321'
+            // textContent: '12313fff1321'
           }}
+          input={{
+            id: createUniqueId(),
+            type: 'tel',
+            class: 'TextField',
+            // src: '7465hdig'
+            // children: 'gjgughdgud',
+          }}
+          // contentEditable
+          // contenteditable
         />
       </div>
       <h1 ref={h1Ref}>Hello world!</h1>
