@@ -169,3 +169,10 @@ export type EventHandlerUnionTuple<
  * @see https://stackoverflow.com/questions/53527689/extend-a-typescript-interface-to-allow-its-keys-to-be-null
  */
 export type OrNull<T> = { [K in keyof T]: T[K] | null };
+
+/**
+ * @see https://github.com/microsoft/TypeScript/issues/28374#issuecomment-536521051
+ */
+export type DeepNonNullable<T> = {
+  [P in keyof T]-?: NonNullable<T[P]>;
+}
