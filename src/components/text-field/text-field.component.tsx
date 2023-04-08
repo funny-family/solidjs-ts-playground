@@ -1,5 +1,6 @@
 import {
   Show,
+  children,
   createMemo,
   createUniqueId,
   mergeProps,
@@ -9,18 +10,31 @@ import type { Component, JSX } from 'solid-js';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 import './text-field.styles.css';
 
+type TextFieldRootElementTag = JSX.HTMLElementTags['div'];
 type TextFieldRootElement = HTMLDivElement;
 type TextFieldForwardElement = HTMLInputElement;
-type TextFieldAttrs = Omit<JSX.HTMLElementTags['div'], 'children'>;
+type TextFieldAttrs = Omit<
+  JSX.HTMLElementTags['div'],
+  | 'children'
+  | 'innerHTML'
+  | 'innerText'
+  | 'textContent'
+  | 'contentEditable'
+  | 'contenteditable'
+>;
 type TextFieldProps = {
   label?: Omit<
     JSX.HTMLElementTags['label'],
-    // omitted attrs
-    'for'
+    /* ----------------- omitted attrs ----------------- */
+    'innerHTML' | 'innerText' | 'textContent' | 'for'
+    /* ----------------- omitted attrs ----------------- */
   >;
   input?: Omit<
     JSX.HTMLElementTags['input'],
-    // omitted attrs
+    /* ----------------- omitted attrs ----------------- */
+    | 'innerHTML'
+    | 'innerText'
+    | 'textContent'
     | 'children'
     | 'accept'
     | 'checked'
@@ -28,7 +42,8 @@ type TextFieldProps = {
     | 'width'
     | 'list'
     | 'src'
-    // overwritten attrs
+    /* ----------------- omitted attrs ----------------- */
+    /* ----------------- overwritten attrs ----------------- */
     | 'type'
   > & {
     /**
@@ -44,16 +59,22 @@ type TextFieldProps = {
       | 'text'
       | 'url';
   };
+  /* ----------------- overwritten attrs ----------------- */
 };
 type TextFieldCustomAttrs = JSX.CustomAttributes<TextFieldRootElement>;
 type TextFieldAttrsAndProps = TextFieldAttrs &
   TextFieldCustomAttrs &
   TextFieldProps;
 type TextFieldComponent = Component<TextFieldAttrsAndProps>;
-
+// var a: TextFieldAttrsAndProps = {
+//   input: {
+//     type
+//   }
+// }
+// export let TextField = undefined as unknown as CounterComponent;
+// TextField = ((attrsAndProps) => {}) satisfies TextFieldComponent;
 export const TextField: TextFieldComponent = (attrsAndProps) => {
-  // console.log(23424, attrsAndProps);
-
+  /* ----------------- feels like a big mess ----------------- */
   // const forwardProps = { ...attrsAndProps.forwardProps };
   // delete attrsAndProps.forwardProps;
   // const rootElementAttrsAndProps = {
@@ -70,53 +91,96 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
   //   typeof rootElementAttrsAndProps & {
   //     forwardProps: typeof forwardElementAttrsAndProps;
   //   };
+  /* ----------------- feels like a big mess ----------------- */
 
-  const [props, customAttrs, attrs] = splitProps(
+  const [rootCustomAttrs, props, rootAttrs] = splitProps(
     attrsAndProps,
-    ['label', 'input'],
-    solidjsCustomAttrs
+    // omittedAttrsAndProps,
+    solidjsCustomAttrs,
+    ['label', 'input']
   );
 
   console.log('"TextField" attrsAndProps:', attrsAndProps);
 
-  const rootPropsClass = () => attrs?.class || '';
+  const rootClassAttr = () => `${rootAttrs?.class || ''} text-field`;
 
-  const labelClass = () => `${props?.label?.class || ''} text-field__label`;
+  const labelClassAttr = () => `${props?.label?.class || ''} text-field__label`;
 
-  const inputClass = () => `${props?.input?.class || ''} text-field__input`;
-  const inputType = () => props?.input?.type || 'text';
-  const inputId = createMemo(() => props?.input?.id || createUniqueId());
+  const inputClassAttr = () => `${props?.input?.class || ''} text-field__input`;
+  /* ----------------- validation of "props?.input?.type" prop ----------------- */
+  const inputTypeAttr = () => {
+    const defaultType: NonNullable<
+      NonNullable<TextFieldAttrsAndProps['input']>['type']
+    > = 'text';
+    const type = props?.input?.type || defaultType;
+
+    if (
+      !(
+        [
+          'email',
+          'number',
+          'password',
+          'search',
+          'tel',
+          'text',
+          'url',
+        ] satisfies NonNullable<
+          NonNullable<TextFieldAttrsAndProps['input']>['type']
+        >[]
+      ).includes(type)
+    ) {
+      return defaultType;
+    }
+
+    return type;
+  };
+  /* ----------------- validation of "props?.input?.type" prop ----------------- */
+
+  const inputIdAttr = createMemo(() => props?.input?.id || createUniqueId());
 
   return (
-    <div {...customAttrs} class={`${rootPropsClass()} text-field`}>
+    <div
+      {...rootCustomAttrs}
+      {...rootAttrs}
+      // @ts-ignore
+      contentEditable={null}
+      // @ts-ignore
+      contenteditable={null}
+      class={rootClassAttr()}
+    >
       <Show when={props?.label != null} fallback={null} keyed>
         {() => (
-          <label {...props.label} for={inputId()} class={labelClass()}>
-            {props?.label?.children}
-          </label>
+          <label
+            /* ----------------- omitted attrs ----------------- */
+            // there must be use only one attribute of this at the time "children", "innerText", "innerHtml" or "textContent"
+            // @ts-ignore
+            // innerHTML={null}
+            /* ----------------- omitted attrs ----------------- */
+            {...props.label}
+            for={inputIdAttr()}
+            class={labelClassAttr()}
+          />
         )}
       </Show>
       <input
         {...props?.input}
+        /* ----------------- omitted attrs ----------------- */
         // @ts-ignore
-        accept={/*@once*/ null}
+        accept={null}
         // @ts-ignore
-        children={/*@once*/ null}
+        checked={null}
         // @ts-ignore
-        accept={/*@once*/ null}
+        height={null}
         // @ts-ignore
-        checked={/*@once*/ null}
+        width={null}
         // @ts-ignore
-        height={/*@once*/ null}
+        list={null}
         // @ts-ignore
-        width={/*@once*/ null}
-        // @ts-ignore
-        list={/*@once*/ null}
-        // @ts-ignore
-        src={/*@once*/ null}
-        class={inputClass()}
-        type={inputType()}
-        id={inputId()}
+        src={null}
+        /* ----------------- omitted attrs ----------------- */
+        class={inputClassAttr()}
+        type={inputTypeAttr()}
+        id={inputIdAttr()}
       />
     </div>
   );
