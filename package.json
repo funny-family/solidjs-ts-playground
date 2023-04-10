@@ -27,5 +27,10 @@
   },
   "engines": {
     "node": ">=16.8"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "solid-js@1.6.11": "patches/solid-js@1.6.11.patch"
+    }
   }
 }

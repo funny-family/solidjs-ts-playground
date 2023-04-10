@@ -1,0 +1,11 @@
+diff --git a/types/jsx.d.ts b/types/jsx.d.ts
+index b844036980e6db2e07b96329ecd9aea4c2a43239..7c59f092cc8f2d1fc1175c16bfa1e84a9c311f1d 100644
+--- a/types/jsx.d.ts
++++ b/types/jsx.d.ts
+@@ -2039,5 +2039,5 @@ export namespace JSX {
+     use: UseSVGAttributes<SVGUseElement>;
+     view: ViewSVGAttributes<SVGViewElement>;
+   }
+-  interface IntrinsicElements extends HTMLElementTags, HTMLElementDeprecatedTags, SVGElementTags {}
++  // interface IntrinsicElements extends HTMLElementTags, HTMLElementDeprecatedTags, SVGElementTags {}
+ }
