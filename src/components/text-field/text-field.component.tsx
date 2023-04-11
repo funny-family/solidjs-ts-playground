@@ -66,11 +66,6 @@ type TextFieldAttrsAndProps = TextFieldAttrs &
   TextFieldCustomAttrs &
   TextFieldProps;
 type TextFieldComponent = Component<TextFieldAttrsAndProps>;
-// var a: TextFieldAttrsAndProps = {
-//   input: {
-//     type
-//   }
-// }
 // export let TextField = undefined as unknown as CounterComponent;
 // TextField = ((attrsAndProps) => {}) satisfies TextFieldComponent;
 export const TextField: TextFieldComponent = (attrsAndProps) => {
@@ -142,9 +137,7 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
     <div
       {...rootCustomAttrs}
       {...rootAttrs}
-      // @ts-ignore
       contentEditable={null}
-      // @ts-ignore
       contenteditable={null}
       class={rootClassAttr()}
     >
@@ -165,17 +158,11 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
       <input
         {...props?.input}
         /* ----------------- omitted attrs ----------------- */
-        // @ts-ignore
         accept={null}
-        // @ts-ignore
         checked={null}
-        // @ts-ignore
         height={null}
-        // @ts-ignore
         width={null}
-        // @ts-ignore
         list={null}
-        // @ts-ignore
         src={null}
         /* ----------------- omitted attrs ----------------- */
         class={inputClassAttr()}
