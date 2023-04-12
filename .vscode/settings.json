@@ -1,5 +1,16 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "cSpell.words": ["autoname", "solidjs", "undici"]
+  "cSpell.words": [
+    "autoname",
+    "contenteditable",
+    "formaction",
+    "formenctype",
+    "formmethod",
+    "formnovalidate",
+    "formtarget",
+    "inputmode",
+    "solidjs",
+    "undici"
+  ]
 }
