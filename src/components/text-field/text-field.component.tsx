@@ -1,71 +1,11 @@
-import {
-  Show,
-  children,
-  createMemo,
-  createUniqueId,
-  mergeProps,
-  splitProps,
-} from 'solid-js';
-import type { Component, JSX } from 'solid-js';
+import type {
+  TextFieldAttrsAndProps,
+  TextFieldComponent,
+} from './text-field.types';
+import { Show, createMemo, createUniqueId, splitProps } from 'solid-js';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 import './text-field.styles.css';
 
-type TextFieldRootElementTag = JSX.HTMLElementTags['div'];
-type TextFieldRootElement = HTMLDivElement;
-type TextFieldForwardElement = HTMLInputElement;
-type TextFieldAttrs = Omit<
-  JSX.HTMLElementTags['div'],
-  | 'children'
-  | 'innerHTML'
-  | 'innerText'
-  | 'textContent'
-  | 'contentEditable'
-  | 'contenteditable'
->;
-type TextFieldProps = {
-  label?: Omit<
-    JSX.HTMLElementTags['label'],
-    /* ----------------- omitted attrs ----------------- */
-    'innerHTML' | 'innerText' | 'textContent' | 'for'
-    /* ----------------- omitted attrs ----------------- */
-  >;
-  input?: Omit<
-    JSX.HTMLElementTags['input'],
-    /* ----------------- omitted attrs ----------------- */
-    | 'innerHTML'
-    | 'innerText'
-    | 'textContent'
-    | 'children'
-    | 'accept'
-    | 'checked'
-    | 'height'
-    | 'width'
-    | 'list'
-    | 'src'
-    /* ----------------- omitted attrs ----------------- */
-    /* ----------------- overwritten attrs ----------------- */
-    | 'type'
-  > & {
-    /**
-     * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types
-     */
-    type?:
-      | 'email'
-      | 'password'
-      | 'number'
-      | 'password'
-      | 'search'
-      | 'tel'
-      | 'text'
-      | 'url';
-  };
-  /* ----------------- overwritten attrs ----------------- */
-};
-type TextFieldCustomAttrs = JSX.CustomAttributes<TextFieldRootElement>;
-type TextFieldAttrsAndProps = TextFieldAttrs &
-  TextFieldCustomAttrs &
-  TextFieldProps;
-type TextFieldComponent = Component<TextFieldAttrsAndProps>;
 // export let TextField = undefined as unknown as CounterComponent;
 // TextField = ((attrsAndProps) => {}) satisfies TextFieldComponent;
 export const TextField: TextFieldComponent = (attrsAndProps) => {
@@ -137,6 +77,8 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
     <div
       {...rootCustomAttrs}
       {...rootAttrs}
+      inputMode={null}
+      inputmode={null}
       contentEditable={null}
       contenteditable={null}
       class={rootClassAttr()}
@@ -162,8 +104,13 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
         checked={null}
         height={null}
         width={null}
-        list={null}
         src={null}
+        alt={null}
+        formaction={null}
+        formenctype={null}
+        formmethod={null}
+        formnovalidate={null}
+        formtarget={null}
         /* ----------------- omitted attrs ----------------- */
         class={inputClassAttr()}
         type={inputTypeAttr()}

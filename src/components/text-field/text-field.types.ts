@@ -18,7 +18,12 @@ type TextFieldProps = {
   label?: Omit<
     JSX.HTMLElementTags['label'],
     /* ----------------- omitted attrs ----------------- */
-    'innerHTML' | 'innerText' | 'textContent' | 'for'
+    | 'innerHTML'
+    | 'innerText'
+    | 'textContent'
+    | 'for'
+    | 'inputMode'
+    | 'inputmode'
     /* ----------------- omitted attrs ----------------- */
   >;
   input?: Omit<
@@ -32,8 +37,13 @@ type TextFieldProps = {
     | 'checked'
     | 'height'
     | 'width'
-    | 'list'
     | 'src'
+    | 'alt'
+    | 'formaction'
+    | 'formenctype'
+    | 'formmethod'
+    | 'formnovalidate'
+    | 'formtarget'
     /* ----------------- omitted attrs ----------------- */
     /* ----------------- overwritten attrs ----------------- */
     | 'type'
