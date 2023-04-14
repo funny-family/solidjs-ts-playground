@@ -14,54 +14,53 @@ type TextFieldAttrs = Omit<
   | 'contenteditable'
 >;
 
-type TextFieldProps = {
-  label?: Omit<
-    JSX.HTMLElementTags['label'],
-    /* ----------------- omitted attrs ----------------- */
-    | 'innerHTML'
-    | 'innerText'
-    | 'textContent'
-    | 'for'
-    | 'inputMode'
-    | 'inputmode'
-    /* ----------------- omitted attrs ----------------- */
-  >;
-  input?: Omit<
-    JSX.HTMLElementTags['input'],
-    /* ----------------- omitted attrs ----------------- */
-    | 'innerHTML'
-    | 'innerText'
-    | 'textContent'
-    | 'children'
-    | 'accept'
-    | 'checked'
-    | 'height'
-    | 'width'
-    | 'src'
-    | 'alt'
-    | 'formaction'
-    | 'formenctype'
-    | 'formmethod'
-    | 'formnovalidate'
-    | 'formtarget'
-    /* ----------------- omitted attrs ----------------- */
-    /* ----------------- overwritten attrs ----------------- */
-    | 'type'
-  > & {
-    /**
-     * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types
-     */
-    type?:
-      | 'email'
-      | 'password'
-      | 'number'
-      | 'password'
-      | 'search'
-      | 'tel'
-      | 'text'
-      | 'url';
-  };
+type TextFieldLabelProp = Omit<
+  JSX.HTMLElementTags['label'],
+  /* ----------------- omitted attrs ----------------- */
+  'innerHTML' | 'innerText' | 'textContent' | 'for' | 'inputMode' | 'inputmode'
+  /* ----------------- omitted attrs ----------------- */
+>;
+
+type TextFieldInputProp = Omit<
+  JSX.HTMLElementTags['input'],
+  /* ----------------- omitted attrs ----------------- */
+  | 'innerHTML'
+  | 'innerText'
+  | 'textContent'
+  | 'children'
+  | 'accept'
+  | 'checked'
+  | 'height'
+  | 'width'
+  | 'src'
+  | 'alt'
+  | 'formaction'
+  | 'formenctype'
+  | 'formmethod'
+  | 'formnovalidate'
+  | 'formtarget'
+  /* ----------------- omitted attrs ----------------- */
   /* ----------------- overwritten attrs ----------------- */
+  | 'type'
+> & {
+  /**
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types
+   */
+  type?:
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'text'
+    | 'url';
+  /* ----------------- overwritten attrs ----------------- */
+};
+
+type TextFieldProps = {
+  label?: TextFieldLabelProp;
+  input?: TextFieldInputProp;
 };
 
 type TextFieldCustomAttrs = JSX.CustomAttributes<TextFieldRootElement>;

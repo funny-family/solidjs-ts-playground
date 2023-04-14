@@ -73,6 +73,11 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
 
   const inputIdAttr = createMemo(() => props?.input?.id || createUniqueId());
 
+  const s = {
+    formnovalidate: null,
+    formtarget: null,
+  };
+
   return (
     <div
       {...rootCustomAttrs}
@@ -86,19 +91,24 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
       <Show when={props?.label != null} fallback={null} keyed>
         {() => (
           <label
-            /* ----------------- omitted attrs ----------------- */
             // there must be use only one attribute of this at the time "children", "innerText", "innerHtml" or "textContent"
             // @ts-ignore
             // innerHTML={null}
-            /* ----------------- omitted attrs ----------------- */
             {...props.label}
             for={inputIdAttr()}
             class={labelClassAttr()}
+            /* ----------------- omitted attrs ----------------- */
+            inputMode={null}
+            inputmode={null}
+            /* ----------------- omitted attrs ----------------- */
           />
         )}
       </Show>
       <input
         {...props?.input}
+        class={inputClassAttr()}
+        type={inputTypeAttr()}
+        id={inputIdAttr()}
         /* ----------------- omitted attrs ----------------- */
         accept={null}
         checked={null}
@@ -112,9 +122,6 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
         formnovalidate={null}
         formtarget={null}
         /* ----------------- omitted attrs ----------------- */
-        class={inputClassAttr()}
-        type={inputTypeAttr()}
-        id={inputIdAttr()}
       />
     </div>
   );
