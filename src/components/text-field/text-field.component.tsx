@@ -82,11 +82,11 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
     <div
       {...rootCustomAttrs}
       {...rootAttrs}
+      class={rootClassAttr()}
       inputMode={null}
       inputmode={null}
       contentEditable={null}
       contenteditable={null}
-      class={rootClassAttr()}
     >
       <Show when={props?.label != null} fallback={null} keyed>
         {() => (
