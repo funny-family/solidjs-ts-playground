@@ -73,11 +73,6 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
 
   const inputIdAttr = createMemo(() => props?.input?.id || createUniqueId());
 
-  const s = {
-    formnovalidate: null,
-    formtarget: null,
-  };
-
   return (
     <div
       {...rootCustomAttrs}
@@ -121,6 +116,8 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
         formmethod={null}
         formnovalidate={null}
         formtarget={null}
+        contentEditable={null}
+        contenteditable={null}
         /* ----------------- omitted attrs ----------------- */
       />
     </div>

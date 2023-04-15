@@ -6,12 +6,16 @@ type TextFieldRootElement = HTMLDivElement;
 
 type TextFieldAttrs = Omit<
   JSX.HTMLElementTags['div'],
+  /* ----------------- omitted attrs ----------------- */
   | 'children'
   | 'innerHTML'
   | 'innerText'
   | 'textContent'
   | 'contentEditable'
   | 'contenteditable'
+  | 'inputMode'
+  | 'inputmode'
+  /* ----------------- omitted attrs ----------------- */
 >;
 
 type TextFieldLabelProp = Omit<
@@ -39,6 +43,8 @@ type TextFieldInputProp = Omit<
   | 'formmethod'
   | 'formnovalidate'
   | 'formtarget'
+  | 'contentEditable'
+  | 'contenteditable'
   /* ----------------- omitted attrs ----------------- */
   /* ----------------- overwritten attrs ----------------- */
   | 'type'
