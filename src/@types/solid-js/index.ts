@@ -15,7 +15,7 @@ type __IntrinsicElements = {
 };
 
 declare module 'solid-js' {
-  namespace JSX {
-    interface IntrinsicElements extends __IntrinsicElements {}
+  export namespace JSX {
+    export interface IntrinsicElements extends __IntrinsicElements {}
   }
 }
