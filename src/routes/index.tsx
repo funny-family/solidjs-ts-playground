@@ -28,7 +28,8 @@ export default function Home() {
         />
         <TextField
           label={{
-            children: /*@once*/ 'This is label',
+            children: 'This is label',
+            // inputMode: '3453453',
             // innerHTML: '<div>THIS IS DIV!</div>'
             // innerText: '1231321321'
             // textContent: '12313fff1321'
@@ -47,10 +48,10 @@ export default function Home() {
       <h1 ref={h1Ref}>Hello world!</h1>
       <Counter
         class="tttttt"
-        id={createUniqueId()}
-        // min={-2}
-        // max={2}
-        initialValue={1}
+        id={/* @once */ createUniqueId()}
+        // min={2}
+        max={-2}
+        initialValue={2}
         ref={counterRef}
         aria-label="counter"
         onClick={(event) => onCounterClick(event)}
