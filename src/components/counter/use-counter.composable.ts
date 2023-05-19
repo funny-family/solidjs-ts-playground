@@ -17,71 +17,75 @@ export const counterDefaultValue: Readonly<Required<UseCounterArgs>> = {
   initialValue: 1,
 };
 
-export const useCounter: UseCounter = (args, cdv = counterDefaultValue) => {
-  type CounterDefaultValue = typeof cdv;
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+/**
+ * @see https://stackoverflow.com/a/53050575
+ */
+type NoUndefinedField<T> = {
+  [P in keyof T]-?: NoUndefinedField<NonNullable<T[P]>>;
+};
+
+export const useCounter: UseCounter = (args) => {
+  type Args = NoUndefinedField<typeof args>;
 
   if (args.min == null) {
-    args.min = cdv.min;
+    args.min = counterDefaultValue.min;
   }
 
   if (args.max == null) {
-    args.max = cdv.max;
+    args.max = counterDefaultValue.max;
   }
 
   if (args.initialValue == null) {
-    args.initialValue = cdv.initialValue;
+    args.initialValue = counterDefaultValue.initialValue;
   }
 
-  const min = (
-    _args = args as CounterDefaultValue,
-    _counterDefaultValue = cdv
-  ) => {
-    if (_args.min > _args.max) {
+  const min = () => {
+    if ((args as Args).min > (args as Args).max) {
       if (DEV != null) {
         console.warn(
-          `"min" prop is set bigger that "max" prop! Set "min" prop to default: ${_counterDefaultValue.min}`
+          `"min" prop is set bigger that "max" prop! Set "min" prop to default: ${counterDefaultValue.min}`
         );
       }
 
-      return _counterDefaultValue.min;
+      return counterDefaultValue.min;
     }
 
-    return _args.min;
+    return (args as Args).min;
   };
 
-  const max = (
-    _args = args as CounterDefaultValue,
-    _counterDefaultValue = cdv
-  ) => {
-    if (_args.max < _args.min) {
+  const max = () => {
+    if ((args as Args).max < (args as Args).min) {
       if (DEV != null) {
         console.warn(
-          `"max" prop is set smaller that "min" prop! Set "max" prop to default: ${_counterDefaultValue.max}`
+          `"max" prop is set smaller that "min" prop! Set "max" prop to default: ${counterDefaultValue.max}`
         );
       }
 
-      return _counterDefaultValue.max;
+      return counterDefaultValue.max;
     }
 
-    return _args.max;
+    return (args as Args).max;
   };
 
-  const initialValue = (
-    _args = args as CounterDefaultValue,
-    _counterDefaultValue = cdv,
-    isInRange = isNumberInRange(_args.initialValue, _args.min, _args.max)
-  ) => {
-    if (!isInRange) {
+  const initialValue = () => {
+    if (
+      !isNumberInRange(
+        (args as Args).initialValue,
+        (args as Args).min,
+        (args as Args).max
+      )
+    ) {
       if (DEV != null) {
         console.warn(
-          `"value" prop is not in a range of "min" and "max"! Set "value" prop to default: ${_counterDefaultValue.initialValue}`
+          `"value" prop is not in a range of "min" and "max"! Set "value" prop to default: ${counterDefaultValue.initialValue}`
         );
       }
 
-      return _counterDefaultValue.initialValue;
+      return counterDefaultValue.initialValue;
     }
 
-    return _args.initialValue;
+    return (args as Args).initialValue;
   };
 
   const { 0: count, 1: setCount } = createSignal(initialValue());
