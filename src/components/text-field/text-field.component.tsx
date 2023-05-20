@@ -3,6 +3,7 @@ import type {
   TextFieldComponent,
 } from './text-field.types';
 import { Show, createMemo, createUniqueId, splitProps } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 import './text-field.styles.css';
 
@@ -28,7 +29,11 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
   //   };
   /* ----------------- feels like a big mess ----------------- */
 
-  const [rootCustomAttrs, props, rootAttrs] = splitProps(
+  const {
+    0: rootCustomAttrs,
+    1: props,
+    2: rootAttrs,
+  } = splitProps(
     attrsAndProps,
     // omittedAttrsAndProps,
     solidjsCustomAttrs,
@@ -37,45 +42,45 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
 
   console.log('"TextField" attrsAndProps:', attrsAndProps);
 
-  const rootClassAttr = () => `${rootAttrs?.class || ''} text-field`;
-
-  const labelClassAttr = () => `${props?.label?.class || ''} text-field__label`;
-
-  const inputClassAttr = () => `${props?.input?.class || ''} text-field__input`;
+  const rootClassAttr: Accessor<string> = (attr = rootAttrs?.class || '') =>
+    `${attr} text-field`;
+  const labelClassAttr: Accessor<string> = (attr = props?.label?.class || '') =>
+    `${attr} text-field__label`;
+  const inputClassAttr: Accessor<string> = (attr = props?.input?.class || '') =>
+    `${attr} text-field__input`;
   /* ----------------- validation of "props?.input?.type" prop ----------------- */
-  const inputTypeAttr = () => {
-    const defaultType: NonNullable<
-      NonNullable<TextFieldAttrsAndProps['input']>['type']
-    > = 'text';
-    const type = props?.input?.type || defaultType;
+  type NonNullableTextFieldAttrType = NonNullable<
+    TextFieldAttrsAndProps['input']
+  >['type'];
 
-    if (
-      !(
-        [
-          'email',
-          'number',
-          'password',
-          'search',
-          'tel',
-          'text',
-          'url',
-        ] satisfies NonNullable<
-          NonNullable<TextFieldAttrsAndProps['input']>['type']
-        >[]
-      ).includes(type)
-    ) {
-      return defaultType;
-    }
-
-    return type;
-  };
+  const inputTypeAttr: Accessor<string> = (
+    defaultAttr: NonNullableTextFieldAttrType = 'text',
+    attr: NonNullableTextFieldAttrType = props?.input?.type || defaultAttr
+  ) =>
+    !(
+      [
+        'email',
+        'number',
+        'password',
+        'search',
+        'tel',
+        'text',
+        'url',
+      ] satisfies NonNullable<NonNullableTextFieldAttrType>[]
+    ).includes(attr)
+      ? defaultAttr
+      : attr;
   /* ----------------- validation of "props?.input?.type" prop ----------------- */
-
   const inputIdAttr = createMemo(() => props?.input?.id || createUniqueId());
 
   return (
     <div
-      {...rootCustomAttrs}
+      /* ----------------- solidjs custom attrs ----------------- */
+      $ServerOnly={rootCustomAttrs.$ServerOnly}
+      classList={rootCustomAttrs.classList}
+      ref={rootCustomAttrs.ref}
+      /* ----------------- solidjs custom attrs ----------------- */
+      /*  */
       {...rootAttrs}
       class={rootClassAttr()}
       inputMode={null}
@@ -83,11 +88,10 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
       contentEditable={null}
       contenteditable={null}
     >
-      <Show when={props?.label != null} fallback={null} keyed>
+      <Show when={props?.label != null} fallback={null}>
         {() => (
           <label
             // there must be use only one attribute of this at the time "children", "innerText", "innerHtml" or "textContent"
-            // @ts-ignore
             // innerHTML={null}
             {...props.label}
             for={inputIdAttr()}
