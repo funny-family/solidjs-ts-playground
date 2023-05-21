@@ -1,4 +1,4 @@
-import { splitProps, mergeProps, Show } from 'solid-js';
+import { splitProps, mergeProps, Show, Accessor } from 'solid-js';
 import type { Component, JSX } from 'solid-js';
 import type {
   EventHandlerUnionTuple,
@@ -41,7 +41,11 @@ Counter = ((attrsAndProps) => {
   } satisfies CounterAttrsAndProps;
   attrsAndProps = mergeProps(defaultAttrsAndProps, attrsAndProps);
   type AttrsAndProps = CounterAttrsAndProps & typeof defaultAttrsAndProps;
-  const [props, customAttrs, attrs] = splitProps(
+  const {
+    0: props,
+    1: customAttrs,
+    2: attrs,
+  } = splitProps(
     attrsAndProps as AttrsAndProps,
     [
       'min',
@@ -78,10 +82,11 @@ Counter = ((attrsAndProps) => {
           'onClick'
         >[1];
 
-        const [onDecrementHandler, onDecrementData] = props.onDecrement as [
-          BoundEventHandlerTuple[0],
-          BoundEventHandlerTuple[1]
-        ];
+        const { 0: onDecrementHandler, 1: onDecrementData } =
+          props.onDecrement as [
+            BoundEventHandlerTuple[0],
+            BoundEventHandlerTuple[1]
+          ];
         onDecrementHandler(null, event);
 
         return;
@@ -110,10 +115,11 @@ Counter = ((attrsAndProps) => {
           'button',
           'onClick'
         >[1];
-        const [onIncrementHandler, onIncrementData] = props.onIncrement as [
-          BoundEventHandlerTuple[0],
-          BoundEventHandlerTuple[1]
-        ];
+        const { 0: onIncrementHandler, 1: onIncrementData } =
+          props.onIncrement as [
+            BoundEventHandlerTuple[0],
+            BoundEventHandlerTuple[1]
+          ];
         onIncrementHandler(null, event);
 
         return;
