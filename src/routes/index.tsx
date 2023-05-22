@@ -55,13 +55,6 @@ export default function Home() {
         ref={counterRef}
         aria-label="counter"
         onClick={(event) => onCounterClick(event)}
-        // children={({ DecrementButton, IncrementButton, Count }) => (
-        //   <div style={{ 'display': 'flex', 'flex-direction': 'column' }}>
-        //     <DecrementButton aria-label="decrement-button" />
-        //     <Count aria-label="count" />
-        //     <IncrementButton aria-label="increment-button" />
-        //   </div>
-        // )}
       >
         {({ DecrementButton, IncrementButton, Count }) => (
           <div style={{ 'display': 'flex', 'flex-direction': 'column' }}>
