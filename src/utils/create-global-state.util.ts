@@ -14,7 +14,12 @@ export const createGlobalState = <StoreFactory extends AnyFunction>(
 
   return ((...args: any[]) => {
     if (!initialized) {
-      state = runWithOwner(owner, () => storeFactory.apply(undefined, args));
+      if (owner == null) {
+        state = storeFactory(...args);
+      } else {
+        state = runWithOwner(owner, () => storeFactory(...args));
+      }
+
       initialized = true;
     }
 
