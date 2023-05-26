@@ -3,7 +3,6 @@ import type {
   TextFieldComponent,
 } from './text-field.types';
 import { Show, createMemo, createUniqueId, splitProps } from 'solid-js';
-import type { Accessor } from 'solid-js';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 import './text-field.styles.css';
 
@@ -42,34 +41,40 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
 
   console.log('"TextField" attrsAndProps:', attrsAndProps);
 
-  const rootClassAttr: Accessor<string> = (attr = rootAttrs?.class || '') =>
-    `${attr} text-field`;
-  const labelClassAttr: Accessor<string> = (attr = props?.label?.class || '') =>
-    `${attr} text-field__label`;
-  const inputClassAttr: Accessor<string> = (attr = props?.input?.class || '') =>
-    `${attr} text-field__input`;
+  const rootClassAttr = () => `${rootAttrs?.class || ''} text-field`;
+  const labelClassAttr = () => `${props?.label?.class || ''} text-field__label`;
+  const inputClassAttr = () => `${props?.input?.class || ''} text-field__input`;
+
   /* ----------------- validation of "props?.input?.type" prop ----------------- */
   type NonNullableTextFieldAttrType = NonNullable<
     TextFieldAttrsAndProps['input']
   >['type'];
 
-  const inputTypeAttr: Accessor<string> = (
-    defaultAttr: NonNullableTextFieldAttrType = 'text',
-    attr: NonNullableTextFieldAttrType = props?.input?.type || defaultAttr
-  ) =>
-    !(
-      [
-        'email',
-        'number',
-        'password',
-        'search',
-        'tel',
-        'text',
-        'url',
-      ] satisfies NonNullable<NonNullableTextFieldAttrType>[]
-    ).includes(attr)
-      ? defaultAttr
-      : attr;
+  const inputTypeAttr = () => {
+    const defaultAttr: NonNullableTextFieldAttrType = 'text';
+    const attr = props?.input?.type || defaultAttr;
+    /**
+     * @see https://superuser.com/a/1630792
+     */
+    if (
+      // !(
+      //   [
+      //     'email',
+      //     'number',
+      //     'password',
+      //     'search',
+      //     'tel',
+      //     'text',
+      //     'url',
+      //   ] satisfies NonNullable<NonNullableTextFieldAttrType>[]
+      // ).includes(attr)
+      !/^(email|number|password|search|tel|text|url)$/.exec(attr)
+    ) {
+      return defaultAttr;
+    }
+
+    return attr;
+  };
   /* ----------------- validation of "props?.input?.type" prop ----------------- */
   const inputIdAttr = createMemo(() => props?.input?.id || createUniqueId());
 
@@ -80,7 +85,6 @@ export const TextField: TextFieldComponent = (attrsAndProps) => {
       classList={rootCustomAttrs.classList}
       ref={rootCustomAttrs.ref}
       /* ----------------- solidjs custom attrs ----------------- */
-      /*  */
       {...rootAttrs}
       class={rootClassAttr()}
       inputMode={null}
