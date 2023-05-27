@@ -25,9 +25,11 @@ type NoUndefinedField<T> = {
   [P in keyof T]-?: NoUndefinedField<NonNullable<T[P]>>;
 };
 
-export const useCounter: UseCounter = (args) => {
-  type Args = NoUndefinedField<typeof args>;
-
+export const useCounter = ((args: {
+  min: number;
+  max: number;
+  initialValue: number;
+}) => {
   if (args.min == null) {
     args.min = counterDefaultValue.min;
   }
@@ -41,7 +43,7 @@ export const useCounter: UseCounter = (args) => {
   }
 
   const min = () => {
-    if ((args as Args).min > (args as Args).max) {
+    if (args.min > args.max) {
       if (DEV != null) {
         console.warn(
           `"min" prop is set bigger that "max" prop! Set "min" prop to default: ${counterDefaultValue.min}`
@@ -51,11 +53,11 @@ export const useCounter: UseCounter = (args) => {
       return counterDefaultValue.min;
     }
 
-    return (args as Args).min;
+    return args.min;
   };
 
   const max = () => {
-    if ((args as Args).max < (args as Args).min) {
+    if (args.max < args.min) {
       if (DEV != null) {
         console.warn(
           `"max" prop is set smaller that "min" prop! Set "max" prop to default: ${counterDefaultValue.max}`
@@ -65,17 +67,11 @@ export const useCounter: UseCounter = (args) => {
       return counterDefaultValue.max;
     }
 
-    return (args as Args).max;
+    return args.max;
   };
 
   const initialValue = () => {
-    if (
-      !isNumberInRange(
-        (args as Args).initialValue,
-        (args as Args).min,
-        (args as Args).max
-      )
-    ) {
+    if (!isNumberInRange(args.initialValue, args.min, args.max)) {
       if (DEV != null) {
         console.warn(
           `"value" prop is not in a range of "min" and "max"! Set "value" prop to default: ${counterDefaultValue.initialValue}`
@@ -85,7 +81,7 @@ export const useCounter: UseCounter = (args) => {
       return counterDefaultValue.initialValue;
     }
 
-    return (args as Args).initialValue;
+    return args.initialValue;
   };
 
   const { 0: count, 1: setCount } = createSignal(initialValue());
@@ -96,4 +92,4 @@ export const useCounter: UseCounter = (args) => {
     count,
     setCount,
   };
-};
+}) as UseCounter;
