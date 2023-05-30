@@ -6,38 +6,12 @@ import { Show, createMemo, createUniqueId, splitProps } from 'solid-js';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 import './text-field.styles.css';
 
-// export let TextField = undefined as unknown as CounterComponent;
-// TextField = ((attrsAndProps) => {}) satisfies TextFieldComponent;
 export const TextField: TextFieldComponent = (attrsAndProps) => {
-  /* ----------------- feels like a big mess ----------------- */
-  // const forwardProps = { ...attrsAndProps.forwardProps };
-  // delete attrsAndProps.forwardProps;
-  // const rootElementAttrsAndProps = {
-  //   class: '',
-  // } satisfies Omit<TextFieldAttrsAndProps, 'forwardProps'>;
-  // const forwardElementAttrsAndProps = {
-  //   class: '',
-  //   type: 'text',
-  //   ...forwardProps,
-  // } satisfies Pick<TextFieldAttrsAndProps, 'forwardProps'>['forwardProps'];
-  // attrsAndProps = mergeProps(rootElementAttrsAndProps, attrsAndProps);
-  // attrsAndProps.forwardProps = mergeProps(forwardElementAttrsAndProps);
-  // type AttrsAndProps = TextFieldAttrsAndProps &
-  //   typeof rootElementAttrsAndProps & {
-  //     forwardProps: typeof forwardElementAttrsAndProps;
-  //   };
-  /* ----------------- feels like a big mess ----------------- */
-
   const {
     0: rootCustomAttrs,
     1: props,
     2: rootAttrs,
-  } = splitProps(
-    attrsAndProps,
-    // omittedAttrsAndProps,
-    solidjsCustomAttrs,
-    ['label', 'input']
-  );
+  } = splitProps(attrsAndProps, solidjsCustomAttrs, ['label', 'input']);
 
   console.log('"TextField" attrsAndProps:', attrsAndProps);
 
