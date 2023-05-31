@@ -3,10 +3,13 @@ import { Title } from 'solid-start';
 import type { NodeRef } from '~/@types';
 import { Counter } from '~/components/counter/Counter';
 import { TextField } from '~/components/text-field/text-field.component';
+import { useNames } from '~/store/names.store';
 
 export default function Home() {
   let h1Ref: NodeRef<HTMLHeadingElement> = undefined;
   let counterRef: NodeRef<HTMLDivElement> = undefined;
+
+  const { name, changeNameToMax } = useNames();
 
   onMount(() => {
     console.log('h1Ref:', { h1Ref }, h1Ref);
@@ -46,11 +49,12 @@ export default function Home() {
         />
       </div>
       <h1 ref={h1Ref}>Hello world!</h1>
+      <button type="button" onClick={() => changeNameToMax()}>Name is: {name()}</button>
       <Counter
         class="tttttt"
         id={/* @once */ createUniqueId()}
-        // min={2}
-        max={-2}
+        min={1}
+        max={4}
         initialValue={2}
         ref={counterRef}
         aria-label="counter"
