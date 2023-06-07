@@ -34,28 +34,34 @@ type CounterComponent = Component<CounterAttrsAndProps>;
 
 export let Counter = undefined as unknown as CounterComponent;
 Counter = ((attrsAndProps) => {
-  const defaultAttrsAndProps = {
-    min: counterDefaultValue.min,
-    max: counterDefaultValue.max,
-    initialValue: counterDefaultValue.initialValue,
-  } satisfies CounterAttrsAndProps;
-  attrsAndProps = mergeProps(defaultAttrsAndProps, attrsAndProps);
-  type AttrsAndProps = CounterAttrsAndProps & typeof defaultAttrsAndProps;
+  // const defaultAttrsAndProps = {
+  //   min: counterDefaultValue.min,
+  //   max: counterDefaultValue.max,
+  //   initialValue: counterDefaultValue.initialValue,
+  // } satisfies CounterAttrsAndProps;
+  // attrsAndProps = mergeProps(defaultAttrsAndProps, attrsAndProps);
+
+  // type AttrsAndProps = CounterAttrsAndProps & typeof defaultAttrsAndProps;
+  // const {
+  //   0: props,
+  //   1: customAttrs,
+  //   2: attrs,
+  // } = splitProps(
+
+  //   solidjsCustomAttrs
+  // );
+
   const {
-    0: props,
-    1: customAttrs,
-    2: attrs,
-  } = splitProps(
-    attrsAndProps as AttrsAndProps,
-    [
-      'min',
-      'max',
-      'initialValue',
-      'onDecrement',
-      'onIncrement',
-    ] satisfies (keyof CounterProps)[],
-    solidjsCustomAttrs
-  );
+    0: rootCustomAttrs,
+    1: props,
+    2: rootAttrs,
+  } = splitProps(attrsAndProps, solidjsCustomAttrs, [
+    'min',
+    'max',
+    'initialValue',
+    'onDecrement',
+    'onIncrement',
+  ] satisfies (keyof CounterProps)[]);
 
   const { min, max, count, setCount } = useCounter({
     min: props.min,
@@ -64,7 +70,8 @@ Counter = ((attrsAndProps) => {
   });
   const isMinValueReached = () => min() === count();
   const isMaxValueReached = () => max() === count();
-  const lengthOfCountNumber = Math.max(`${min()}`.length, `${max()}`.length);
+  const lengthOfCountNumber = () =>
+    Math.max(`${min()}`.length, `${max()}`.length);
 
   const onDecrement: JSX.HTMLElementTags['button']['onClick'] = (event) => {
     console.log('"onDecrement" event:', event);
@@ -87,7 +94,7 @@ Counter = ((attrsAndProps) => {
             BoundEventHandlerTuple[0],
             BoundEventHandlerTuple[1]
           ];
-        onDecrementHandler(null, event);
+        onDecrementHandler(onDecrementData, event);
 
         return;
       }
@@ -120,7 +127,7 @@ Counter = ((attrsAndProps) => {
             BoundEventHandlerTuple[0],
             BoundEventHandlerTuple[1]
           ];
-        onIncrementHandler(null, event);
+        onIncrementHandler(onIncrementData, event);
 
         return;
       }
@@ -139,7 +146,7 @@ Counter = ((attrsAndProps) => {
     <button
       {...p}
       class={`${p?.class} counter__button counter__decrement-button`}
-      onClick={onDecrement}
+      onClick={(event) => onDecrement(event)}
       disabled={isMinValueReached()}
     >
       -
@@ -152,7 +159,7 @@ Counter = ((attrsAndProps) => {
     <span
       {...p}
       class={`${p?.class} counter__count`}
-      style={{ width: `${lengthOfCountNumber}ch` }}
+      style={{ width: `${lengthOfCountNumber()}ch` }}
     >
       {count()}
     </span>
@@ -174,9 +181,16 @@ Counter = ((attrsAndProps) => {
   console.log('"Counter" attrsAndProps:', attrsAndProps);
 
   return (
-    <div {...customAttrs} {...attrs} class={`${attrs.class} counter`}>
+    <div /* ----------------- solidjs custom attrs ----------------- */
+      $ServerOnly={rootCustomAttrs.$ServerOnly}
+      classList={rootCustomAttrs.classList}
+      ref={rootCustomAttrs.ref}
+      /* ----------------- solidjs custom attrs ----------------- */
+      {...rootAttrs}
+      class={`${rootAttrs.class} counter`}
+    >
       <Show
-        when={attrs.children != null}
+        when={rootAttrs.children != null}
         fallback={
           <>
             {DecrementButton}
@@ -186,8 +200,8 @@ Counter = ((attrsAndProps) => {
         }
       >
         {() =>
-          typeof attrs.children === 'function'
-            ? attrs.children({
+          typeof rootAttrs.children === 'function'
+            ? rootAttrs.children({
                 DecrementButton,
                 IncrementButton,
                 Count,
