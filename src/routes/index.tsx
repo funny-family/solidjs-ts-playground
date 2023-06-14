@@ -1,7 +1,7 @@
 import { createUniqueId, onMount, Ref } from 'solid-js';
 import { Title } from 'solid-start';
 import type { NodeRef } from '~/@types';
-import { Counter } from '~/components/counter/Counter';
+import { Counter } from '~/components/counter/counter.component';
 import { TextField } from '~/components/text-field/text-field.component';
 import { useNames } from '~/store/names.store';
 
