@@ -6,8 +6,9 @@ import type {
   UnionToArray,
 } from '~/@types';
 import { counterDefaultValue, useCounter } from './use-counter.composable';
-import './Counter.css';
 import { solidjsCustomAttrs } from '~/utils/attrs';
+import './counter.styles.css';
+
 type CounterRootElement = HTMLDivElement;
 type CounterForwardElement = HTMLDivElement;
 type CounterAttrs = Omit<JSX.HTMLElementTags['div'], 'children'> & {
