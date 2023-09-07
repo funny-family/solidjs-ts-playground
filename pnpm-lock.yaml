@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 patchedDependencies:
   solid-js@1.6.11:
     hash: drl5nt3wy3sja7gmqh7h4qqlfu
@@ -24,7 +28,7 @@ dependencies:
 
 devDependencies:
   '@types/node':
-    specifier: ^18.11.18
+    specifier: ^18.14.2
     version: 18.14.2
   esbuild:
     specifier: ^0.14.54
