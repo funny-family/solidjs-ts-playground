@@ -9,8 +9,6 @@ export const FilePick = () => {
   let filePickerRef = null as unknown as FilePickerRef;
 
   onMount(() => {
-    // console.log('filePickerRef:', { filePickerRef });
-    // console.log(111, filePickerRef);
     console.log({ filePickerRef }, filePickerRef[filePickerExposeSymbol]);
     filePickerRef[filePickerExposeSymbol].logRef();
   });
