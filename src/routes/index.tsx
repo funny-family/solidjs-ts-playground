@@ -1,30 +1,9 @@
-import {
-  $DEVCOMP,
-  $TRACK,
-  Component,
-  createContext,
-  createUniqueId,
-  onMount,
-  Ref,
-} from 'solid-js';
+import { createUniqueId, onMount } from 'solid-js';
 import { Title } from 'solid-start';
 import type { NodeRef } from '~/@types';
 import { Counter } from '~/components/counter/counter.component';
 import { TextField } from '~/components/text-field/text-field.component';
 import { useNames } from '~/store/names.store';
-
-const ProvideInjectContext = createContext({});
-const ProvideInjectProvider: Component<{ children?: Element }> = (
-  attrsAndProps
-) => {
-  console.log(123131, $TRACK, $DEVCOMP);
-
-  return (
-    <ProvideInjectContext.Provider value={{}}>
-      {attrsAndProps?.children}
-    </ProvideInjectContext.Provider>
-  );
-};
 
 export default function Home() {
   let h1Ref: NodeRef<HTMLHeadingElement> = undefined;
