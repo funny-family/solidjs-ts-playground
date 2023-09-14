@@ -35,23 +35,6 @@ type CounterComponent = Component<CounterAttrsAndProps>;
 
 export let Counter = undefined as unknown as CounterComponent;
 Counter = ((attrsAndProps) => {
-  // const defaultAttrsAndProps = {
-  //   min: counterDefaultValue.min,
-  //   max: counterDefaultValue.max,
-  //   initialValue: counterDefaultValue.initialValue,
-  // } satisfies CounterAttrsAndProps;
-  // attrsAndProps = mergeProps(defaultAttrsAndProps, attrsAndProps);
-
-  // type AttrsAndProps = CounterAttrsAndProps & typeof defaultAttrsAndProps;
-  // const {
-  //   0: props,
-  //   1: customAttrs,
-  //   2: attrs,
-  // } = splitProps(
-
-  //   solidjsCustomAttrs
-  // );
-
   const {
     0: rootCustomAttrs,
     1: props,
