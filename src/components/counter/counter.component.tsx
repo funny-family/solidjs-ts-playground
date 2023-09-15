@@ -58,8 +58,6 @@ Counter = ((attrsAndProps) => {
     Math.max(`${min()}`.length, `${max()}`.length);
 
   const onDecrement: JSX.HTMLElementTags['button']['onClick'] = (event) => {
-    console.log('"onDecrement" event:', event);
-
     if (isMinValueReached()) {
       return;
     }
@@ -92,8 +90,6 @@ Counter = ((attrsAndProps) => {
   };
 
   const onIncrement: JSX.HTMLElementTags['button']['onClick'] = (event) => {
-    console.log('"onIncrement" event:', event);
-
     if (isMaxValueReached()) {
       return;
     }
