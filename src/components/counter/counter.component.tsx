@@ -158,8 +158,6 @@ Counter = ((attrsAndProps) => {
     </button>
   );
 
-  console.log('"Counter" attrsAndProps:', attrsAndProps);
-
   return (
     <div /* ----------------- solidjs custom attrs ----------------- */
       $ServerOnly={rootCustomAttrs.$ServerOnly}
