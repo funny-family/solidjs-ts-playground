@@ -1,11 +1,6 @@
-import { splitProps, mergeProps, Show, Accessor } from 'solid-js';
-import type { Component, JSX } from 'solid-js';
-import type {
-  EventHandlerUnionTuple,
-  HTMLElementPropsOf,
-  UnionToArray,
-} from '~/@types';
-import { counterDefaultValue, useCounter } from './use-counter.composable';
+import { type Component, type JSX, splitProps, Show } from 'solid-js';
+import { useCounter } from './use-counter.composable';
+import type { EventHandlerUnionTuple } from '~/@types';
 import { solidjsCustomAttrs } from '~/utils/attrs';
 import './counter.styles.css';
 
