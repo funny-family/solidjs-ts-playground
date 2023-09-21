@@ -23,8 +23,6 @@ export default function Home() {
   return (
     <main>
       <div>
-        {/* <ProvideInjectProvider value={{}}></ProvideInjectProvider> */}
-
         <Title>Hello World</Title>
         <div>
           <input
