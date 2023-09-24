@@ -10,6 +10,13 @@ type AboutComponent = Component<AboutAttrsAndProps>;
 const About: AboutComponent = (attrsAndProps) => {
   const { name, changeNameToSally } = useNames();
 
+  const namesMap = new Map([
+    [0, 'James'],
+    [1, 'Robert'],
+    [2, 'John'],
+    [3, 'Michael'],
+  ]);
+
   return (
     <div
       $ServerOnly={attrsAndProps.$ServerOnly}
