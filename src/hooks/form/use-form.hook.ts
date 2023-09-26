@@ -80,6 +80,40 @@ type FormStore = {
   handleSubmitEvent: HandleSubmitEvent;
 };
 
+function handleSubmitEvent(this: Record<string, any>, event: Event) {
+  return (onSubmit: Function) => {
+    if (event) {
+      event.preventDefault && event.preventDefault();
+      // @ts-ignore
+      event.persist && event.persist();
+    }
+
+    this.formStore.isSubmitting = true;
+
+    console.log(onSubmit.constructor.name);
+
+    // const onSubmit_async = promisify(onSubmit);
+    // onSubmit_async(event)
+    //   .then((value) => {
+    //     console.log({ value });
+    //   })
+    //   .catch((error) => {
+    //     console.log({ error });
+    //   })
+    //   .finally(() => {
+    //     formStore.isSubmitting = false;
+    //   });
+
+    try {
+      onSubmit(event);
+    } catch (error) {
+      //
+    } finally {
+      this.formStore.isSubmitting = false;
+    }
+  };
+}
+
 export const useForm = (args?: Record<string, unknown>) => {
   args ||= {};
 
@@ -108,6 +142,11 @@ export const useForm = (args?: Record<string, unknown>) => {
     reset: null as unknown as FormStore['reset'],
     handleSubmitEvent: null as unknown as FormStore['handleSubmitEvent'],
   });
+
+  const context = {
+    fieldMap,
+    formStore,
+  };
 
   formStore.isDirty = false;
   formStore.isValid = false;
@@ -152,46 +191,38 @@ export const useForm = (args?: Record<string, unknown>) => {
   formStore.trigger = () => {};
   formStore.reset = () => {};
 
-  // const submit: Submit = (event) => {
-  //   event.preventDefault();
+  // const handleSubmitEvent: HandleSubmitEvent = (event) => (onSubmit) => {
+  //   if (event) {
+  //     event.preventDefault && event.preventDefault();
+  //     // @ts-ignore
+  //     event.persist && event.persist();
+  //   }
+
   //   formStore.isSubmitting = true;
 
-  //   //
+  //   console.log(onSubmit.constructor.name);
+
+  //   // const onSubmit_async = promisify(onSubmit);
+  //   // onSubmit_async(event)
+  //   //   .then((value) => {
+  //   //     console.log({ value });
+  //   //   })
+  //   //   .catch((error) => {
+  //   //     console.log({ error });
+  //   //   })
+  //   //   .finally(() => {
+  //   //     formStore.isSubmitting = false;
+  //   //   });
+
+  //   try {
+  //     onSubmit(event);
+  //   } catch (error) {
+  //     //
+  //   } finally {
+  //     formStore.isSubmitting = false;
+  //   }
   // };
-  // formStore.submit = submit;
-
-  const handleSubmitEvent: HandleSubmitEvent = (event) => (onSubmit) => {
-    if (event) {
-      event.preventDefault && event.preventDefault();
-      // @ts-ignore
-      event.persist && event.persist();
-    }
-
-    formStore.isSubmitting = true;
-
-    console.log(onSubmit.constructor.name);
-
-    // const onSubmit_async = promisify(onSubmit);
-    // onSubmit_async(event)
-    //   .then((value) => {
-    //     console.log({ value });
-    //   })
-    //   .catch((error) => {
-    //     console.log({ error });
-    //   })
-    //   .finally(() => {
-    //     formStore.isSubmitting = false;
-    //   });
-
-    try {
-      onSubmit(event);
-    } catch (error) {
-      //
-    } finally {
-      formStore.isSubmitting = false;
-    }
-  };
-  formStore.handleSubmitEvent = handleSubmitEvent;
+  formStore.handleSubmitEvent = handleSubmitEvent.bind(context);
 
   return formStore;
 };
