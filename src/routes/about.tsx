@@ -7,6 +7,8 @@ import {
   mapArray,
   createSignal,
   onMount,
+  children,
+  createEffect,
 } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
 import { useNames } from '~/store/names.store';
@@ -23,10 +25,34 @@ const About: AboutComponent = (attrsAndProps) => {
   let listRef: HTMLUListElement | null = null;
 
   const namesMap = new Map([
-    [0, 'James'],
-    [1, 'Robert'],
-    [2, 'John'],
-    [3, 'Michael'],
+    [
+      0,
+      {
+        name: 'James',
+        age: 34,
+      },
+    ],
+    [
+      1,
+      {
+        name: 'Robert',
+        age: 12,
+      },
+    ],
+    [
+      2,
+      {
+        name: 'John',
+        age: 43,
+      },
+    ],
+    [
+      3,
+      {
+        name: 'Michael',
+        age: 92,
+      },
+    ],
   ]);
 
   const namesMapNodes = Array<JSX.Element>(namesMap.size);
@@ -36,10 +62,30 @@ const About: AboutComponent = (attrsAndProps) => {
 
   onMount(() => {
     namesMap.forEach((value, key, map) => {
-      // namesMapNodes.push(<li>{value}</li>);
+      namesMapNodes.push(
+        <li>
+          <div>name: {value.name}</div>
+          <div>age: {value.age}</div>
+        </li>
+      );
       // namesMapNodes_mutable.push(<li>{value}</li>);
-      listRef!.appendChild((<li>{value}</li>) as Node);
+      // listRef!.appendChild(
+      //   (
+      //     <li>
+      //       <div>name: {value.name}</div>
+      //       <div>age: {value.age}</div>
+      //     </li>
+      //   ) as Node
+      // );
     });
+  });
+
+  const memo1 = children(() => namesMapNodes);
+  createEffect(() => {
+    const children = memo1();
+    console.log(children);
+
+    // children!.forEach((child) => child.classList.add('list-child'));
   });
 
   window.namesMap = namesMap;
@@ -72,12 +118,14 @@ const About: AboutComponent = (attrsAndProps) => {
             // // setNamesMap(namesMap.size, [namesMap.get(ms - 1), v]);
             // // setNamesMap(Array.from(namesMap));
             // mutableNamesMap[ms - 1] = [ms - 1, v];
-            console.log(listRef);
 
             const key = namesMap.size + 1;
             const value = crypto.randomUUID();
-            namesMap.set(key + 1, value);
-            listRef!.appendChild((<li>{value}</li>) as Node);
+            namesMap.set(key + 1, {
+              name: value,
+              age: Math.floor(Math.random() * 10),
+            });
+            // listRef!.appendChild((<li>{value}</li>) as Node);
 
             // namesMapAs_signal_set(namesMap);
           }}
@@ -92,9 +140,24 @@ const About: AboutComponent = (attrsAndProps) => {
               {({ 0: key, 1: value }) => <li>{value}</li>}
             </For> */}
 
-            {namesMapNodes}
+            {/* {namesMapNodes} */}
             {/* {namesMapNodes_mutable} */}
             {/* {namesMap.values()} */}
+
+            {/* <For each={Object.entries(namesMap)}>
+              {({ 0: key, 1: value }) => {
+                console.log(1);
+
+                return (
+                  <li>
+                    <div>name: {value.name}</div>
+                    <div>age: {value.age}</div>
+                  </li>
+                );
+              }}
+            </For> */}
+
+            <For each={memo1()}>{(item) => item}</For>
           </ul>
         </section>
 
