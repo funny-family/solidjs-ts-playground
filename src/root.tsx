@@ -28,6 +28,7 @@ export default function Root() {
             <A href="/about">About</A>
             <A href="/file-pick">file pick</A>
             <A href="/slide">slide</A>
+            <A href="/map-render">map-render</A>
             <Routes>
               <FileRoutes />
             </Routes>
