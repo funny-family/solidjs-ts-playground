@@ -25,10 +25,17 @@ export default function Root() {
         <Suspense>
           <ErrorBoundary>
             <A href="/">Index</A>
+            <br />
             <A href="/about">About</A>
+            <br />
             <A href="/file-pick">file pick</A>
+            <br />
             <A href="/slide">slide</A>
+            <br />
             <A href="/map-render">map-render</A>
+            <br />
+            <A href="/decorator-component">decorator-component</A>
+            <br />
             <Routes>
               <FileRoutes />
             </Routes>
