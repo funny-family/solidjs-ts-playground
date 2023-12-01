@@ -9,8 +9,11 @@ import {
   createEffect,
   on,
   onCleanup,
+  getOwner,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
+import { InsertAdjacentElement } from '~/components/insert-adjacent-element/insert-adjacent-element';
+import { PortalWithoutContainer } from '~/components/portal-without-container/portal-without-container';
 // import { Transition } from 'solid-transition-group';
 
 const valueOrNullOf = <T extends any>(value: T) =>
@@ -32,8 +35,15 @@ const getForwardEl = <T extends HTMLElement>(el: T) => {
 //   return Component;
 // })();
 
+const inputExposeSymbol = Symbol('input');
+
 const Input: Component<JSX.IntrinsicElements['input']> = (attrs) => {
   const dataElId = createUniqueId();
+  // let ref = null as unknown as HTMLInputElement;
+
+  // onMount(() => {
+  //   console.log({ ref });
+  // });
 
   return (
     <div
@@ -44,11 +54,23 @@ const Input: Component<JSX.IntrinsicElements['input']> = (attrs) => {
         'border': '1px solid red',
       }}
     >
+      {/* @ts-ignore */}
+      {/* {ref?.[inputExposeSymbol].labelSlot || null} */}
       <input
         {...attrs}
+        // ref={(el) => {
+        //   (ref as HTMLInputElement) = el;
+        //   // @ts-ignore
+        //   ref[inputExposeSymbol] = {
+        //     labelSlot: null,
+        //     helperTextSlot: null,
+        //   };
+        // }}
         type={attrs?.type || 'text'}
         data-forward-el={dataElId}
       />
+      {/* @ts-ignore */}
+      {/* {ref?.[inputExposeSymbol].helperTextSlot || null} */}
     </div>
   );
 };
@@ -65,21 +87,12 @@ const InputWithLabel = (props: {
     () => props.label
   ) as unknown as () => HTMLLabelElement;
 
-  console.log(12313131, resolvedChildren(), resolvedLabel());
-
-  // resolvedLabel().htmlFor =
-  //   valueOrNullOf(resolvedLabel().htmlFor) ||
-  //   valueOrNullOf(getForwardEl(resolvedChildren())!.id) ||
-  //   createUniqueId();
-
-  if (resolvedChildren() != null) {
-    resolvedChildren().insertAdjacentElement(
-      'afterbegin',
-      resolvedLabel() as Element
-    );
-  }
-
-  return resolvedChildren();
+  return (
+    <>
+      <Portal mount={resolvedChildren()}>{resolvedLabel()}</Portal>
+      {resolvedChildren()}
+    </>
+  );
 };
 
 const InputLabel: Component<JSX.IntrinsicElements['label']> = (attrs) => {
@@ -98,42 +111,31 @@ const InputWithHelperText = (props: {
     () => props.helperText
   ) as unknown as () => HTMLElement;
 
-  // createEffect(
-  //   on(
-  //     () => resolvedHelperText(),
-  //     (v) => {
-  //       if (v != null) {
-  //         resolvedChildren().insertAdjacentElement('beforeend', v);
-  //       } else {
-  //         console.log(v);
-  //         resolvedChildren().removeChild(v);
-  //       }
-  //     }
-  //   )
+  // return (
+  //   <>
+  //     <PortalWithoutContainer mount={resolvedChildren()}>
+  //       {resolvedHelperText()}
+  //     </PortalWithoutContainer>
+  //     {resolvedChildren()}
+  //   </>
   // );
 
-  onMount(() => {
-    console.log('"InputWithHelperText" mount!');
-  });
+  const owner = getOwner();
+  console.log(12313, { el: resolvedChildren(), owner });
 
-  onCleanup(() => {
-    console.log('"InputWithHelperText" cleanup!');
-  });
+  return (
+    <>
+      <InsertAdjacentElement
+        position="beforeend"
+        targetElement={resolvedChildren()}
+      >
+        {resolvedHelperText()}
+      </InsertAdjacentElement>
+      {resolvedChildren()}
+    </>
+  );
 
-  createEffect(() => {
-    console.log(resolvedChildren(), resolvedHelperText());
-  });
-
-  // console.log({
-  //   children: resolvedChildren(),
-  //   helperText: resolvedHelperText(),
-  // });
-
-  if (resolvedHelperText() != null) {
-    resolvedChildren().insertAdjacentElement('beforeend', resolvedHelperText());
-  }
-
-  return resolvedChildren();
+  // return resolvedChildren();
 };
 
 const InputHelperText: Component<JSX.IntrinsicElements['div']> = (attrs) => {
