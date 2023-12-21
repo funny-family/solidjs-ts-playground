@@ -29,28 +29,32 @@ export const InsertAdjacentElement = (props: {
       content ||
         (content = runWithOwner(owner, () => createMemo(() => props.children)));
       const el = mount();
-      const container = mount();
-      const renderRoot = container;
+      // const container = mount();
 
-      Object.defineProperty(container, '_$host', {
+      Object.defineProperty(el, '_$host', {
         get() {
           return marker.parentNode;
         },
         configurable: true,
       });
 
-      insert(renderRoot, content);
+      console.log({ el, content, 'content()': content!() });
 
-      try {
-        el.insertAdjacentElement(props.position, container);
-      } catch (error) {
-        console.log({ error });
+      insert(el, content);
+
+      if (content!() != null) {
+        el.insertAdjacentElement(
+          props.position,
+          content!() as unknown as HTMLElement
+        );
       }
 
       onCleanup(() => {
-        console.log({ el, container });
+        console.log('"onCleanup":', { el, content, c: content!() });
 
-        el.removeChild(container);
+        if (content!() != null) {
+          el.removeChild(content!() as unknown as HTMLElement);
+        }
       });
     },
     undefined,
