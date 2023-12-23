@@ -166,23 +166,6 @@ const About: AboutComponent = (attrsAndProps) => {
             Name is: {name()}
           </button>
         </div>
-
-        <hr />
-        <div>
-          <div>"change" event test</div>
-          <div
-            onChange={(event) => {
-              console.log('"change" root event:', event);
-            }}
-          >
-            <input
-              type="text"
-              // onChange={(event) => {
-              //   console.log('"change" input event:', event);
-              // }}
-            />
-          </div>
-        </div>
       </main>
     </div>
   );
