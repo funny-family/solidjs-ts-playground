@@ -11,9 +11,10 @@ import {
   onCleanup,
   getOwner,
 } from 'solid-js';
-import { Portal } from 'solid-js/web';
+import { Portal, insert } from 'solid-js/web';
 import { InsertAdjacentElement } from '~/components/insert-adjacent-element/insert-adjacent-element';
 import { PortalWithoutContainer } from '~/components/portal-without-container/portal-without-container';
+import { Teleport } from '~/components/teleport/teleport';
 // import { Transition } from 'solid-transition-group';
 
 const valueOrNullOf = <T extends any>(value: T) =>
@@ -113,29 +114,43 @@ const InputWithHelperText = (props: {
 
   // return (
   //   <>
-  //     <PortalWithoutContainer mount={resolvedChildren()}>
-  //       {resolvedHelperText()}
-  //     </PortalWithoutContainer>
+  //     <Portal mount={resolvedChildren()}>{resolvedHelperText()}</Portal>
   //     {resolvedChildren()}
   //   </>
   // );
 
-  const owner = getOwner();
-  console.log(12313, { el: resolvedChildren(), owner });
+  // return (
+  //   <>
+  //     <InsertAdjacentElement
+  //       position="beforeend"
+  //       targetElement={resolvedChildren()}
+  //     >
+  //       {resolvedHelperText()}
+  //     </InsertAdjacentElement>
+  //     {resolvedChildren()}
+  //   </>
+  // );
 
-  return (
-    <>
-      <InsertAdjacentElement
-        position="beforeend"
-        targetElement={resolvedChildren()}
-      >
-        {resolvedHelperText()}
-      </InsertAdjacentElement>
-      {resolvedChildren()}
-    </>
-  );
+  // return (
+  //   <>
+  //     <Teleport to={resolvedChildren()}>
+  //       {resolvedHelperText()}
+  //     </Teleport>
+  //     {resolvedChildren()}
+  //   </>
+  // );
 
-  // return resolvedChildren();
+  // const marker = document.createTextNode('');
+
+  // resolvedChildren().insertAdjacentElement(
+  //   'afterbegin',
+  //   marker as unknown as HTMLElement
+  // );
+
+  // prettier-ignore
+  (<Teleport to={resolvedChildren()}>{resolvedHelperText()}</Teleport>);
+
+  return resolvedChildren();
 };
 
 const InputHelperText: Component<JSX.IntrinsicElements['div']> = (attrs) => {
