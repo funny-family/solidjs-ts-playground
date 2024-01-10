@@ -14,7 +14,7 @@ const Events = () => {
             console.log('count before:', count());
             console.log('"change" root event:', event);
 
-            setCount((value) => value + 1);exit
+            setCount((value) => value + 1);
             console.log('count after:', count());
           }}
         >
