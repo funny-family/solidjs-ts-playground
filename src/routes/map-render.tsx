@@ -7,6 +7,7 @@ import {
   createSignal,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { insert } from 'solid-js/web';
 import { ReactiveMap } from '~/utils/reactive-map';
 
 // https://gist.github.com/tizmagik/19ba6516064a046a37aff57c7c65c9cd
@@ -14,6 +15,7 @@ import { ReactiveMap } from '~/utils/reactive-map';
 
 const MapRender = () => {
   let listRef: HTMLUListElement | null = null;
+  let mapContainerRef: HTMLUListElement | null = null;
 
   const namesMap = new ReactiveMap([
     [
@@ -61,96 +63,44 @@ const MapRender = () => {
   createEffect(() => {
     // namesMap_set(Array.from(namesMap));
     console.log(111, namesMap);
+
+    namesMap.forEach((value, key) => {
+      insert(mapContainerRef as Element, () => (
+        <li data-key={key}>
+          <div>name: {value.name}</div>
+          <div>age: {value.age}</div>
+        </li>
+      ));
+    });
   });
 
   onMount(() => {
-    namesMap.forEach((value, key) => {
-      listRef!.appendChild(
-        (
-          <li data-key={key}>
-            <div>name: {value.name}</div>
-            <div>age: {value.age}</div>
-          </li>
-        ) as Node
-      );
-    });
+    // namesMap.forEach((value, key) => {
+    //   listRef!.appendChild(
+    //     (
+    //       <li data-key={key}>
+    //         <div>name: {value.name}</div>
+    //         <div>age: {value.age}</div>
+    //       </li>
+    //     ) as Node
+    //   );
+    // });
   });
 
   return (
     <div>
+      <ul ref={mapContainerRef} />
       <button
         type="button"
         onClick={() => {
-          const key = namesMap.size + 1;
-          const value = {
-            name: crypto.randomUUID(),
-            age: Math.random() * (100 - 10) + 10,
-          };
-          namesMap.set(key, value);
+          namesMap.set(1, {
+            name: 'Robert)',
+            age: 69,
+          });
         }}
       >
-        add random
+        change 1
       </button>
-
-      <div>
-        <div>as array:</div>
-        {/* <ul>{namesMapNodes}</ul> */}
-      </div>
-
-      <div>
-        <div>as for:</div>
-        <ul>
-          <For each={Array.from(namesMap)}>
-            {(key, value) => {
-              // console.log(key, value);
-
-              return <div>{JSON.stringify(value())}</div>;
-            }}
-          </For>
-        </ul>
-      </div>
-
-      <div>
-        <div>as native:</div>
-        <ul ref={listRef} />
-      </div>
-
-      {/* <div>
-        <div>as for (array):</div>
-        <ul>
-          <For each={namesMap_get()}>
-            {({ 0: key, 1: value }) => {
-              return (
-                <li>
-                  <div>name: {value.name}</div>
-                  <div>age: {value.age}</div>
-                </li>
-              );
-            }}
-          </For>
-        </ul>
-      </div> */}
-
-      <div>
-        <div>last element:</div>
-        <div>
-          {() => {
-            // const lastEl = namesMap.get(namesMap.size - 1)!;
-            // const lastEl = Array.from(namesMap.values()).pop()!;
-            const lastEl = Array.from(namesMap)[namesMap.size - 1][1];
-            // console.log(lastEl);
-
-            // console.log(Array.from(namesMap.values()).pop(), namesMap);
-
-            return (
-              <div>
-                <div>name: {lastEl?.name || ''}</div>
-                <div>age: {lastEl?.age || 1}</div>
-              </div>
-            );
-          }}
-        </div>
-      </div>
     </div>
   );
 };
