@@ -2,6 +2,10 @@ import { type JSX } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 // import { promisify } from 'node:util';
 
+type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
+  ? (...args: P) => R
+  : never;
+
 /**
  * Based on JSX types for Surplus and Inferno and adapted for `dom-expressions`.
  *
@@ -15,7 +19,7 @@ type FormStore = {
   // isValid: boolean;
   isSubmitting: boolean;
   // isSubmitSuccessful: boolean;
-  // submitCount: number;
+  submitCount: number;
   // dirtyFields: Record<string, boolean>;
   // touchedFields: Record<string, boolean>;
   // defaultValues: Record<string, boolean>;
@@ -46,27 +50,35 @@ namespace FormStoreField {
   };
 
   export type Submit = (
-    this: UseFormHookContext,
     event: SubmitEventArg
-  ) => (onSubmit: (event: SubmitEventArg) => Promise<void>) => void;
+  ) => (
+    onSubmit: (event: SubmitEventArg) => void | Promise<void>
+  ) => Promise<void>;
 }
 
-var submit: FormStoreField.Submit = function (this, event) {
-  return (onSubmit) => {
+var submit: FormStoreField.Submit = function (this: UseFormHookContext, event) {
+  return async (onSubmit) => {
     if (event) {
-      event.preventDefault && event.preventDefault();
+      event?.preventDefault && event.preventDefault();
       // @ts-ignore
-      event.persist && event.persist();
+      event?.persist && event.persist();
     }
 
     this.formStore.isSubmitting = true;
 
+    const onSubmitFunctionType = (onSubmit as any)[
+      Symbol.toStringTag
+    ] as string;
+
+    console.log({ onSubmit, onSubmitFunctionType });
+
     try {
-      onSubmit(event);
+      await onSubmit(event);
     } catch (error) {
       console.log('"submit" "catch" result:', error);
     } finally {
       this.formStore.isSubmitting = false;
+      this.formStore.submitCount += 1;
     }
   };
 };
@@ -76,12 +88,12 @@ export var useForm = (args?: Record<string, unknown>) => {
 
   const fieldMap = new Map<string, string>();
 
-  const formStore = createMutable({
+  const formStore = createMutable<FormStore>({
     // isDirty: false,
     // isValid: true,
     isSubmitting: false,
     // isSubmitSuccessful: false,
-    // submitCount: 0,
+    submitCount: 0,
     // dirtyFields: null as unknown as FormStore['dirtyFields'],
     // touchedFields: null as unknown as FormStore['touchedFields'],
     // defaultValues: null as unknown as FormStore['defaultValues'],
