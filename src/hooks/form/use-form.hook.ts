@@ -14,6 +14,25 @@ type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
  */
 type DOMElement = Element;
 
+type FormField = {
+  ref: (el: HTMLElement) => void;
+  name: string;
+  onBlur: (
+    event: Event & {
+      currentTarget: HTMLElement;
+      target: DOMElement;
+    }
+  ) => void;
+  onChange: (
+    event: Event & {
+      currentTarget: HTMLElement;
+      target: DOMElement;
+    }
+  ) => void;
+};
+
+type FieldMap = Map<string, FormField>;
+
 type FormStore = {
   // isDirty: boolean;
   // isValid: boolean;
@@ -25,8 +44,8 @@ type FormStore = {
   // defaultValues: Record<string, boolean>;
   // formState: Record<string, unknown>;
   // errors: Record<string, boolean>;
-  // register: (name: string) => void;
-  // unregister: (name: string) => void;
+  register: (name: string) => void;
+  unregister: (name: string) => void;
   // setField: (name: string, value: unknown) => void;
   // getField: (name: string) => unknown;
   // resetField: (name: string, options?: Record<string, boolean | any>) => void;
@@ -39,7 +58,7 @@ type FormStore = {
 };
 
 type UseFormHookContext = {
-  fieldMap: Map<string, string>;
+  fieldMap: FieldMap;
   formStore: FormStore;
 };
 
@@ -54,6 +73,10 @@ namespace FormStoreField {
   ) => (
     onSubmit: (event: SubmitEventArg) => void | Promise<void>
   ) => Promise<void>;
+
+  export type Register = (name: string) => void;
+
+  export type Unregister = (name: string) => void;
 }
 
 var submit: FormStoreField.Submit = function (this: UseFormHookContext, event) {
@@ -83,10 +106,24 @@ var submit: FormStoreField.Submit = function (this: UseFormHookContext, event) {
   };
 };
 
+export var register: FormStoreField.Register = function (
+  this: UseFormHookContext,
+  name
+) {
+  // this.fieldMap.set(name, {});
+};
+
+export var unregister: FormStoreField.Unregister = function (
+  this: UseFormHookContext,
+  name
+) {
+  this.fieldMap.delete(name);
+};
+
 export var useForm = (args?: Record<string, unknown>) => {
   args ||= {};
 
-  const fieldMap = new Map<string, string>();
+  const fieldMap: FieldMap = new Map();
 
   const formStore = createMutable<FormStore>({
     // isDirty: false,
@@ -99,8 +136,8 @@ export var useForm = (args?: Record<string, unknown>) => {
     // defaultValues: null as unknown as FormStore['defaultValues'],
     // formState: null as unknown as FormStore['formState'],
     // errors: null as unknown as FormStore['errors'],
-    // register: null as unknown as FormStore['register'],
-    // unregister: null as unknown as FormStore['unregister'],
+    register: null as unknown as FormStore['register'],
+    unregister: null as unknown as FormStore['unregister'],
     // setField: null as unknown as FormStore['setField'],
     // getField: null as unknown as FormStore['getField'],
     // resetField: null as unknown as FormStore['resetField'],
@@ -116,7 +153,13 @@ export var useForm = (args?: Record<string, unknown>) => {
     formStore,
   };
 
+  formStore.register = register.bind(context);
+  formStore.unregister = unregister.bind(context);
   formStore.submit = submit.bind(context);
+
+  console.group('form');
+  console.log(context);
+  console.groupEnd();
 
   return formStore;
 };
