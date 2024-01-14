@@ -137,7 +137,6 @@ export const useForm = (args?: Record<string, unknown>) => {
     resetField: null as unknown as FormStore['resetField'],
     setError: null as unknown as FormStore['setError'],
     getFieldState: null as unknown as FormStore['getFieldState'],
-    watch: null as unknown as FormStore['watch'],
     trigger: null as unknown as FormStore['trigger'],
     reset: null as unknown as FormStore['reset'],
     handleSubmitEvent: null as unknown as FormStore['handleSubmitEvent'],
@@ -187,41 +186,9 @@ export const useForm = (args?: Record<string, unknown>) => {
   formStore.resetField = () => {};
   formStore.setError = () => {};
   formStore.getFieldState = (() => {}) as any;
-  formStore.watch = () => {};
   formStore.trigger = () => {};
   formStore.reset = () => {};
 
-  // const handleSubmitEvent: HandleSubmitEvent = (event) => (onSubmit) => {
-  //   if (event) {
-  //     event.preventDefault && event.preventDefault();
-  //     // @ts-ignore
-  //     event.persist && event.persist();
-  //   }
-
-  //   formStore.isSubmitting = true;
-
-  //   console.log(onSubmit.constructor.name);
-
-  //   // const onSubmit_async = promisify(onSubmit);
-  //   // onSubmit_async(event)
-  //   //   .then((value) => {
-  //   //     console.log({ value });
-  //   //   })
-  //   //   .catch((error) => {
-  //   //     console.log({ error });
-  //   //   })
-  //   //   .finally(() => {
-  //   //     formStore.isSubmitting = false;
-  //   //   });
-
-  //   try {
-  //     onSubmit(event);
-  //   } catch (error) {
-  //     //
-  //   } finally {
-  //     formStore.isSubmitting = false;
-  //   }
-  // };
   formStore.handleSubmitEvent = handleSubmitEvent.bind(context);
 
   return formStore;
