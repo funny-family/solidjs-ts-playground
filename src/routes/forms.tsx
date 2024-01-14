@@ -7,23 +7,25 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const Forms = () => {
   const form = useForm();
 
-  type SubmitBoundEventHandlerTuple = EventHandlerUnionTuple<
-    'form',
-    'onSubmit'
-  >;
+  const emailField = form.register('email');
+  const budgetField = form.register('budget');
+  const expertiseField = form.register('expertise');
+  const detailsField = form.register('details');
 
-  const onSubmitEventHandler: SubmitBoundEventHandlerTuple[0] = async (
-    event
-  ) => {
-    await sleep(2000);
+  console.log({
+    form,
+    field: {
+      emailField,
+      budgetField,
+      expertiseField,
+      detailsField,
+    },
+  });
+
+  const onSubmit = async (event: Event) => {
+    // throw '132123';
+    await sleep(3000);
     console.log('submitted!', { event });
-  };
-
-  const onSubmitBoundEventHandler: SubmitBoundEventHandlerTuple[1][0] = (
-    data,
-    event
-  ) => {
-    console.log('submitted!', { event, data });
   };
 
   return (
@@ -32,6 +34,7 @@ const Forms = () => {
         {JSON.stringify(
           {
             isSubmitting: form.isSubmitting,
+            submitCount: form.submitCount,
           },
           null,
           2
@@ -46,9 +49,7 @@ const Forms = () => {
           'padding': '0.8em',
         }}
         // onSubmit={(event) => form.handleSubmit(event)(onSubmit)}
-        onSubmit={(event) =>
-          form.handleSubmitEvent(event)(onSubmitEventHandler)
-        }
+        onSubmit={(event) => form.submit(event)(onSubmit)}
         // onSubmit={[(data, event) => form.handleSubmit(event)(onSubmitBoundEventHandler), 234]}
       >
         <input placeholder="E-mail" type="email" />
