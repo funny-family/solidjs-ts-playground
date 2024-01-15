@@ -1,10 +1,6 @@
-import { type JSX } from 'solid-js';
+import { createEffect, type JSX } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 // import { promisify } from 'node:util';
-
-type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
-  ? (...args: P) => R
-  : never;
 
 /**
  * Based on JSX types for Surplus and Inferno and adapted for `dom-expressions`.
@@ -14,9 +10,9 @@ type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
  */
 type DOMElement = Element;
 
-type FormField = {
-  ref: (el: HTMLElement) => void;
+type FormFieldProps = {
   name: string;
+  ref: (el: HTMLElement) => void;
   onBlur: (
     event: Event & {
       currentTarget: HTMLElement;
@@ -31,20 +27,23 @@ type FormField = {
   ) => void;
 };
 
-type FieldMap = Map<string, FormField>;
+type FieldPropsMap = Map<string, FormFieldProps>;
+
+type TouchedFieldsMap = Map<string, boolean>;
 
 type FormStore = {
   // isDirty: boolean;
   // isValid: boolean;
   isSubmitting: boolean;
+  isSubmitted: boolean;
   // isSubmitSuccessful: boolean;
   submitCount: number;
   // dirtyFields: Record<string, boolean>;
-  // touchedFields: Record<string, boolean>;
+  touchedFields: TouchedFieldsMap;
   // defaultValues: Record<string, boolean>;
   // formState: Record<string, unknown>;
   // errors: Record<string, boolean>;
-  register: (name: string) => void;
+  register: (name: string) => FormFieldProps;
   unregister: (name: string) => void;
   // setField: (name: string, value: unknown) => void;
   // getField: (name: string) => unknown;
@@ -58,7 +57,8 @@ type FormStore = {
 };
 
 type UseFormHookContext = {
-  fieldMap: FieldMap;
+  fieldPropsMap: FieldPropsMap;
+  touchedFieldsMap: TouchedFieldsMap;
   formStore: FormStore;
 };
 
@@ -74,7 +74,7 @@ namespace FormStoreField {
     onSubmit: (event: SubmitEventArg) => void | Promise<void>
   ) => Promise<void>;
 
-  export type Register = (name: string) => void;
+  export type Register = (name: string) => FormFieldProps;
 
   export type Unregister = (name: string) => void;
 }
@@ -89,18 +89,13 @@ var submit: FormStoreField.Submit = function (this: UseFormHookContext, event) {
 
     this.formStore.isSubmitting = true;
 
-    const onSubmitFunctionType = (onSubmit as any)[
-      Symbol.toStringTag
-    ] as string;
-
-    console.log({ onSubmit, onSubmitFunctionType });
-
     try {
       await onSubmit(event);
     } catch (error) {
       console.log('"submit" "catch" result:', error);
     } finally {
       this.formStore.isSubmitting = false;
+      this.formStore.isSubmitted = true;
       this.formStore.submitCount += 1;
     }
   };
@@ -110,29 +105,48 @@ export var register: FormStoreField.Register = function (
   this: UseFormHookContext,
   name
 ) {
-  // this.fieldMap.set(name, {});
+  const field: FormFieldProps = {
+    name,
+    ref: (el) => {
+      // console.log(el);
+    },
+    onBlur: (event) => {
+      // console.log(event);
+      this.touchedFieldsMap.set(name, true);
+    },
+    onChange: (event) => {
+      // console.log(event);
+    },
+  };
+
+  this.fieldPropsMap.set(name, field);
+  this.touchedFieldsMap.set(name, false);
+
+  return field;
 };
 
 export var unregister: FormStoreField.Unregister = function (
   this: UseFormHookContext,
   name
 ) {
-  this.fieldMap.delete(name);
+  this.fieldPropsMap.delete(name);
 };
 
 export var useForm = (args?: Record<string, unknown>) => {
   args ||= {};
 
-  const fieldMap: FieldMap = new Map();
+  const fieldPropsMap: FieldPropsMap = new Map();
+  const touchedFieldsMap: TouchedFieldsMap = new Map();
 
   const formStore = createMutable<FormStore>({
     // isDirty: false,
     // isValid: true,
     isSubmitting: false,
+    isSubmitted: false,
     // isSubmitSuccessful: false,
     submitCount: 0,
     // dirtyFields: null as unknown as FormStore['dirtyFields'],
-    // touchedFields: null as unknown as FormStore['touchedFields'],
+    touchedFields: touchedFieldsMap,
     // defaultValues: null as unknown as FormStore['defaultValues'],
     // formState: null as unknown as FormStore['formState'],
     // errors: null as unknown as FormStore['errors'],
@@ -148,17 +162,23 @@ export var useForm = (args?: Record<string, unknown>) => {
     submit: null as unknown as FormStore['submit'],
   });
 
-  const context = {
-    fieldMap,
+  const context: UseFormHookContext = {
+    fieldPropsMap,
+    touchedFieldsMap,
     formStore,
   };
+
+  createEffect(() => {
+    console.log('"formStore" changed:', formStore);
+  });
 
   formStore.register = register.bind(context);
   formStore.unregister = unregister.bind(context);
   formStore.submit = submit.bind(context);
 
   console.group('form');
-  console.log(context);
+  console.log('formStore:', formStore);
+  console.log('context:', context);
   console.groupEnd();
 
   return formStore;
