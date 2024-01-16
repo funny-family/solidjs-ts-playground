@@ -10,6 +10,9 @@ patchedDependencies:
     path: patches/solid-js@1.6.11.patch
 
 dependencies:
+  '@solid-primitives/map':
+    specifier: ^0.4.8
+    version: 0.4.8(solid-js@1.6.11)
   '@solidjs/meta':
     specifier: ^0.28.2
     version: 0.28.2(solid-js@1.6.11)
@@ -1416,6 +1419,15 @@ packages:
       solid-js: 1.6.11(patch_hash=drl5nt3wy3sja7gmqh7h4qqlfu)
     dev: true
 
+  /@solid-primitives/map@0.4.8(solid-js@1.6.11):
+    resolution: {integrity: sha512-p9zhIaIWOQVxLaUEjg6nzrBLZUOzozJFHatdKqISSIq7iJhVXX1M1MPzDHHqKyJw/nSENoKgvZehnG3HErnamw==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/trigger': 1.0.8(solid-js@1.6.11)
+      solid-js: 1.6.11(patch_hash=drl5nt3wy3sja7gmqh7h4qqlfu)
+    dev: false
+
   /@solid-primitives/media@2.1.1(solid-js@1.6.11):
     resolution: {integrity: sha512-0lMEIDereGYCKNnl0zIAd8v2kiJIUNP9om0VJKF6gD4kItUE+pdcSBok9CdEhjQzSS/HdsNo1smCYHNzdES09Q==}
     peerDependencies:
@@ -1497,6 +1509,15 @@ packages:
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
+      solid-js: 1.6.11(patch_hash=drl5nt3wy3sja7gmqh7h4qqlfu)
+    dev: false
+
+  /@solid-primitives/trigger@1.0.8(solid-js@1.6.11):
+    resolution: {integrity: sha512-p9e3FGhCk8sRPxDiCT8vnTE+DOEtrAnJZP4zV0NAV6YGnpV50JATVXNiLjKgyiI/mTIRkWB0+9c5SUbRlqFx6A==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/utils': 6.2.1(solid-js@1.6.11)
       solid-js: 1.6.11(patch_hash=drl5nt3wy3sja7gmqh7h4qqlfu)
     dev: false
 
