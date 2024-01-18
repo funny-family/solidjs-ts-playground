@@ -5,12 +5,22 @@ import { useForm } from '~/hooks/form/use-form.hook';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const Forms = () => {
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      budget: '10$',
+      expertise: '',
+      details: '',
+      agree: true,
+    },
+  });
+  window.form = form;
 
   const emailField = form.register('email');
   const budgetField = form.register('budget');
   const expertiseField = form.register('expertise');
   const detailsField = form.register('details');
+  const agreeField = form.register('agree');
 
   console.log({
     form,
@@ -33,8 +43,13 @@ const Forms = () => {
       <pre>
         {JSON.stringify(
           {
+            isDirty: form.isDirty,
             isSubmitting: form.isSubmitting,
+            isSubmitted: form.isSubmitted,
+            isSubmitSuccessful: form.isSubmitSuccessful,
             submitCount: form.submitCount,
+            touchedFields: Object.fromEntries(form.touchedFields),
+            defaultValues: form.defaultValues,
           },
           null,
           2
@@ -52,19 +67,81 @@ const Forms = () => {
         onSubmit={(event) => form.submit(event)(onSubmit)}
         // onSubmit={[(data, event) => form.handleSubmit(event)(onSubmitBoundEventHandler), 234]}
       >
-        <input placeholder="E-mail" type="email" />
-        <input placeholder="Budget" type="text" />
-        <input placeholder="Required expertise" type="text" />
+        <input
+          placeholder="E-mail"
+          type="email"
+          name={emailField.name}
+          ref={(el) => {
+            emailField.ref(el);
+          }}
+          onBlur={(event) => {
+            emailField.onBlur(event);
+          }}
+          onChange={(event) => {
+            emailField.onChange(event);
+          }}
+        />
+        <input
+          placeholder="Budget"
+          type="text"
+          name={budgetField.name}
+          ref={(el) => {
+            budgetField.ref(el);
+          }}
+          onBlur={(event) => {
+            budgetField.onBlur(event);
+          }}
+          onChange={(event) => {
+            budgetField.onChange(event);
+          }}
+        />
+        <input
+          placeholder="Required expertise"
+          type="text"
+          name={expertiseField.name}
+          ref={(el) => {
+            expertiseField.ref(el);
+          }}
+          onBlur={(event) => {
+            expertiseField.onBlur(event);
+          }}
+          onChange={(event) => {
+            expertiseField.onChange(event);
+          }}
+        />
         <textarea
           placeholder="Other details and questions"
           cols="30"
           rows="10"
+          name={detailsField.name}
+          ref={(el) => {
+            detailsField.ref(el);
+          }}
+          onBlur={(event) => {
+            detailsField.onBlur(event);
+          }}
+          onChange={(event) => {
+            detailsField.onChange(event);
+          }}
         />
         <div>
           <label for="vf465456">
             I agree to XXX’s Terms of use and user's agreements
           </label>
-          <input type="checkbox" id="vf465456" />
+          <input
+            type="checkbox"
+            id="vf465456"
+            name={agreeField.name}
+            ref={(el) => {
+              agreeField.ref(el);
+            }}
+            onBlur={(event) => {
+              agreeField.onBlur(event);
+            }}
+            onChange={(event) => {
+              agreeField.onChange(event);
+            }}
+          />
         </div>
         <button type="submit">submit</button>
       </form>
