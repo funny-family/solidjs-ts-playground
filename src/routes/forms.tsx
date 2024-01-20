@@ -1,5 +1,3 @@
-import { type JSX } from 'solid-js';
-import { type EventHandlerUnionTuple } from '~/@types';
 import { useForm } from '~/hooks/form/use-form.hook';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
