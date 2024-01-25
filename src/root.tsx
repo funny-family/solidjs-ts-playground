@@ -37,7 +37,7 @@ export default function Root() {
             <A href="/decorator-component">decorator-component</A>
             <A href="/component-as-function-prop">component-as-function-prop</A>
             <A href="/events">events</A>
-
+            <A href="/element-append">element-append</A>
             <hr />
 
             <Routes>
