@@ -4,6 +4,10 @@ body {
   margin: 0;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 .slide-fade-enter-active,
 .slide-fade-exit-active {
   transition: opacity 0.3s, transform 0.3s;
@@ -15,4 +19,11 @@ body {
 }
 .slide-fade-enter {
   transform: translateX(-10px);
+}
+
+/* =========================== */
+
+.text-ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
