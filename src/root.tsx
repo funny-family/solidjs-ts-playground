@@ -35,9 +35,13 @@ export default function Root() {
             <A href="/map-render">map-render</A>
             <br />
             <A href="/decorator-component">decorator-component</A>
+            <br />
             <A href="/component-as-function-prop">component-as-function-prop</A>
+            <br />
             <A href="/events">events</A>
+            <br />
             <A href="/element-append">element-append</A>
+            <br />
             <hr />
 
             <Routes>
