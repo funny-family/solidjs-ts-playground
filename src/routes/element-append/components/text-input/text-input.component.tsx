@@ -7,6 +7,7 @@ export const TextInput = (props: JSX.IntrinsicElements['input']) => {
       {...props}
       type={props?.type || 'text'}
       class={`${props?.class || ''} ${styles.textInput}`}
+      data-is-forward-element
     />
   );
 };

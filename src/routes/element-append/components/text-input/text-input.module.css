@@ -1,3 +1,17 @@
 .textInput {
+  padding: 0;
   border: none;
+  font-size: 1.125rem;
+  color: inherit;
+  background-color: transparent;
+  width: 100%;
+}
+
+.textInput:focus-visible {
+  outline: none;
+}
+
+[data-is-input-container]
+  [data-is-input-inner-container]:has(.textInput:focus-visible) {
+  outline: 1px solid hsl(0, 0%, 0%);
 }
