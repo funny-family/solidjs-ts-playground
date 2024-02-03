@@ -1,0 +1,13 @@
+.dateInput {
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.dateInput:focus-visible {
+  outline: none;
+}
+
+[data-is-input-container]
+  [data-is-input-inner-container]:has(.dateInput:focus-visible) {
+  outline: 1px solid hsl(0, 0%, 0%);
+}
