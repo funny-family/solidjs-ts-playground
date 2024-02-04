@@ -1,10 +1,5 @@
 .textInput {
-  padding: 0;
-  border: none;
-  font-size: 1.125rem;
-  color: inherit;
-  background-color: transparent;
-  width: 100%;
+  /*  */
 }
 
 .textInput:focus-visible {
