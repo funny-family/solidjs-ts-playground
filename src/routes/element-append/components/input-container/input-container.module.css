@@ -1,3 +1,19 @@
 .inputContainer {
-  border: 1px solid red;
+  display: inline-flex;
+  flex-direction: column;
+  color: hsl(210, 2%, 20%);
+}
+
+.inputContainer [data-is-forward-element] {
+  /*  */
+}
+
+.innerContainer {
+  display: flex;
+  gap: 8px;
+  background-color: hsl(0, 0%, 100%);
+  border: 1px solid hsl(0, 0%, 84%);
+  border-radius: 0.5rem;
+  padding-inline: 0.8em;
+  padding-block: 0.5em;
 }
