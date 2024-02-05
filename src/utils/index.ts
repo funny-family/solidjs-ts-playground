@@ -27,3 +27,7 @@ export const checkEventHandlerUnion = <
 
   return e;
 };
+
+export const unwrapSignal = <T extends any>(signal: T) => {
+  return (typeof signal === 'function' ? signal() : signal) as T;
+};
