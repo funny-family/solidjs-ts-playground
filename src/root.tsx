@@ -42,6 +42,7 @@ export default function Root() {
             <br />
             <A href="/element-append">element-append</A>
             <br />
+            <A href="/provide-inject">provide-inject</A>
             <hr />
 
             <Routes>
