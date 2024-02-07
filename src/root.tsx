@@ -32,6 +32,8 @@ export default function Root() {
             <br />
             <A href="/slide">slide</A>
             <br />
+            <A href="/forms">forms</A>
+            <br />
             <A href="/map-render">map-render</A>
             <br />
             <A href="/decorator-component">decorator-component</A>
