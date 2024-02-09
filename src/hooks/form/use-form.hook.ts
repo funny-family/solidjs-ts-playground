@@ -36,6 +36,8 @@ export type FieldPropsMap = Map<string, FormFieldProps>;
 
 export type TouchedFieldsMap = Map<string, boolean>;
 
+export type DirtyFieldsMap = Map<string, boolean>;
+
 export type FormStore = {
   isDirty: boolean;
   // isValid: boolean;
@@ -43,7 +45,7 @@ export type FormStore = {
   isSubmitted: boolean;
   isSubmitSuccessful: boolean;
   submitCount: number;
-  // dirtyFields: Record<string, boolean>;
+  dirtyFields: DirtyFieldsMap;
   touchedFields: TouchedFieldsMap;
   defaultValues: Record<string, any>;
   // formState: Record<string, unknown>;
@@ -57,7 +59,7 @@ export type FormStore = {
   // getFieldState: (name: string) => Record<string, boolean>;
   // watch: (name: string, callback: () => void) => void;
   // trigger: () => void;
-  // reset: () => void;
+  reset: FormStoreField.Reset;
   submit: FormStoreField.Submit;
 };
 
@@ -65,6 +67,7 @@ export type UseFormHookContext = {
   fieldPropsMap: FieldPropsMap;
   touchedFieldsMap: TouchedFieldsMap;
   formStore: FormStore;
+  dirtyFieldsMap: DirtyFieldsMap;
 };
 
 export type UseFormHookArgs = {
@@ -88,36 +91,9 @@ export namespace FormStoreField {
   export type Register = (name: string) => FormFieldProps;
 
   export type Unregister = (name: string) => void;
+
+  export type Reset = () => void;
 }
-
-export var submit: FormStoreField.Submit = function (
-  this: UseFormHookContext,
-  event
-) {
-  return async (onSubmit) => {
-    if (event) {
-      event?.preventDefault && event.preventDefault();
-      // @ts-ignore
-      event?.persist && event.persist();
-    }
-
-    this.formStore.isSubmitting = true;
-
-    try {
-      await onSubmit(event);
-
-      this.formStore.isSubmitSuccessful = true;
-    } catch (error) {
-      console.log('"submit" "catch" result:', error);
-
-      this.formStore.isSubmitSuccessful = false;
-    } finally {
-      this.formStore.isSubmitting = false;
-      this.formStore.isSubmitted = true;
-      this.formStore.submitCount += 1;
-    }
-  };
-};
 
 export var register: FormStoreField.Register = function (
   this: UseFormHookContext,
@@ -142,11 +118,14 @@ export var register: FormStoreField.Register = function (
       if (!this.formStore.isDirty) {
         this.formStore.isDirty = true;
       }
+
+      this.formStore.dirtyFields.set(name, true);
     },
   };
 
   this.fieldPropsMap.set(name, field);
   this.touchedFieldsMap.set(name, false);
+  this.formStore.dirtyFields.set(name, false);
 
   return field;
 };
@@ -158,9 +137,57 @@ export var unregister: FormStoreField.Unregister = function (
   this.fieldPropsMap.delete(name);
 };
 
+export var reset: FormStoreField.Reset = function (this: UseFormHookContext) {
+  // isDirty: false,
+  // // isValid: true,
+  // isSubmitting: false,
+  // isSubmitted: false,
+  // isSubmitSuccessful: false,
+  // submitCount: 0,
+  // // dirtyFields: null as unknown as FormStore['dirtyFields'],
+  // touchedFields: touchedFieldsMap,
+  // defaultValues: args?.defaultValues,
+
+  this.formStore.isDirty = false;
+  // this.formStore.isValid = false;
+  this.formStore.isSubmitting = false;
+  this.formStore.isSubmitSuccessful = false;
+  this.formStore.submitCount = 0;
+  this.formStore.touchedFields.clear();
+  this.formStore.dirtyFields.clear();
+};
+
+export var submit: FormStoreField.Submit = function (
+  this: UseFormHookContext,
+  event
+) {
+  return async (onSubmit) => {
+    if (event) {
+      event?.preventDefault && event.preventDefault();
+      // @ts-ignore
+      event?.persist && event.persist();
+    }
+
+    this.formStore.isSubmitting = true;
+
+    try {
+      await onSubmit(event);
+
+      this.formStore.isSubmitSuccessful = true;
+    } catch (error) {
+      this.formStore.isSubmitSuccessful = false;
+    } finally {
+      this.formStore.isSubmitting = false;
+      this.formStore.isSubmitted = true;
+      this.formStore.submitCount += 1;
+    }
+  };
+};
+
 export var useForm = ((args: DeepRequired<UseFormHookArgs>) => {
   const fieldPropsMap: FieldPropsMap = new ReactiveMap();
   const touchedFieldsMap: TouchedFieldsMap = new ReactiveMap();
+  const dirtyFieldsMap: TouchedFieldsMap = new ReactiveMap();
 
   const formStore = createMutable<FormStore>({
     isDirty: false,
@@ -169,7 +196,7 @@ export var useForm = ((args: DeepRequired<UseFormHookArgs>) => {
     isSubmitted: false,
     isSubmitSuccessful: false,
     submitCount: 0,
-    // dirtyFields: null as unknown as FormStore['dirtyFields'],
+    dirtyFields: dirtyFieldsMap as unknown as FormStore['dirtyFields'],
     touchedFields: touchedFieldsMap,
     defaultValues: args?.defaultValues,
     // formState: null as unknown as FormStore['formState'],
@@ -182,13 +209,14 @@ export var useForm = ((args: DeepRequired<UseFormHookArgs>) => {
     // setError: null as unknown as FormStore['setError'],
     // getFieldState: null as unknown as FormStore['getFieldState'],
     // trigger: null as unknown as FormStore['trigger'],
-    // reset: null as unknown as FormStore['reset'],
+    reset: null as unknown as FormStore['reset'],
     submit: null as unknown as FormStore['submit'],
   });
 
   const context: UseFormHookContext = {
     fieldPropsMap,
     touchedFieldsMap,
+    dirtyFieldsMap,
     formStore,
   };
 
@@ -198,6 +226,7 @@ export var useForm = ((args: DeepRequired<UseFormHookArgs>) => {
 
   formStore.register = register.bind(context);
   formStore.unregister = unregister.bind(context);
+  formStore.reset = reset.bind(context);
   formStore.submit = submit.bind(context);
 
   console.group('form');
