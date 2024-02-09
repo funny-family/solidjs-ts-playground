@@ -1,4 +1,22 @@
+import { createForm } from '~/hooks/form/form';
 import { useForm } from '~/hooks/form/use-form.hook';
+
+{
+  const form = createForm();
+
+  const emailField = form.register('email');
+  emailField.ref(document.createElement('input'));
+
+  const agreeField = form.register('agree');
+  agreeField.ref(document.createElement('input'));
+
+  console.log(1231321, {
+    form,
+    emailField,
+    agreeField,
+    fieldPropsMap: form.fieldPropsMap,
+  });
+}
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -12,7 +30,7 @@ const Forms = () => {
       agree: true,
     },
   });
-  window.form = form;
+  (window as any).form = form;
 
   const emailField = form.register('email');
   const budgetField = form.register('budget');
@@ -47,6 +65,7 @@ const Forms = () => {
             isSubmitSuccessful: form.isSubmitSuccessful,
             submitCount: form.submitCount,
             touchedFields: Object.fromEntries(form.touchedFields),
+            dirtyFields: Object.fromEntries(form.dirtyFields),
             defaultValues: form.defaultValues,
           },
           null,
