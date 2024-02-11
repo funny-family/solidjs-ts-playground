@@ -8,6 +8,7 @@ import {
   createUniqueId,
 } from 'solid-js';
 import { insert } from 'solid-js/web';
+import { InputTest } from './input-test/input-test.component';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement#visualization_of_position_names
 
@@ -45,17 +46,18 @@ const TextInput = () => {
 
 const TextInputWithHelperText = (props: {
   children: JSX.Element;
-  helperText: JSX.Element;
+  helperText: JSX.Element | (() => JSX.Element);
 }) => {
   const resolvedChildren = children(
     () => props.children
   ) as unknown as () => HTMLElement;
 
+  let isAdditionsApplied = false;
+
   createEffect(() => {
     const helperText = unwrapSignal(props.helperText as Element);
 
     if (helperText != null) {
-      console.log('on effect', helperText);
       resolvedChildren().insertAdjacentElement('beforeend', helperText);
       // resolvedChildren().appendChild(helperText);
       // insert(resolvedChildren(), () => helperText);
@@ -135,8 +137,27 @@ const ElementAppend = () => {
           <TextInput />
         </TextInputWithLabel>
       </TextInputWithHelperText>
+
+      <hr />
+
+      <InputTest />
     </main>
   );
 };
 
 export default ElementAppend;
+
+/*
+  <InputContainer
+    label={
+      <label>Text label!</label>
+    }
+    helperText={
+      <Show when={toggle()}>
+        <div>This is helper text!</div>
+      </Show>
+    }
+  >
+    <TextInput />
+  </InputContainer>
+*/
