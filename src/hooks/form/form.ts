@@ -15,7 +15,11 @@ type F = {
   ) => void;
 };
 
-export var createForm = () => {
+type Args = {
+  defaultValue: Record<string, any>;
+};
+
+export var createForm = (args?: Args) => {
   var fieldPropsMap = new Map<string, F>();
 
   const register = (name: string) => {
