@@ -19,6 +19,13 @@ type Args = {
   defaultValue: Record<string, any>;
 };
 
+// interface Submit extends Function {
+//   // (event: Event & {
+//   //   currentTarget: HTMLFormElement;
+//   //   target: Element;
+//   // }) => any
+// }
+
 export var createForm = (args?: Args) => {
   var fieldPropsMap = new Map<string, F>();
 
@@ -60,11 +67,25 @@ export var createForm = (args?: Args) => {
       ) => void | Promise<void>
     ) => {
       try {
+        // @ts-ignore
+        if (submit.onTry != null) {
+          // @ts-ignore
+          submit.onTry();
+        }
+
         await onSubmit(event);
       } catch (error) {
-        //
+        // @ts-ignore
+        if (submit.onCatch != null) {
+          // @ts-ignore
+          submit.onCatch();
+        }
       } finally {
-        //
+        // @ts-ignore
+        if (submit.onFinally != null) {
+          // @ts-ignore
+          submit.onFinally();
+        }
       }
     };
   };
