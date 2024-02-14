@@ -2,7 +2,12 @@ import { createForm } from '~/hooks/form/form';
 import { useForm } from '~/hooks/form/use-form.hook';
 
 {
-  const form = createForm();
+  const form = createForm({
+    defaultValue: {
+      email: '',
+      agree: true,
+    },
+  });
 
   const emailField = form.register('email');
   emailField.ref(document.createElement('input'));
