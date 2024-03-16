@@ -47,6 +47,8 @@ export default function Root() {
             <A href="/provide-inject">provide-inject</A>
             <br />
             <A href="/refs">refs</A>
+            <br />
+            <A href="/tooltips">refs</A>
             <hr />
 
             <Routes>
