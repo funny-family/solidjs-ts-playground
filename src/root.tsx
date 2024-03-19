@@ -48,7 +48,7 @@ export default function Root() {
             <br />
             <A href="/refs">refs</A>
             <br />
-            <A href="/tooltips">refs</A>
+            <A href="/tooltips">tooltips</A>
             <hr />
 
             <Routes>
