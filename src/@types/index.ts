@@ -176,3 +176,9 @@ export type OrNull<T> = { [K in keyof T]: T[K] | null };
 export type DeepNonNullable<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
 }
+
+type DataAttributeKey = `data-${string}`;
+
+export type DataAttribute = {
+  [key: DataAttributeKey]: any;
+};
