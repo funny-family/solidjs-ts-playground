@@ -11,14 +11,22 @@ import { Portal, insert } from 'solid-js/web';
 import './tooltip.css';
 import { Transition, TransitionGroup } from 'solid-transition-group';
 import { Tooltip } from './tooltip/tooltip.component';
+import {
+  TooltipDirectiveAccessorArg,
+  TooltipPosition,
+  WithResolvedChildren,
+} from './types';
+import { createTranslate3dStyle } from './utils';
 
-var tooltip_marginBlock_CssVar = '--tooltip_margin-block' as const;
-var tooltip_marginInline_CssVar = '--tooltip_margin-inline' as const;
+var tooltipOffsetX_CssVar = '--tooltip-offset-x' as const;
+var tooltipOffsetY_CssVar = '--tooltip-offset-y' as const;
 var tooltipPosition_CssVar = '--tooltip-position' as const;
 
 var tooltip = (element: any, accessor: () => any) => {
   var container: HTMLDivElement = null as any;
-  var resolvedChildren = children(() => accessor());
+  var resolvedChildren = children(() =>
+    accessor()
+  ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
 
   // var getTooltips = () => {
   //   return container.querySelectorAll('[data-is-tooltip="true"]');
@@ -40,26 +48,138 @@ var tooltip = (element: any, accessor: () => any) => {
     </Portal>;
 
     var tooltipableRect = element.getBoundingClientRect();
-    var tooltipableRectTop = tooltipableRect.top + window.scrollY;
-    var tooltipableRectLeft = tooltipableRect.left + window.scrollX;
+    var tooltipableRectTop = tooltipableRect.x + window.scrollY;
+    var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
 
-    (resolvedChildren.toArray() as HTMLElement[]).forEach((element) => {
+    resolvedChildren.toArray().forEach((element) => {
       const elementComputedStyle = window.getComputedStyle(element);
-      const tooltipPosition = elementComputedStyle.getPropertyValue(
+      const tooltipPosition = (elementComputedStyle.getPropertyValue(
         tooltipPosition_CssVar
-      );
+      ) || 'top-left-corner') as TooltipPosition;
+      const elementStyle = element.style;
 
-      element.style.position = 'absolute';
-      element.style.top = '0';
-      element.style.left = '0';
-      element.style.translate = `calc(-50% / 2) -100%`;
+      elementStyle.position = 'absolute';
+      elementStyle.top = '0';
+      elementStyle.left = '0';
 
-      console.log(
-        `translate3d(${tooltipableRectTop}px, ${tooltipableRectLeft}px, 0px,)`
-      );
+      if (tooltipPosition === 'top-left-corner') {
+        element.style.transform = createTranslate3dStyle(
+          `calc(-100% + ${tooltipableRectTop}px)`,
+          `calc(-100% + ${tooltipableRectLeft}px)`
+        );
+
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'top-left') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `var(${tooltipMarginX_CssVar})`,
+        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'top-center') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-50% + (var(${tooltipableWidth_CssVar}) / 2) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'top-right') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-100% + var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'top-right-corner') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'right-top') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-1 * var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'right-center') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-50% + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'right-bottom') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc((var(${tooltipableHeight_CssVar}) - 100%) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'bottom-right-corner') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'bottom-right') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-100% + var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'bottom-center') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-50% + (var(${tooltipableWidth_CssVar}) / 2) + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'bottom-left') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `var(${tooltipMarginX_CssVar})`,
+        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'bottom-left-corner') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
+        // );
+      }
+
+      if (tooltipPosition === 'left-bottom') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
+        //   `calc((var(${tooltipableHeight_CssVar}) - 100%) - var(${tooltipMarginY_CssVar}))`
+        // );
+        // }
+        // if (position === 'left-center') {
+        //   tooltip.style.transform = createTranslate3dStyle(
+        //     `calc(-100% + var(${tooltipMarginX_CssVar}))`,
+        //     `calc(-50% + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipMarginY_CssVar}))`
+        //   );
+      }
+
+      if (tooltipPosition === 'left-top') {
+        // tooltip.style.transform = createTranslate3dStyle(
+        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
+        //   `calc(-1 * var(${tooltipMarginY_CssVar}))`
+        // );
+      }
 
       console.log({
-        tooltipableRectTop,
+        tooltipableRect,
         element,
         tooltipPosition,
       });
@@ -104,7 +224,7 @@ const Tooltips = () => {
   var [isTooltipVisible, setTooltipVisibility] = createSignal(false);
 
   return (
-    <main>
+    <main style={{ 'margin-inline': '2em' }}>
       <section>
         <h1>What is Lorem Ipsum?</h1>
         <p>
@@ -116,6 +236,7 @@ const Tooltips = () => {
           typesetting, remaining essentially unchanged. It was popularised in
           the{' '}
           <b
+            style={{ border: '1px solid blue' }}
             tabIndex={0}
             onMouseEnter={() => {
               setTooltipVisibility(true);
