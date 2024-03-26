@@ -26,6 +26,8 @@ var tooltipOffsetX_CssVar = '--tooltip-offset-x';
 var tooltipOffsetY_CssVar = '--tooltip-offset-y';
 var tooltipablePositionX_CssVar = '--tooltipable-position-x';
 var tooltipablePositionY_CssVar = '--tooltipable-position-y';
+var tooltipableWidth_CssVar = '--tooltipable-width' as const;
+var tooltipableHeight_CssVar = '--tooltipable-height' as const;
 
 var tooltip = (element: HTMLElement, accessor: () => any) => {
   var resolvedChildren = children(() =>
@@ -37,6 +39,8 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
     <Portal>{resolvedChildren()}</Portal>;
 
     var tooltipableRect = element.getBoundingClientRect();
+    var tooltipableWidth = tooltipableRect.width;
+    var tooltipableHeight = tooltipableRect.height;
     var tooltipableRectTop = tooltipableRect.x + window.scrollY;
     var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
 
@@ -69,6 +73,15 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
         `${tooltipableRectLeft}px`
       );
 
+      tooltip.style.setProperty(
+        tooltipableWidth_CssVar,
+        `${tooltipableWidth}px`
+      );
+      tooltip.style.setProperty(
+        tooltipableHeight_CssVar,
+        `${tooltipableHeight}px`
+      );
+
       tooltipStyle.position = 'absolute';
       tooltipStyle.top = '0';
       tooltipStyle.left = '0';
@@ -88,10 +101,10 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
       }
 
       if (tooltipPosition === 'top-center') {
-        // tooltip.style.transform = createTranslate3dStyle(
-        //   `calc(-50% + (var(${tooltipableWidth_CssVar}) / 2) + var(${tooltipMarginX_CssVar}))`,
-        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
-        // );
+        tooltipStyle.transform = createTranslate3dStyle(
+          `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
+          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        );
       }
 
       if (tooltipPosition === 'top-right') {
