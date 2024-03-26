@@ -18,60 +18,66 @@ import {
 } from './types';
 import { createTranslate3dStyle } from './utils';
 
-var tooltipOffsetX_CssVar = '--tooltip-offset-x' as const;
-var tooltipOffsetY_CssVar = '--tooltip-offset-y' as const;
-var tooltipPosition_CssVar = '--tooltip-position' as const;
+var ZERO_PIXELS = '0px' as const;
+var TOOLTIP_DEFAULT_POSITION = 'top-left-corner' as const;
 
-var tooltip = (element: any, accessor: () => any) => {
-  var container: HTMLDivElement = null as any;
+var tooltipPosition_CssVar = '--tooltip-position';
+var tooltipOffsetX_CssVar = '--tooltip-offset-x';
+var tooltipOffsetY_CssVar = '--tooltip-offset-y';
+var tooltipablePositionX_CssVar = '--tooltipable-position-x';
+var tooltipablePositionY_CssVar = '--tooltipable-position-y';
+
+var tooltip = (element: HTMLElement, accessor: () => any) => {
   var resolvedChildren = children(() =>
     accessor()
   ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
 
-  // var getTooltips = () => {
-  //   return container.querySelectorAll('[data-is-tooltip="true"]');
-  // };
-
-  // createEffect(() => {
-  //   // console.log(1, accessor());
-  //   console.log(1, c());
-  // });
-
   createEffect(() => {
     // ======================================================================
-    <Portal
-      ref={(el) => {
-        container = el;
-      }}
-    >
-      {resolvedChildren()}
-    </Portal>;
+    <Portal>{resolvedChildren()}</Portal>;
 
     var tooltipableRect = element.getBoundingClientRect();
     var tooltipableRectTop = tooltipableRect.x + window.scrollY;
     var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
 
-    resolvedChildren.toArray().forEach((element) => {
-      const elementComputedStyle = window.getComputedStyle(element);
-      const tooltipPosition = (elementComputedStyle.getPropertyValue(
-        tooltipPosition_CssVar
-      ) || 'top-left-corner') as TooltipPosition;
-      const elementStyle = element.style;
+    resolvedChildren.toArray().forEach((tooltip) => {
+      const tooltipComputedStyle = window.getComputedStyle(tooltip);
+      const tooltipStyle = tooltip.style;
 
-      elementStyle.position = 'absolute';
-      elementStyle.top = '0';
-      elementStyle.left = '0';
+      const tooltipPosition =
+        tooltipComputedStyle.getPropertyValue(tooltipPosition_CssVar) ||
+        (tooltipStyle.setProperty(
+          tooltipPosition_CssVar,
+          TOOLTIP_DEFAULT_POSITION
+        ),
+        TOOLTIP_DEFAULT_POSITION);
+
+      tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) ||
+        (tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS),
+        ZERO_PIXELS);
+
+      tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) ||
+        (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
+        ZERO_PIXELS);
+
+      tooltip.style.setProperty(
+        tooltipablePositionX_CssVar,
+        `${tooltipableRectTop}px`
+      );
+      tooltip.style.setProperty(
+        tooltipablePositionY_CssVar,
+        `${tooltipableRectLeft}px`
+      );
+
+      tooltipStyle.position = 'absolute';
+      tooltipStyle.top = '0';
+      tooltipStyle.left = '0';
 
       if (tooltipPosition === 'top-left-corner') {
-        element.style.transform = createTranslate3dStyle(
-          `calc(-100% + ${tooltipableRectTop}px)`,
-          `calc(-100% + ${tooltipableRectLeft}px)`
+        tooltipStyle.transform = createTranslate3dStyle(
+          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
         );
-
-        // tooltip.style.transform = createTranslate3dStyle(
-        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
-        //   `calc(-100% - var(${tooltipMarginY_CssVar}))`
-        // );
       }
 
       if (tooltipPosition === 'top-left') {
@@ -177,50 +183,14 @@ var tooltip = (element: any, accessor: () => any) => {
         //   `calc(-1 * var(${tooltipMarginY_CssVar}))`
         // );
       }
-
-      console.log({
-        tooltipableRect,
-        element,
-        tooltipPosition,
-      });
     });
-
-    // createEffect(() => {
-    //   // insert(document.body, () => <>{option}</>);
-    // });
-
-    // element.setProperty('--tooltipable-width', tooltipableRect.width);
-    // element.setProperty('--tooltipable-height', tooltipableRect.height);
-
-    // element.setProperty(tooltip_marginBlock_CssVar, '0px');
-    // element.setProperty(tooltip_marginInline_CssVar, '0px');
-
-    // element.setProperty(
-    //   '--tooltip_top-left-corner_translate_tx',
-    //   `calc(-100% + var(${tooltip_marginBlock_CssVar}))`
-    // );
-    // element.setProperty(
-    //   '--tooltip_top-left-corner_translate_ty',
-    //   `calc(-100% - var(${tooltip_marginInline_CssVar}))`
-    // );
-
-    // element.setProperty(
-    //   '--tooltip_top-left-corner_translate_tx',
-    //   `calc(-100% + var(${tooltip_marginBlock_CssVar}))`
-    // );
-    // element.setProperty(
-    //   '--tooltip_top-left-corner_translate_ty',
-    //   `calc(-100% - var(${tooltip_marginInline_CssVar}))`
-    // );
     // ======================================================================
-  });
-
-  onCleanup(() => {
-    //
   });
 };
 
 const Tooltips = () => {
+  tooltip;
+
   var [isTooltipVisible, setTooltipVisibility] = createSignal(false);
 
   return (
