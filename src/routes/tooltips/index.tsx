@@ -178,16 +178,10 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
       }
 
       if (tooltipPosition === 'left-bottom') {
-        // tooltip.style.transform = createTranslate3dStyle(
-        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
-        //   `calc((var(${tooltipableHeight_CssVar}) - 100%) - var(${tooltipMarginY_CssVar}))`
-        // );
-        // }
-        // if (position === 'left-center') {
-        //   tooltip.style.transform = createTranslate3dStyle(
-        //     `calc(-100% + var(${tooltipMarginX_CssVar}))`,
-        //     `calc(-50% + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipMarginY_CssVar}))`
-        //   );
+        tooltipStyle.transform = createTranslate3dStyle(
+          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        );
       }
 
       if (tooltipPosition === 'left-top') {
