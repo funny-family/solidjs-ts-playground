@@ -164,10 +164,10 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
       }
 
       if (tooltipPosition === 'bottom-left') {
-        // tooltip.style.transform = createTranslate3dStyle(
-        //   `var(${tooltipMarginX_CssVar})`,
-        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
-        // );
+        tooltipStyle.transform = createTranslate3dStyle(
+          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        );
       }
 
       if (tooltipPosition === 'bottom-left-corner') {
