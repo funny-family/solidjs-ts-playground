@@ -143,10 +143,10 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
       }
 
       if (tooltipPosition === 'bottom-right-corner') {
-        // tooltip.style.transform = createTranslate3dStyle(
-        //   `calc(var(${tooltipableWidth_CssVar}) + var(${tooltipMarginX_CssVar}))`,
-        //   `calc(var(${tooltipableHeight_CssVar}) - var(${tooltipMarginY_CssVar}))`
-        // );
+        tooltipStyle.transform = createTranslate3dStyle(
+          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        );
       }
 
       if (tooltipPosition === 'bottom-right') {
