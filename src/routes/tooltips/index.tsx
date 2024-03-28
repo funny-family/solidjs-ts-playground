@@ -189,10 +189,10 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
       }
 
       if (tooltipPosition === 'left-top') {
-        // tooltip.style.transform = createTranslate3dStyle(
-        //   `calc(-100% + var(${tooltipMarginX_CssVar}))`,
-        //   `calc(-1 * var(${tooltipMarginY_CssVar}))`
-        // );
+        tooltipStyle.transform = createTranslate3dStyle(
+          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+          `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        );
       }
     });
     // ======================================================================
