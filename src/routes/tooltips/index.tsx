@@ -29,7 +29,7 @@ var tooltipablePositionY_CssVar = '--tooltipable-position-y';
 var tooltipableWidth_CssVar = '--tooltipable-width' as const;
 var tooltipableHeight_CssVar = '--tooltipable-height' as const;
 
-var tooltip = (element: HTMLElement, accessor: () => any) => {
+var tooltip = function (element: HTMLElement, accessor: () => any) {
   var resolvedChildren = children(() =>
     accessor()
   ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
@@ -48,21 +48,34 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
       const tooltipComputedStyle = window.getComputedStyle(tooltip);
       const tooltipStyle = tooltip.style;
 
-      const tooltipPosition =
-        tooltipComputedStyle.getPropertyValue(tooltipPosition_CssVar) ||
-        (tooltipStyle.setProperty(
-          tooltipPosition_CssVar,
-          TOOLTIP_DEFAULT_POSITION
+      // prettier-ignore
+      const tooltipPosition = (
+        tooltipComputedStyle.getPropertyValue(tooltipPosition_CssVar) || (
+            tooltipStyle.setProperty(
+              tooltipPosition_CssVar,
+              TOOLTIP_DEFAULT_POSITION
+            ),
+            TOOLTIP_DEFAULT_POSITION
+          )
+      ) as TooltipPosition
+
+      // prettier-ignore
+      tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) || (
+        tooltipStyle.setProperty(
+          tooltipOffsetX_CssVar,
+          ZERO_PIXELS
         ),
-        TOOLTIP_DEFAULT_POSITION);
+        ZERO_PIXELS
+      );
 
-      tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) ||
-        (tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS),
-        ZERO_PIXELS);
-
-      tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) ||
-        (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
-        ZERO_PIXELS);
+      // prettier-ignore
+      tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) || (
+        tooltipStyle.setProperty(
+          tooltipOffsetY_CssVar,
+          ZERO_PIXELS
+        ),
+        ZERO_PIXELS
+      );
 
       tooltip.style.setProperty(
         tooltipablePositionX_CssVar,
@@ -204,6 +217,8 @@ var tooltip = (element: HTMLElement, accessor: () => any) => {
 
 const Tooltips = () => {
   tooltip;
+
+  console.log({ tooltip });
 
   var [isTooltipVisible, setTooltipVisibility] = createSignal(false);
 
