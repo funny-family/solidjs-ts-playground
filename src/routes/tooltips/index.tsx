@@ -22,6 +22,14 @@ import {
   withPositions,
 } from './tooltip/tooltip.directive-test';
 
+const test = (...args) => {
+  onMount(() => {
+    console.log('args:', args);
+    // console.log('{ element, accessor }:', { element, accessor });
+  });
+  return (element, accessor) => {};
+};
+
 var tooltip = withPositions(createDirective, [])();
 // var tooltip = createDirective();
 
@@ -35,7 +43,11 @@ const Tooltips = () => {
   return (
     <main style={{ 'margin-inline': '2em' }}>
       <section>
-        <h1>What is Lorem Ipsum?</h1>
+        <h1
+        // use:test={1}
+        >
+          What is Lorem Ipsum?
+        </h1>
         <p>
           <b>Lorem Ipsum</b> is simply dummy text of the printing and
           typesetting industry. Lorem Ipsum has been the industry's standard
