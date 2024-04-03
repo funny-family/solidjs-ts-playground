@@ -28,7 +28,7 @@ export type TooltipDirectiveAccessorArg = () => HTMLElement | HTMLElement[];
 
 export type TooltipDirectiveFunction = (
   element: TooltipDirectiveElementArg,
-  accessor: TooltipDirectiveElementArg
+  accessor: TooltipDirectiveAccessorArg
 ) => void;
 
 export type TooltipDirective = () => void;
