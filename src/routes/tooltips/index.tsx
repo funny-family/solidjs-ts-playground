@@ -17,21 +17,7 @@ import {
   WithResolvedChildren,
 } from './types';
 import { createTranslate3dStyle } from './utils';
-import {
-  createDirective,
-  withPositions,
-} from './tooltip/tooltip.directive-test';
-
-const test = (...args) => {
-  onMount(() => {
-    console.log('args:', args);
-    // console.log('{ element, accessor }:', { element, accessor });
-  });
-  return (element, accessor) => {};
-};
-
-var tooltip = withPositions(createDirective, [])();
-// var tooltip = createDirective();
+import { tooltip } from './tooltip/tooltip.directive-test';
 
 const Tooltips = () => {
   tooltip;
