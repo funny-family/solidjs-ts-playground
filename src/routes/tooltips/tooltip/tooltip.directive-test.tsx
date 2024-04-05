@@ -26,248 +26,263 @@ type TooltipDirectiveObject = {
   directive: TooltipDirectiveFunction;
 };
 
-// export var withPositions = function (
-//   directive: TooltipDirectiveFunction,
-//   positions: any
-// ) {
-//   console.log({ directive, positions });
+export var createDirective = function (
+  this: any,
+  element: TooltipDirectiveElementArg,
+  accessor: TooltipDirectiveAccessorArg
+) {
+  var eachChildrenListeners = new Array<Function>();
 
-//   return directive;
-// };
+  const directive = function () {
+    var children = toChildren(() =>
+      accessor()
+    ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
 
-// var cD = (fn: (element: any, accessor: any) => void) => {
-//   //
-// };
+    createEffect(() => {
+      <Portal>{children()}</Portal>;
 
-export var createDirective = function (this: any, element: any, accessor: any) {
-  // return (element: any, accessor: any) => {
-  // var tooltipChangeListeners = new Array();
+      var tooltipableRect = element.getBoundingClientRect();
+      var tooltipableWidth = tooltipableRect.width;
+      var tooltipableHeight = tooltipableRect.height;
+      var tooltipableRectTop = tooltipableRect.x + window.scrollY;
+      var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
 
-  var children = toChildren(() =>
-    accessor()
-  ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
+      children.toArray().forEach((tooltip) => {
+        const tooltipComputedStyle = window.getComputedStyle(tooltip);
+        const tooltipStyle = tooltip.style;
 
-  createEffect(() => {
-    <Portal>{children()}</Portal>;
+        const tooltipPosition = (tooltipComputedStyle.getPropertyValue(
+          tooltipPosition_CssVar
+        ) ||
+          (tooltipStyle.setProperty(
+            tooltipPosition_CssVar,
+            TOOLTIP_DEFAULT_POSITION
+          ),
+          TOOLTIP_DEFAULT_POSITION)) as TooltipPosition;
 
-    var tooltipableRect = element.getBoundingClientRect();
-    var tooltipableWidth = tooltipableRect.width;
-    var tooltipableHeight = tooltipableRect.height;
-    var tooltipableRectTop = tooltipableRect.x + window.scrollY;
-    var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
+        tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) ||
+          (tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS),
+          ZERO_PIXELS);
 
-    children.toArray().forEach((tooltip) => {
-      const tooltipComputedStyle = window.getComputedStyle(tooltip);
-      const tooltipStyle = tooltip.style;
+        tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) ||
+          (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
+          ZERO_PIXELS);
 
-      const tooltipPosition = (tooltipComputedStyle.getPropertyValue(
-        tooltipPosition_CssVar
-      ) ||
-        (tooltipStyle.setProperty(
-          tooltipPosition_CssVar,
-          TOOLTIP_DEFAULT_POSITION
-        ),
-        TOOLTIP_DEFAULT_POSITION)) as TooltipPosition;
-
-      tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) ||
-        (tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS),
-        ZERO_PIXELS);
-
-      tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) ||
-        (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
-        ZERO_PIXELS);
-
-      tooltip.style.setProperty(
-        tooltipablePositionX_CssVar,
-        `${tooltipableRectTop}px`
-      );
-      tooltip.style.setProperty(
-        tooltipablePositionY_CssVar,
-        `${tooltipableRectLeft}px`
-      );
-
-      tooltip.style.setProperty(
-        tooltipableWidth_CssVar,
-        `${tooltipableWidth}px`
-      );
-      tooltip.style.setProperty(
-        tooltipableHeight_CssVar,
-        `${tooltipableHeight}px`
-      );
-
-      tooltipStyle.position = 'absolute';
-      tooltipStyle.top = '0';
-      tooltipStyle.left = '0';
-
-      // tooltipChangeListeners.forEach((listener) => {
-      //   listener({ element, accessor, tooltip });
-      // });
-
-      if (tooltipPosition === 'top-left-corner') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        tooltip.style.setProperty(
+          tooltipablePositionX_CssVar,
+          `${tooltipableRectTop}px`
         );
-      }
-
-      if (tooltipPosition === 'top-left') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        tooltip.style.setProperty(
+          tooltipablePositionY_CssVar,
+          `${tooltipableRectLeft}px`
         );
-      }
 
-      if (tooltipPosition === 'top-center') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+        tooltip.style.setProperty(
+          tooltipableWidth_CssVar,
+          `${tooltipableWidth}px`
         );
-      }
+        tooltip.style.setProperty(
+          tooltipableHeight_CssVar,
+          `${tooltipableHeight}px`
+        );
 
-      if (tooltipPosition === 'top-right') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        tooltipStyle.position = 'absolute';
+        tooltipStyle.top = '0';
+        tooltipStyle.left = '0';
 
-      if (tooltipPosition === 'top-right-corner') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        eachChildrenListeners.forEach((listener) => {
+          listener();
+        });
 
-      if (tooltipPosition === 'right-top') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'top-left-corner') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'right-center') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'top-left') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'right-bottom') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'top-center') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'bottom-right-corner') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'top-right') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'bottom-right') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'top-right-corner') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'bottom-center') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'right-top') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'bottom-left') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'right-center') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'bottom-left-corner') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'right-bottom') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'left-bottom') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'bottom-right-corner') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'left-center') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'bottom-right') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
 
-      if (tooltipPosition === 'left-top') {
-        tooltipStyle.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+        if (tooltipPosition === 'bottom-center') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
+
+        if (tooltipPosition === 'bottom-left') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
+
+        if (tooltipPosition === 'bottom-left-corner') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
+
+        if (tooltipPosition === 'left-bottom') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
+
+        if (tooltipPosition === 'left-center') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
+
+        if (tooltipPosition === 'left-top') {
+          tooltipStyle.transform = createTranslate3dStyle(
+            `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+            `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+          );
+        }
+      });
     });
-  });
-  // };
+  };
+
+  directive.on = (type: string, listener: Function) => {
+    if (type === 'each-children') {
+      eachChildrenListeners.push(listener);
+    }
+  };
+
+  return directive;
 };
 
-// export var withPositions = function (this, directiveFunction: Function, positions: any) {
-//   console.log('withPositions:', { directiveFunction, positions });
+export var withPositions = (
+  element: TooltipDirectiveElementArg,
+  accessor: TooltipDirectiveAccessorArg
+) => {
+  return (directiveFunction: typeof createDirective, positions: any) => {
+    const directive = directiveFunction(element, accessor);
 
-//   return directiveFunction.bind({});
+    directive.on('each-children', () => {
+      console.log(1);
+    });
+
+    console.log('withPositions:', {
+      args: {
+        element,
+        accessor: accessor(),
+      },
+      directive,
+      directiveFunction,
+      positions,
+    });
+
+    // return directiveFunction;
+
+    return directiveFunction;
+
+    // directiveFunction.apply(null, [
+    //   element,
+    //   accessor,
+    // ]) as unknown as TooltipDirectiveFunction;
+  };
+};
+
+export var withLogging = (
+  element: TooltipDirectiveElementArg,
+  accessor: TooltipDirectiveAccessorArg
+) => {
+  return (directiveFunction: typeof createDirective) => {
+    const directive = directiveFunction(element, accessor);
+
+    directive.on('each-children', () => {
+      console.group('withLogging:');
+      console.log('element:', element);
+      console.log('accessor:', accessor);
+      console.log('directiveFunction:', directiveFunction);
+      console.log('directive:', directive);
+      console.groupEnd();
+    });
+
+    return directiveFunction;
+  };
+};
+
+export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
+  const d = createDirective;
+
+  // withLogging(
+  //   element,
+  //   accessor
+  // )(withPositions(element, accessor)(createDirective, []))();
+};
+
+// export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
+//   withPositions(element, accessor)(createDirective, [])();
 // };
 
-export var withPositions = function (this: any, element: any, accessor: any) {
-  // console.log('withPositions:', { directiveFunction, positions });
-  // return directiveFunction.bind({});
-};
-
-/*
-  const tooltip = withPositions(createDirective, positions) -> ((element, accessor) => void)
-*/
-
-/*
-  withLogging(
-    withPositions(
-      directive,
-      position
-    )
-  )
-
-  withPositions(
-    withLogging(
-      directive,
-      )
-      position
-  )
-*/
-
-/*
-  import { createDirective, withPositions, positions } form 'solid-js-tooltip';
-
-  const tooltip = createDirective();
-  ...
-  const tooltip = withPositions(
-    createDirective(),
-    // positions
-  );
-*/
-
-/*
-  import { createDirective, withPositions, positions } form 'solid-js-tooltip';
-  ...
-  const tooltip = createDirective();
-  ...
-  const tooltip = withPositions(
-    createDirective(),
-    // some positions..
-  );
-*/
+// export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
+//   createDirective(element, accessor);
+// };
