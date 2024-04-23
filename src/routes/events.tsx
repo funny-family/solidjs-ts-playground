@@ -37,6 +37,30 @@ const Events = () => {
       >
         inline click
       </div>
+
+      <hr />
+
+      <section>
+        <h1>Once</h1>
+        <div>
+          <button
+            type="button"
+            ref={(el) => {
+              el.addEventListener(
+                'click',
+                (event) => {
+                  console.log({ el, event });
+                },
+                {
+                  once: true,
+                }
+              );
+            }}
+          >
+            click once!
+          </button>
+        </div>
+      </section>
     </div>
   );
 };

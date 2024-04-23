@@ -49,6 +49,8 @@ export default function Root() {
             <A href="/refs">refs</A>
             <br />
             <A href="/tooltips">tooltips</A>
+            <br />
+            <A href="/list-render-object">list-render-object</A>
             <hr />
 
             <Routes>
