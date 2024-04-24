@@ -26,14 +26,21 @@ type TooltipDirectiveObject = {
   directive: TooltipDirectiveFunction;
 };
 
-export var createDirective = function (
-  this: any,
-  element: TooltipDirectiveElementArg,
-  accessor: TooltipDirectiveAccessorArg
-) {
-  var eachChildrenListeners = new Array<Function>();
+type EachChildrenListener = (args: {
+  tooltip: HTMLElement;
+  tooltipComputedStyle: CSSStyleDeclaration;
+  tooltipStyle: CSSStyleDeclaration;
+  tooltipPosition: TooltipPosition;
+}) => void;
 
-  const directive = function () {
+export var createDirective = function () {
+  var eachChildrenListeners = new Array<EachChildrenListener>();
+
+  const directive = function (
+    this: any,
+    element: TooltipDirectiveElementArg,
+    accessor: TooltipDirectiveAccessorArg
+  ) {
     var children = toChildren(() =>
       accessor()
     ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
@@ -68,20 +75,20 @@ export var createDirective = function (
           (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
           ZERO_PIXELS);
 
-        tooltip.style.setProperty(
+        tooltipStyle.setProperty(
           tooltipablePositionX_CssVar,
           `${tooltipableRectTop}px`
         );
-        tooltip.style.setProperty(
+        tooltipStyle.setProperty(
           tooltipablePositionY_CssVar,
           `${tooltipableRectLeft}px`
         );
 
-        tooltip.style.setProperty(
+        tooltipStyle.setProperty(
           tooltipableWidth_CssVar,
           `${tooltipableWidth}px`
         );
-        tooltip.style.setProperty(
+        tooltipStyle.setProperty(
           tooltipableHeight_CssVar,
           `${tooltipableHeight}px`
         );
@@ -91,9 +98,34 @@ export var createDirective = function (
         tooltipStyle.left = '0';
 
         eachChildrenListeners.forEach((listener) => {
-          listener();
+          listener({
+            tooltip,
+            tooltipComputedStyle,
+            tooltipStyle,
+            tooltipPosition,
+          });
         });
+      });
+    });
+  };
 
+  directive.on = (type: 'each-children', listener: EachChildrenListener) => {
+    if (type === 'each-children') {
+      eachChildrenListeners.push(listener);
+    }
+  };
+
+  return directive;
+};
+
+export var withPositions = (
+  element: TooltipDirectiveElementArg,
+  accessor: TooltipDirectiveAccessorArg
+) => {
+  return (directiveFunction: ReturnType<typeof createDirective>) => {
+    directiveFunction.on(
+      'each-children',
+      ({ tooltipPosition, tooltipStyle }) => {
         if (tooltipPosition === 'top-left-corner') {
           tooltipStyle.transform = createTranslate3dStyle(
             `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
@@ -205,48 +237,10 @@ export var createDirective = function (
             `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
           );
         }
-      });
-    });
-  };
-
-  directive.on = (type: string, listener: Function) => {
-    if (type === 'each-children') {
-      eachChildrenListeners.push(listener);
-    }
-  };
-
-  return directive;
-};
-
-export var withPositions = (
-  element: TooltipDirectiveElementArg,
-  accessor: TooltipDirectiveAccessorArg
-) => {
-  return (directiveFunction: typeof createDirective, positions: any) => {
-    const directive = directiveFunction(element, accessor);
-
-    directive.on('each-children', () => {
-      console.log(1);
-    });
-
-    console.log('withPositions:', {
-      args: {
-        element,
-        accessor: accessor(),
-      },
-      directive,
-      directiveFunction,
-      positions,
-    });
-
-    // return directiveFunction;
+      }
+    );
 
     return directiveFunction;
-
-    // directiveFunction.apply(null, [
-    //   element,
-    //   accessor,
-    // ]) as unknown as TooltipDirectiveFunction;
   };
 };
 
@@ -254,16 +248,18 @@ export var withLogging = (
   element: TooltipDirectiveElementArg,
   accessor: TooltipDirectiveAccessorArg
 ) => {
-  return (directiveFunction: typeof createDirective) => {
-    const directive = directiveFunction(element, accessor);
+  return (directiveFunction: ReturnType<typeof createDirective>) => {
+    console.log('withLogging:', {
+      element,
+      accessor,
+      accessor_f: accessor(),
+      directiveFunction,
+      id: element.id,
+      on: directiveFunction,
+    });
 
-    directive.on('each-children', () => {
-      console.group('withLogging:');
-      console.log('element:', element);
-      console.log('accessor:', accessor);
-      console.log('directiveFunction:', directiveFunction);
-      console.log('directive:', directive);
-      console.groupEnd();
+    directiveFunction.on('each-children', (args) => {
+      console.log('withLogging "each-children":', args);
     });
 
     return directiveFunction;
@@ -271,12 +267,26 @@ export var withLogging = (
 };
 
 export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
-  const d = createDirective;
+  // prettier-ignore
+  const directive = (
+    (
+      withLogging(
+        element,
+        accessor
+      )(
+        (
+          withPositions(
+            element,
+            accessor
+          )(
+            createDirective()
+          )
+        )
+      )
+    )
+  );
 
-  // withLogging(
-  //   element,
-  //   accessor
-  // )(withPositions(element, accessor)(createDirective, []))();
+  directive(element, accessor);
 };
 
 // export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
