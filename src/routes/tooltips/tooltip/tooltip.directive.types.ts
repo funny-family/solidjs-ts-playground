@@ -32,8 +32,7 @@ export namespace TooltipType {
     | {
         type: 'each-element';
         listener: (args: {
-          tooltip: HTMLElement
-          position: DefaultPosition;
+          tooltip: HTMLElement;
           style: CSSStyleDeclaration;
           computedStyle: CSSStyleDeclaration;
         }) => void;
@@ -68,10 +67,10 @@ export namespace TooltipType {
     tooltip: JSX.Element;
   };
 
-  export type DirectiveFunctionDecorator = (
+  export type DirectiveFunctionDecorator = <TArgs extends any[] = never>(
     element: ElementOption,
     accessor: AccessorOption
-  ) => DirectiveFunction;
+  ) => (directive: DirectiveFunction, ...any: TArgs) => DirectiveFunction;
 }
 
 export type WithResolvedChildren<TRecord extends any> = TRecord & {
