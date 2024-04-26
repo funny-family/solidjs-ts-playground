@@ -1,5 +1,4 @@
-import { Tooltip } from './tooltip.component';
-import type { ChildrenReturn, JSX } from 'solid-js';
+import type { Component, FlowComponent, JSX, VoidComponent } from 'solid-js';
 
 export namespace TooltipType {
   export type DefaultPosition =
@@ -64,7 +63,12 @@ export namespace TooltipType {
      *   laudantium.
      * </p>
      */
-    tooltip: JSX.Element;
+    tooltip:
+      | JSX.Element
+      | Component
+      | VoidComponent
+      | FlowComponent
+      | Function;
   };
 
   export type DirectiveFunctionDecorator = <TArgs extends any[] = never>(

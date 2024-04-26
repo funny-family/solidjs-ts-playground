@@ -1,115 +1,15 @@
-import { Portal } from 'solid-js/web';
-import { children as toChildren, createEffect } from 'solid-js';
-import type {
-  TooltipDirectiveAccessorArg,
-  TooltipDirectiveElementArg,
-  TooltipDirectiveFunction,
-  TooltipPosition,
-  WithResolvedChildren,
-} from '../types';
+import {
+  TOOLTIP_DEFAULT_POSITION,
+  tooltipOffsetX_CssVar,
+  tooltipOffsetY_CssVar,
+  tooltipPosition_CssVar,
+  tooltipableHeight_CssVar,
+  tooltipablePositionX_CssVar,
+  tooltipablePositionY_CssVar,
+  tooltipableWidth_CssVar,
+} from '../constants';
+import type { TooltipType } from '../tooltip.directive.types';
 import { createTranslate3dStyle } from '../utils';
-import type { TooltipType } from './tooltip.directive.types';
-
-var ZERO_PIXELS = '0px' as const;
-var TOOLTIP_DEFAULT_POSITION = 'top-left-corner' as const;
-
-var tooltipPosition_CssVar = '--tooltip-position';
-var tooltipOffsetX_CssVar = '--tooltip-offset-x';
-var tooltipOffsetY_CssVar = '--tooltip-offset-y';
-var tooltipablePositionX_CssVar = '--tooltipable-position-x';
-var tooltipablePositionY_CssVar = '--tooltipable-position-y';
-var tooltipableWidth_CssVar = '--tooltipable-width' as const;
-var tooltipableHeight_CssVar = '--tooltipable-height' as const;
-
-export var createDirective = (() => {
-  var effectListeners = new Array<
-    Extract<TooltipType.OnArgObject, { type: 'effect' }>['listener']
-  >();
-
-  var eachElementListeners = new Array<
-    Extract<TooltipType.OnArgObject, { type: 'each-element' }>['listener']
-  >();
-
-  const directive = (
-    element: TooltipType.ElementOption,
-    accessor: TooltipType.AccessorOption
-  ) => {
-    var children = toChildren(() =>
-      accessor()
-    ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
-
-    createEffect(() => {
-      <Portal>{children()}</Portal>;
-
-      var tooltipableRect = element.getBoundingClientRect();
-      var tooltipableWidth = tooltipableRect.width;
-      var tooltipableHeight = tooltipableRect.height;
-      var tooltipableRectTop = tooltipableRect.x + window.scrollY;
-      var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
-
-      effectListeners.forEach((listener) => {
-        listener();
-      });
-
-      children.toArray().forEach((tooltip) => {
-        const tooltipComputedStyle = window.getComputedStyle(tooltip);
-        const tooltipStyle = tooltip.style;
-
-        tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) ||
-          (tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS),
-          ZERO_PIXELS);
-
-        tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) ||
-          (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
-          ZERO_PIXELS);
-
-        tooltipStyle.setProperty(
-          tooltipablePositionX_CssVar,
-          `${tooltipableRectTop}px`
-        );
-        tooltipStyle.setProperty(
-          tooltipablePositionY_CssVar,
-          `${tooltipableRectLeft}px`
-        );
-
-        tooltipStyle.setProperty(
-          tooltipableWidth_CssVar,
-          `${tooltipableWidth}px`
-        );
-        tooltipStyle.setProperty(
-          tooltipableHeight_CssVar,
-          `${tooltipableHeight}px`
-        );
-
-        tooltipStyle.position = 'absolute';
-        tooltipStyle.top = '0';
-        tooltipStyle.left = '0';
-
-        eachElementListeners.forEach((listener) => {
-          listener({
-            tooltip,
-            style: tooltipStyle,
-            computedStyle: tooltipComputedStyle,
-          });
-        });
-      });
-    });
-  };
-
-  // I gave up here ;)
-  (directive as any).on = ((type, listener: any) => {
-    if (type === 'effect') {
-      effectListeners.push(listener);
-    }
-
-    if (type === 'each-element') {
-      eachElementListeners.push(listener);
-    }
-  }) as TooltipType.DirectiveFunction_On;
-
-  return directive;
-  // And here as well ;)
-}) as unknown as TooltipType.CreateDirectiveFunction;
 
 export var withPositions: TooltipType.DirectiveFunctionDecorator = (
   element,
@@ -124,7 +24,7 @@ export var withPositions: TooltipType.DirectiveFunctionDecorator = (
           tooltipPosition_CssVar,
           TOOLTIP_DEFAULT_POSITION
         ),
-        TOOLTIP_DEFAULT_POSITION)) as TooltipPosition;
+        TOOLTIP_DEFAULT_POSITION)) as TooltipType.DefaultPosition;
 
       if (tooltipPosition === 'top-left-corner') {
         args.style.transform = createTranslate3dStyle(
@@ -242,56 +142,3 @@ export var withPositions: TooltipType.DirectiveFunctionDecorator = (
     return directiveFunction;
   };
 };
-
-export var withLogging = (
-  element: TooltipDirectiveElementArg,
-  accessor: TooltipDirectiveAccessorArg
-) => {
-  return (directiveFunction: ReturnType<typeof createDirective>) => {
-    console.group('withLogging');
-    console.log('element:', element);
-    console.log('accessor:', accessor);
-
-    directiveFunction.on('effect', () => {
-      console.log('effect:');
-    });
-
-    directiveFunction.on('each-element', (args) => {
-      console.log('each-element:', args);
-    });
-    console.groupEnd();
-
-    return directiveFunction;
-  };
-};
-
-// =================================================================
-
-export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
-  // prettier-ignore
-  const directive = (
-    (
-      withLogging(
-        element,
-        accessor
-      )(
-        (
-          withPositions(
-            element,
-            accessor
-          )(
-            createDirective()
-          )
-        )
-      )
-    )
-  );
-
-  directive(element, accessor);
-};
-
-// export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
-//   const directive = createDirective();
-
-//   directive(element, accessor);
-// };

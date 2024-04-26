@@ -17,12 +17,17 @@ import {
   WithResolvedChildren,
 } from './types';
 import { createTranslate3dStyle } from './utils';
-import { tooltip } from './tooltip/tooltip.directive-test';
+import { tooltip } from './tooltip/directive/tooltip.directive';
+import { TooltipType } from './tooltip/directive/tooltip.directive.types';
+
+declare module 'solid-js' {
+  namespace JSX {
+    interface Directives extends TooltipType.Directive {}
+  }
+}
 
 const Tooltips = () => {
   tooltip;
-
-  // console.log({ tooltip });
 
   var [isTooltipVisible, setTooltipVisibility] = createSignal(false);
 
