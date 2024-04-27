@@ -44,7 +44,8 @@ export namespace TooltipType {
         listener: infer TListener;
       }
         ? [TType, TListener]
-        : [TType]
+        // :(((((((
+        : [TType, any]
     ) => void;
   }
 
@@ -63,12 +64,7 @@ export namespace TooltipType {
      *   laudantium.
      * </p>
      */
-    tooltip:
-      | JSX.Element
-      | Component
-      | VoidComponent
-      | FlowComponent
-      | Function;
+    tooltip: JSX.Element | Component | VoidComponent | FlowComponent | Function;
   };
 
   export type DirectiveFunctionDecorator = <TArgs extends any[] = never>(

@@ -21,7 +21,7 @@ import {
   tooltipableWidth_CssVar,
 } from './constants';
 
-export var createDirective = (() => {
+export var createDirective: TooltipType.CreateDirectiveFunction = () => {
   var effectListeners = new Array<
     Extract<TooltipType.OnArgObject, { type: 'effect' }>['listener']
   >();
@@ -30,10 +30,7 @@ export var createDirective = (() => {
     Extract<TooltipType.OnArgObject, { type: 'each-element' }>['listener']
   >();
 
-  const directive = (
-    element: TooltipType.ElementOption,
-    accessor: TooltipType.AccessorOption
-  ) => {
+  const directive = ((element, accessor) => {
     var children = toChildren(() =>
       accessor()
     ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
@@ -94,10 +91,9 @@ export var createDirective = (() => {
         });
       });
     });
-  };
+  }) as TooltipType.DirectiveFunction;
 
-  // I gave up here ;)
-  (directive as any).on = ((type, listener: any) => {
+  directive.on = (type, listener) => {
     if (type === 'effect') {
       effectListeners.push(listener);
     }
@@ -105,11 +101,10 @@ export var createDirective = (() => {
     if (type === 'each-element') {
       eachElementListeners.push(listener);
     }
-  }) as TooltipType.DirectiveFunction['on'];
+  };
 
   return directive;
-  // And here as well ;)
-}) as unknown as TooltipType.CreateDirectiveFunction;
+};
 
 // =================================================================
 
