@@ -8,7 +8,10 @@ import type {
   WithResolvedChildren,
 } from '../../types';
 import { createTranslate3dStyle } from '../../utils';
-import type { TooltipType } from './tooltip.directive.types';
+import type {
+  ResolvedChildrenOf,
+  TooltipType,
+} from './tooltip.directive.types';
 import { withLogging } from './decorators/with-logging.decorator';
 import { withPositions } from './decorators/with-positions.decorator';
 import {
@@ -30,10 +33,13 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
     Extract<TooltipType.OnArgObject, { type: 'each-element' }>['listener']
   >();
 
-  const directive = ((element, accessor) => {
-    var children = toChildren(() =>
-      accessor()
-    ) as WithResolvedChildren<TooltipDirectiveAccessorArg>;
+  const directive: TooltipType.DirectiveFunctionWithAdditions = (
+    element,
+    accessor
+  ) => {
+    var children = toChildren(() => {
+      return accessor();
+    }) as ResolvedChildrenOf<TooltipType.AccessorOption>;
 
     createEffect(() => {
       <Portal>{children()}</Portal>;
@@ -91,7 +97,7 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
         });
       });
     });
-  }) as TooltipType.DirectiveFunction;
+  };
 
   directive.on = (type, listener) => {
     if (type === 'effect') {
@@ -108,9 +114,10 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
 
 // =================================================================
 
-export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
+export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
+  const directive = createDirective();
   // prettier-ignore
-  const directive = (
+  const setup = (
     (
       withLogging(
         element,
@@ -121,14 +128,14 @@ export var tooltip: TooltipDirectiveFunction = (element, accessor) => {
             element,
             accessor
           )(
-            createDirective()
+            directive
           )
         )
       )
     )
   );
 
-  directive(element, accessor);
+  setup(element, accessor);
 };
 
 // export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {

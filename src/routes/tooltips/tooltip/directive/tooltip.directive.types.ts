@@ -1,4 +1,10 @@
-import type { Component, FlowComponent, JSX, VoidComponent } from 'solid-js';
+import type {
+  ChildrenReturn,
+  Component,
+  FlowComponent,
+  JSX,
+  VoidComponent,
+} from 'solid-js';
 
 export namespace TooltipType {
   export type DefaultPosition =
@@ -37,21 +43,25 @@ export namespace TooltipType {
         }) => void;
       };
 
-  export interface DirectiveFunction {
-    (element: ElementOption, accessor: AccessorOption): void;
+  export type DirectiveFunction = (
+    element: ElementOption,
+    accessor: AccessorOption
+  ) => void;
+
+  export type DirectiveFunctionWithAdditions = DirectiveFunction & {
     on: <TType extends OnArgObject['type']>(
       ...args: Extract<OnArgObject, { type: TType }> extends {
         listener: infer TListener;
       }
         ? [TType, TListener]
-        // :(((((((
-        : [TType, any]
+        : // :(((((((
+          [TType, any]
     ) => void;
-  }
+  };
 
-  export type CreateDirectiveFunction = () => DirectiveFunction;
+  export type CreateDirectiveFunction = () => DirectiveFunctionWithAdditions;
 
-  export type Directive = {
+  export type DirectiveObject = {
     /**
      * @example
      * <p
@@ -67,12 +77,23 @@ export namespace TooltipType {
     tooltip: JSX.Element | Component | VoidComponent | FlowComponent | Function;
   };
 
-  export type DirectiveFunctionDecorator = <TArgs extends any[] = never>(
+  export type DirectiveFunctionDecorator<TArgs extends any[] = any> = (
     element: ElementOption,
     accessor: AccessorOption
-  ) => (directive: DirectiveFunction, ...any: TArgs) => DirectiveFunction;
+  ) => (
+    directive: DirectiveFunctionWithAdditions,
+    ...any: TArgs
+  ) => DirectiveFunctionWithAdditions;
 }
 
 export type WithResolvedChildren<TRecord extends any> = TRecord & {
   toArray: () => HTMLElement[];
 };
+
+export type Override<
+  T,
+  K extends { [P in keyof T]: any } | string
+> = K extends string ? Omit<T, K> : Omit<T, keyof K> & K;
+
+export type ResolvedChildrenOf<TRecord extends any> = TRecord &
+  Override<ChildrenReturn, { toArray: () => HTMLElement[] }>;
