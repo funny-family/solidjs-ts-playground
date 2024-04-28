@@ -116,6 +116,9 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
 
 export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
   const directive = createDirective();
+
+  console.log({ tooltipDirective: directive });
+
   // prettier-ignore
   const setup = (
     (
