@@ -10,7 +10,7 @@ import {
 import { Portal, insert } from 'solid-js/web';
 import './tooltip.css';
 import { Transition, TransitionGroup } from 'solid-transition-group';
-import { Tooltip } from './tooltip/tooltip.component';
+import { Tooltip } from './tooltip/component/tooltip.component';
 import {
   TooltipDirectiveAccessorArg,
   TooltipPosition,
