@@ -1,8 +1,8 @@
 import type { TooltipComponent } from './tooltip.component.types';
 import './tooltip.styles.css';
 
-export const Tooltip: TooltipComponent = (attrs) => {
-  const labelName = 'tooltip' as const;
+export var Tooltip: TooltipComponent = (attrs) => {
+  var labelName = 'tooltip' as const;
 
   return (
     <div
