@@ -6,7 +6,7 @@
 }
 
 .custom-tooltip_top-center {
-  --tooltip-position: left-top;
+  /* --tooltip-position: left-top; */
   /* --tooltip-offset-x: 10px; */
   /* --tooltip-offset-y: 10px; */
 
