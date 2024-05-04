@@ -54,7 +54,7 @@ const Tooltips = () => {
               setTooltipVisibility(true);
             }}
             onMouseLeave={() => {
-              setTooltipVisibility(false);
+              // setTooltipVisibility(false);
             }}
             // use:tooltip={
             //   <Show when={isTooltipVisible()}>
