@@ -7,7 +7,7 @@ export var Tooltip: TooltipComponent = (attrs) => {
   return (
     <div
       {...attrs}
-      data-is-tooltip={true}
+      data-is-tooltip={true} // cannot be overridden!
       data-tooltip-sr-notification={
         attrs?.['data-tooltip-sr-notification'] || '; Has tooltip: '
       }
