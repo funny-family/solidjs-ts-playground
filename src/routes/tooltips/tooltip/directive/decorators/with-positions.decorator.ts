@@ -1,5 +1,6 @@
 import {
   TOOLTIP_DEFAULT_POSITION,
+  eachElementTypeListenerName,
   tooltipOffsetX_CssVar,
   tooltipOffsetY_CssVar,
   tooltipPosition_CssVar,
@@ -11,132 +12,139 @@ import {
 import type { TooltipType } from '../tooltip.directive.types';
 import { createTranslate3dStyle } from '../utils';
 
-export var withPositions: TooltipType.DirectiveFunctionDecorator = (
-  element,
-  accessor
-) => {
-  return (directiveFunction) => {
-    directiveFunction.on('each-element', (args) => {
-      const tooltipPosition = (args.computedStyle.getPropertyValue(
-        tooltipPosition_CssVar
-      ) ||
-        (args.style.setProperty(
-          tooltipPosition_CssVar,
-          TOOLTIP_DEFAULT_POSITION
-        ),
-        TOOLTIP_DEFAULT_POSITION)) as TooltipType.DefaultPosition;
+export var defaultPositionsMap = new Map<string, string>([
+  [
+    'top-left-corner',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'top-left',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'top-center',
+    createTranslate3dStyle(
+      `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'top-right',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'top-right-corner',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'right-top',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'right-center',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'right-bottom',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'bottom-right-corner',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'bottom-right',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'bottom-center',
+    createTranslate3dStyle(
+      `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'bottom-left',
+    createTranslate3dStyle(
+      `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'bottom-left-corner',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'left-bottom',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'left-center',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+  [
+    'left-top',
+    createTranslate3dStyle(
+      `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
+      `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
+    ),
+  ],
+]);
 
-      if (tooltipPosition === 'top-left-corner') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+export var withPositions: TooltipType.DirectiveFunctionDecorator<
+  [positionsMap: Map<string, string>, defaultPosition: string]
+> = (element, accessor) => {
+  return (directiveFunction, positionsMap, defaultPosition) => {
+    directiveFunction.on(eachElementTypeListenerName, (args) => {
+      // prettier-ignore
+      var position = (
+        args.tooltipComputedStyle.getPropertyValue(tooltipPosition_CssVar) ||
+        defaultPosition !== '' && (
+          args.tooltipStyle.setProperty(
+            tooltipPosition_CssVar,
+            defaultPosition
+          ),
+          defaultPosition
+        ) || ''
+      );
 
-      if (tooltipPosition === 'top-left') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'top-center') {
-        args.style.transform = createTranslate3dStyle(
-          `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'top-right') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'top-right-corner') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'right-top') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'right-center') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'right-bottom') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'bottom-right-corner') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'bottom-right') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipableWidth_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'bottom-center') {
-        args.style.transform = createTranslate3dStyle(
-          `calc((var(${tooltipablePositionX_CssVar}) + (-50% + var(${tooltipableWidth_CssVar}) / 2)) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'bottom-left') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'bottom-left-corner') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'left-bottom') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-100% + var(${tooltipablePositionY_CssVar}) + var(${tooltipableHeight_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'left-center') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(-50% + var(${tooltipablePositionY_CssVar}) + (var(${tooltipableHeight_CssVar}) / 2) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
-
-      if (tooltipPosition === 'left-top') {
-        args.style.transform = createTranslate3dStyle(
-          `calc(-100% + var(${tooltipablePositionX_CssVar}) + var(${tooltipOffsetX_CssVar}))`,
-          `calc(var(${tooltipablePositionY_CssVar}) - var(${tooltipOffsetY_CssVar}))`
-        );
-      }
+      args.tooltipStyle.transform = positionsMap.get(position) || '';
     });
 
     return directiveFunction;

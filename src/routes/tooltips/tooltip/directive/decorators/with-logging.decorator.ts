@@ -1,3 +1,7 @@
+import {
+  eachElementTypeListenerName,
+  effectTypeListenerName,
+} from '../constants';
 import type { TooltipType } from '../tooltip.directive.types';
 
 export var withLogging: TooltipType.DirectiveFunctionDecorator = (
@@ -5,12 +9,12 @@ export var withLogging: TooltipType.DirectiveFunctionDecorator = (
   accessor
 ) => {
   return (directiveFunction) => {
-    directiveFunction.on('effect', () => {
+    directiveFunction.on(effectTypeListenerName, () => {
       // console.log('element:', element);
       // console.log('accessor:', accessor);
     });
 
-    directiveFunction.on('each-element', (args) => {
+    directiveFunction.on(eachElementTypeListenerName, (args) => {
       // console.log('each-element:', args);
     });
 
