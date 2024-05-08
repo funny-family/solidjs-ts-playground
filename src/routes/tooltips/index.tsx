@@ -19,6 +19,7 @@ import {
 import { createTranslate3dStyle } from './utils';
 import { tooltip } from './tooltip/directive/tooltip.directive';
 import { TooltipType } from './tooltip/directive/tooltip.directive.types';
+import './tooltip/positions.scss';
 
 declare module 'solid-js' {
   namespace JSX {
@@ -59,7 +60,7 @@ const Tooltips = () => {
             // use:tooltip={
             //   <Show when={isTooltipVisible()}>
             //     <Tooltip
-            //       class="custom-tooltip custom-tooltip_top-center"
+            //       class="custom-tooltip"
             //       data-is-tooltip={false}
             //     >
             //       just tooltip!
@@ -71,7 +72,7 @@ const Tooltips = () => {
               <Transition name="slide-fade">
                 <Show when={isTooltipVisible()}>
                   <Tooltip
-                    class="custom-tooltip custom-tooltip_top-center"
+                    class="custom-tooltip solid-js-tooltip-position__top-center"
                     data-is-tooltip={false}
                   >
                     just tooltip!
@@ -83,7 +84,7 @@ const Tooltips = () => {
             // use:tooltip={[
             //   <Show when={isTooltipVisible()}>
             //     <Tooltip
-            //       class="custom-tooltip custom-tooltip_top-center"
+            //       class="custom-tooltip"
             //       data-is-tooltip={false}
             //     >
             //       just tooltip!
@@ -91,7 +92,7 @@ const Tooltips = () => {
             //   </Show>,
             //   <Transition name="slide-fade">
             //     <Show when={isTooltipVisible()}>
-            //       <Tooltip class="custom-tooltip custom-tooltip_top-right-corner">
+            //       <Tooltip class="custom-tooltip">
             //         slide fade tooltip
             //       </Tooltip>
             //     </Show>
