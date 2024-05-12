@@ -1,20 +1,8 @@
 .custom-tooltip {
   background-color: blanchedalmond;
-  /* border-radius: 0.4rem; */
   padding-block: 0.4em;
   padding-inline: 0.6em;
-}
-
-.custom-tooltip_top-center {
-  /* --tooltip-position: left-top; */
-  /* --tooltip-offset-x: 10px; */
-  /* --tooltip-offset-y: 10px; */
-
-  border: 1px solid red;
-}
-
-.custom-tooltip_top-right-corner {
-  /* --tooltip-position: top-right-corner; */
-
-  border: 1px solid green;
+  border-radius: 0.4rem;
+  font-size: 1.2rem;
+  border: 1px solid black;
 }

@@ -29,17 +29,20 @@ export namespace TooltipType {
 
   export type AccessorOption = () => HTMLElement | HTMLElement[];
 
+  export type OnArgType_Effect = 'effect';
+  export type OnArgType_EachElement = 'each-element';
+
   export type OnArgObject =
     | {
-        type: 'effect';
+        type: OnArgType_Effect;
         listener: () => void;
       }
     | {
-        type: 'each-element';
+        type: OnArgType_EachElement;
         listener: (args: {
           tooltip: HTMLElement;
-          style: CSSStyleDeclaration;
-          computedStyle: CSSStyleDeclaration;
+          tooltipStyle: CSSStyleDeclaration;
+          tooltipComputedStyle: CSSStyleDeclaration;
         }) => void;
       };
 

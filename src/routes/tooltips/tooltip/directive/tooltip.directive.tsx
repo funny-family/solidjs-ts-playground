@@ -13,9 +13,15 @@ import type {
   TooltipType,
 } from './tooltip.directive.types';
 import { withLogging } from './decorators/with-logging.decorator';
-import { withPositions } from './decorators/with-positions.decorator';
 import {
+  withPositions,
+  defaultPositionsMap,
+} from './decorators/with-positions.decorator';
+import {
+  TOOLTIP_DEFAULT_POSITION,
   ZERO_PIXELS,
+  eachElementTypeListenerName,
+  effectTypeListenerName,
   tooltipOffsetX_CssVar,
   tooltipOffsetY_CssVar,
   tooltipableHeight_CssVar,
@@ -26,11 +32,17 @@ import {
 
 export var createDirective: TooltipType.CreateDirectiveFunction = () => {
   var effectListeners = new Array<
-    Extract<TooltipType.OnArgObject, { type: 'effect' }>['listener']
+    Extract<
+      TooltipType.OnArgObject,
+      { type: typeof effectTypeListenerName }
+    >['listener']
   >();
 
   var eachElementListeners = new Array<
-    Extract<TooltipType.OnArgObject, { type: 'each-element' }>['listener']
+    Extract<
+      TooltipType.OnArgObject,
+      { type: typeof eachElementTypeListenerName }
+    >['listener']
   >();
 
   const directive: TooltipType.DirectiveFunctionWithAdditions = (
@@ -44,35 +56,35 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
     createEffect(() => {
       <Portal>{children()}</Portal>;
 
-      var tooltipableRect = element.getBoundingClientRect();
-      var tooltipableWidth = tooltipableRect.width;
-      var tooltipableHeight = tooltipableRect.height;
-      var tooltipableRectTop = tooltipableRect.x + window.scrollY;
-      var tooltipableRectLeft = tooltipableRect.y + window.scrollX;
-
       effectListeners.forEach((listener) => {
         listener();
       });
 
+      // console.log(111, children.toArray(), children());
+
       children.toArray().forEach((tooltip) => {
+        const tooltipableRect = element.getBoundingClientRect();
+        const tooltipableWidth = tooltipableRect.width;
+        const tooltipableHeight = tooltipableRect.height;
+        const tooltipablePositionX = tooltipableRect.left + window.scrollX;
+        const tooltipablePositionY = tooltipableRect.top + window.scrollY;
+
         const tooltipComputedStyle = window.getComputedStyle(tooltip);
         const tooltipStyle = tooltip.style;
 
         tooltipComputedStyle.getPropertyValue(tooltipOffsetX_CssVar) ||
-          (tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS),
-          ZERO_PIXELS);
+          tooltipStyle.setProperty(tooltipOffsetX_CssVar, ZERO_PIXELS);
 
         tooltipComputedStyle.getPropertyValue(tooltipOffsetY_CssVar) ||
-          (tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS),
-          ZERO_PIXELS);
+          tooltipStyle.setProperty(tooltipOffsetY_CssVar, ZERO_PIXELS);
 
         tooltipStyle.setProperty(
           tooltipablePositionX_CssVar,
-          `${tooltipableRectTop}px`
+          `${tooltipablePositionX}px`
         );
         tooltipStyle.setProperty(
           tooltipablePositionY_CssVar,
-          `${tooltipableRectLeft}px`
+          `${tooltipablePositionY}px`
         );
 
         tooltipStyle.setProperty(
@@ -91,8 +103,8 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
         eachElementListeners.forEach((listener) => {
           listener({
             tooltip,
-            style: tooltipStyle,
-            computedStyle: tooltipComputedStyle,
+            tooltipStyle,
+            tooltipComputedStyle,
           });
         });
       });
@@ -100,11 +112,11 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
   };
 
   directive.on = (type, listener) => {
-    if (type === 'effect') {
+    if (type === effectTypeListenerName) {
       effectListeners.push(listener);
     }
 
-    if (type === 'each-element') {
+    if (type === eachElementTypeListenerName) {
       eachElementListeners.push(listener);
     }
   };
@@ -113,6 +125,35 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
 };
 
 // =================================================================
+
+// export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
+//   const directive = createDirective();
+
+//   console.log({ tooltipDirective: directive });
+
+//   // prettier-ignore
+//   const setup = (
+//     (
+//       withLogging(
+//         element,
+//         accessor
+//       )(
+//         (
+//           withPositions(
+//             element,
+//             accessor
+//           )(
+//             directive,
+//             defaultPositionsMap,
+//             TOOLTIP_DEFAULT_POSITION
+//           )
+//         )
+//       )
+//     )
+//   );
+
+//   setup(element, accessor);
+// };
 
 export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
   const directive = createDirective();
@@ -127,12 +168,7 @@ export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
         accessor
       )(
         (
-          withPositions(
-            element,
-            accessor
-          )(
-            directive
-          )
+          directive
         )
       )
     )

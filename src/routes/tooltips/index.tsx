@@ -32,6 +32,10 @@ const Tooltips = () => {
 
   var [isTooltipVisible, setTooltipVisibility] = createSignal(false);
 
+  onMount(() => {
+    window.scrollTo(0, 100);
+  });
+
   return (
     <main style={{ 'margin-inline': '2em' }}>
       <section>
@@ -59,62 +63,71 @@ const Tooltips = () => {
             }}
             // use:tooltip={
             //   <Show when={isTooltipVisible()}>
-            //     <Tooltip
-            //       class="custom-tooltip"
-            //       data-is-tooltip={false}
-            //     >
+            //     <Tooltip class="custom-tooltip" data-is-tooltip={false}>
             //       just tooltip!
             //     </Tooltip>
             //   </Show>
             // }
 
-            use:tooltip={
-              <Transition name="slide-fade">
-                <Show when={isTooltipVisible()}>
-                  <Tooltip
-                    class="custom-tooltip solid-js-tooltip-position__top-center"
-                    data-is-tooltip={false}
-                  >
-                    just tooltip!
-                  </Tooltip>
-                </Show>
-              </Transition>
-            }
-
-            // use:tooltip={[
-            //   <Show when={isTooltipVisible()}>
-            //     <Tooltip
-            //       class="custom-tooltip"
-            //       data-is-tooltip={false}
-            //     >
-            //       just tooltip!
-            //     </Tooltip>
-            //   </Show>,
+            // use:tooltip={
             //   <Transition name="slide-fade">
             //     <Show when={isTooltipVisible()}>
-            //       <Tooltip class="custom-tooltip">
-            //         slide fade tooltip
+            //       <Tooltip
+            //         class="custom-tooltip solid-js-tooltip-position__top-center"
+            //         // class="custom-tooltip"
+            //         data-is-tooltip={false}
+            //       >
+            //         just tooltip!
             //       </Tooltip>
             //     </Show>
-            //   </Transition>,
-            // ]}
-
-            // use:tooltips={
-            //   <TransitionGroup name="slide-fade">
-            //     <Show when={isTooltipVisible()}>
-            //       <For
-            //         each={[
-            //           <Tooltip>just tooltip!</Tooltip>,
-            //           <Tooltip>slide fade tooltip</Tooltip>,
-            //         ]}
-            //       >
-            //         {(el) => {
-            //           return el;
-            //         }}
-            //       </For>
-            //     </Show>
-            //   </TransitionGroup>
+            //   </Transition>
             // }
+
+            // use:tooltip={
+            //   <>
+            //     <Show when={isTooltipVisible()}>
+            //       <Tooltip
+            //         id="sjnf67___1"
+            //         class="custom-tooltip"
+            //         data-is-tooltip={false}
+            //       >
+            //         just tooltip!
+            //       </Tooltip>
+            //     </Show>
+            //     <Transition name="slide-fade">
+            //       <Show when={isTooltipVisible()}>
+            //         <Tooltip id="sjnf67___2" class="custom-tooltip">
+            //           slide fade tooltip
+            //         </Tooltip>
+            //       </Show>
+            //     </Transition>
+            //   </>
+            // }
+
+            use:tooltip={
+              <TransitionGroup name="slide-fade">
+                <Show when={isTooltipVisible()}>
+                  <For
+                    each={[
+                      <Tooltip class="custom-tooltip solid-js-tooltip-position__top-center">
+                        just tooltip!
+                      </Tooltip>,
+                      <Tooltip
+                        style={{ width: '300px' }}
+                        class="custom-tooltip solid-js-tooltip-position__bottom-right-corner"
+                      >
+                        Lorem ipsum dolor, sit amet consectetur adipisicing
+                        elit. Maxime, facilis.
+                      </Tooltip>,
+                    ]}
+                  >
+                    {(el) => {
+                      return el;
+                    }}
+                  </For>
+                </Show>
+              </TransitionGroup>
+            }
           >
             1960s
           </b>{' '}
@@ -123,6 +136,11 @@ const Tooltips = () => {
           PageMaker including versions of Lorem Ipsum.
         </p>
       </section>
+      {Array(80)
+        .fill(1)
+        .map((n) => {
+          return <div>{n}</div>;
+        })}
     </main>
   );
 };
