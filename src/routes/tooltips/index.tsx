@@ -27,7 +27,7 @@ declare module 'solid-js' {
   }
 }
 
-const Tooltips = () => {
+var Tooltips = () => {
   tooltip;
 
   var [isTooltipVisible, setTooltipVisibility] = createSignal(false);
