@@ -7,16 +7,9 @@ import {
   onCleanup,
   onMount,
 } from 'solid-js';
-import { Portal, insert } from 'solid-js/web';
 import './tooltip.css';
 import { Transition, TransitionGroup } from 'solid-transition-group';
 import { Tooltip } from './tooltip/component/tooltip.component';
-import {
-  TooltipDirectiveAccessorArg,
-  TooltipPosition,
-  WithResolvedChildren,
-} from './types';
-import { createTranslate3dStyle } from './utils';
 import { tooltip } from './tooltip/directive/tooltip.directive';
 import { TooltipType } from './tooltip/directive/tooltip.directive.types';
 import './tooltip/positions.scss';
