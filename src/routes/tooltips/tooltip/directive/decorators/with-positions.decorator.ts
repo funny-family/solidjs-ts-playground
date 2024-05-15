@@ -1,5 +1,5 @@
 import {
-  TOOLTIP_DEFAULT_POSITION,
+  // TOOLTIP_DEFAULT_POSITION,
   eachElementTypeListenerName,
   tooltipOffsetX_CssVar,
   tooltipOffsetY_CssVar,
