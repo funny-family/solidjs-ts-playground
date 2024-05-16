@@ -63,3 +63,16 @@ export var pipe = <
     );
   };
 */
+
+export var isElementInViewport = <T extends HTMLElement>(element: T) => {
+  var elementRect = element.getBoundingClientRect();
+  var documentElement = document.documentElement;
+
+  return (
+    elementRect.top >= 0 &&
+    elementRect.left >= 0 &&
+    elementRect.bottom <=
+      (window.innerHeight || documentElement.clientHeight) &&
+    elementRect.right <= (window.innerWidth || documentElement.clientWidth)
+  );
+};
