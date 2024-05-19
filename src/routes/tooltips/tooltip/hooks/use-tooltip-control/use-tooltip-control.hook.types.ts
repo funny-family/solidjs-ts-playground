@@ -1,4 +1,4 @@
-import type { JSX, SignalOptions, Accessor } from 'solid-js';
+import type { SignalOptions, Accessor } from 'solid-js';
 
 export type UseTooltipControlHookArgs<T extends boolean = boolean> = {
   value?: T;
@@ -6,9 +6,9 @@ export type UseTooltipControlHookArgs<T extends boolean = boolean> = {
 };
 
 export type UseTooltipControlHookReturnValue = {
-  isVisible: Accessor<boolean>;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
+  visible: Accessor<boolean>;
+  show: () => void;
+  hide: () => void;
 };
 
 export type UseTooltipControlHook = (
