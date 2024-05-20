@@ -18,7 +18,6 @@ import {
   defaultPositionsMap,
 } from './decorators/with-positions.decorator';
 import {
-  TOOLTIP_DEFAULT_POSITION,
   ZERO_PIXELS,
   eachElementTypeListenerName,
   effectTypeListenerName,
@@ -54,7 +53,21 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
     }) as ResolvedChildrenOf<TooltipType.AccessorOption>;
 
     createEffect(() => {
-      <Portal>{children()}</Portal>;
+      var bodyRect = document.body.getBoundingClientRect();
+
+      <Portal
+        ref={(el) => {
+          el.style.position = 'absolute';
+          el.style.inset = '0px';
+          el.style.width = `${bodyRect.width}px`;
+          el.style.height = `${bodyRect.height}px`;
+          el.style.pointerEvents = 'none';
+          el.style.zIndex = '0';
+          el.style.overflow = 'hidden';
+        }}
+      >
+        {children()}
+      </Portal>;
 
       effectListeners.forEach((listener) => {
         listener();

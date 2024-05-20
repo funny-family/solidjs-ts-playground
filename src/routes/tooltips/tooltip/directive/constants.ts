@@ -1,7 +1,6 @@
 import type { TooltipType } from './tooltip.directive.types';
 
 export var ZERO_PIXELS = '0px' as const;
-export var TOOLTIP_DEFAULT_POSITION = 'top-center';
 
 export var tooltipPosition_CssVar = '--tooltip-position';
 export var tooltipOffsetX_CssVar = '--tooltip-offset-x';
