@@ -13,6 +13,7 @@ import { Tooltip } from './tooltip/component/tooltip.component';
 import { tooltip } from './tooltip/directive/tooltip.directive';
 import { TooltipType } from './tooltip/directive/tooltip.directive.types';
 import './tooltip/positions.scss';
+import { TooltipWithDynamicSize } from './tooltip/component/components/tooltip-with-dynamic-size/tooltip-with-dynamic-size.component';
 
 declare module 'solid-js' {
   namespace JSX {
@@ -52,13 +53,18 @@ var Tooltips = () => {
               setTooltipVisibility(true);
             }}
             onMouseLeave={() => {
-              // setTooltipVisibility(false);
+              setTooltipVisibility(false);
             }}
             // use:tooltip={
             //   <Show when={isTooltipVisible()}>
-            //     <Tooltip class="custom-tooltip" data-is-tooltip={false}>
-            //       just tooltip!
-            //     </Tooltip>
+            //     <TooltipWithDynamicSize>
+            //       <Tooltip
+            //         class="custom-tooltip solid-js-tooltip-position__top-center"
+            //         data-is-tooltip={false}
+            //       >
+            //         just tooltip!
+            //       </Tooltip>
+            //     </TooltipWithDynamicSize>
             //   </Show>
             // }
 
@@ -102,16 +108,20 @@ var Tooltips = () => {
                 <Show when={isTooltipVisible()}>
                   <For
                     each={[
-                      <Tooltip class="custom-tooltip solid-js-tooltip-position__top-center">
-                        just tooltip!
-                      </Tooltip>,
-                      <Tooltip
-                        style={{ width: '300px' }}
-                        class="custom-tooltip solid-js-tooltip-position__bottom-right-corner"
-                      >
-                        Lorem ipsum dolor, sit amet consectetur adipisicing
-                        elit. Maxime, facilis.
-                      </Tooltip>,
+                      <TooltipWithDynamicSize>
+                        <Tooltip class="custom-tooltip solid-js-tooltip-position__top-center">
+                          just tooltip!
+                        </Tooltip>
+                      </TooltipWithDynamicSize>,
+                      <TooltipWithDynamicSize>
+                        <Tooltip
+                          style={{ width: '300px' }}
+                          class="custom-tooltip solid-js-tooltip-position__bottom-right-corner"
+                        >
+                          Lorem ipsum dolor, sit amet consectetur adipisicing
+                          elit. Maxime, facilis.
+                        </Tooltip>
+                      </TooltipWithDynamicSize>,
                     ]}
                   >
                     {(el) => {
