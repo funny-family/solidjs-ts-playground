@@ -1,5 +1,5 @@
 import { Portal } from 'solid-js/web';
-import { children as toChildren, createEffect } from 'solid-js';
+import { children as toChildren, createEffect, onCleanup } from 'solid-js';
 import type {
   TooltipDirectiveAccessorArg,
   TooltipDirectiveElementArg,
@@ -120,6 +120,10 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
             tooltipComputedStyle,
           });
         });
+      });
+
+      onCleanup(() => {
+        console.log(111);
       });
     });
   };
