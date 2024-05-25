@@ -2,6 +2,7 @@ import {
   createEffect,
   createRenderEffect,
   on,
+  onCleanup,
   onMount,
   children as toChildren,
 } from 'solid-js';
@@ -34,6 +35,19 @@ export var TooltipWithDynamicSize: TooltipWithDynamicSizeComponent = (
     return props.children;
   }) as unknown as () => HTMLElement;
 
+  // var onTransitionEnd = (event: TransitionEvent) => {
+  //   console.group('"transitionend"');
+  //   console.log('event:', event);
+  //   console.log('target:', event.target);
+  //   console.log(
+  //     'elementRect:',
+  //     (event.target as Element).getBoundingClientRect()
+  //   );
+  //   console.groupEnd();
+  // };
+
+  // children().addEventListener('transitionend', onTransitionEnd);
+
   createEffect(() => {
     // console.group('RenderEffect:');
     // console.log('children: ', children());
@@ -45,12 +59,26 @@ export var TooltipWithDynamicSize: TooltipWithDynamicSizeComponent = (
     // console.log('element rect:', (children() as any).getBoundingClientRect());
     // console.groupEnd();
 
-    console.log({ c: children(), r: children().getBoundingClientRect() });
+    console.log({
+      c: children(),
+      r: children().getBoundingClientRect(),
+      p: children().parentElement,
+      dataId: children().dataset.id,
+      // t: document
+      //   .querySelector(`[data-id=${children().dataset.id}]`)!
+      //   .getBoundingClientRect(),
+    });
 
     // setTimeout(() => {
     //   //
     // }, 50);
   });
+
+  // onCleanup(() => {
+  //   children().removeEventListener('transitionend', onTransitionEnd);
+
+  //   console.log('"TooltipWithDynamicSize" cleanup');
+  // });
 
   // createEffect(
   //   on(children, (element) => {
