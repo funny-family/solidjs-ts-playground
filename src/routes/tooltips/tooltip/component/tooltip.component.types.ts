@@ -8,6 +8,7 @@ export type TooltipAttrs = JSX.IntrinsicElements['div'] &
      * Data attribute that notifies the screen reader user that this element has a tooltip.
      */
     ['data-tooltip-sr-notification']?: string;
+    ['data-has-transition-class']?: boolean;
   };
 
 export type TooltipProps = {};

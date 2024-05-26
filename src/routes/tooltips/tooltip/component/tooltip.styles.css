@@ -1,8 +1,13 @@
 .solid-js-tooltip {
   outline: inherit;
-  transition: 0.1s;
-  pointer-events: none;
+  /* pointer-events: none; */
+  pointer-events: all;
   z-index: 1;
+}
+
+.solid-js-tooltip_transition {
+  /* THIS IS VERY IMPORTANT!!! */
+  transition: 0.0001s;
 }
 
 .solid-js-tooltip::before {
