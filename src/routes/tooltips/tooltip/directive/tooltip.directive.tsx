@@ -1,5 +1,11 @@
 import { Portal } from 'solid-js/web';
-import { children as toChildren, createEffect, onCleanup } from 'solid-js';
+import {
+  children as toChildren,
+  createEffect,
+  onCleanup,
+  createSignal,
+  createRenderEffect,
+} from 'solid-js';
 import type {
   TooltipDirectiveAccessorArg,
   TooltipDirectiveElementArg,
@@ -52,28 +58,34 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
       return accessor();
     }) as ResolvedChildrenOf<TooltipType.AccessorOption>;
 
-    createEffect(() => {
-      var bodyRect = document.body.getBoundingClientRect();
+    var { 0: bodyRect, 1: setBodyRect } = createSignal(
+      document.body.getBoundingClientRect()
+    );
 
-      <Portal
-        ref={(el) => {
-          el.style.position = 'absolute';
-          el.style.inset = '0px';
-          el.style.width = `${bodyRect.width}px`;
-          el.style.height = `${bodyRect.height}px`;
-          el.style.pointerEvents = 'none';
-          el.style.zIndex = '0';
-          el.style.overflow = 'hidden';
-        }}
-      >
-        {children()}
-      </Portal>;
+    <Portal
+      ref={(el) => {
+        var _bodyRect = bodyRect();
+
+        el.style.position = 'absolute';
+        el.style.inset = '0px';
+        el.style.width = `${_bodyRect.width}px`;
+        el.style.height = `${_bodyRect.height}px`;
+        el.style.pointerEvents = 'none';
+        el.style.zIndex = '0';
+        el.style.overflow = 'hidden';
+      }}
+    >
+      {children()}
+    </Portal>;
+
+    createEffect(() => {
+      setBodyRect(document.body.getBoundingClientRect());
+
+      console.log(bodyRect());
 
       effectListeners.forEach((listener) => {
         listener();
       });
-
-      // console.log(111, children.toArray(), children());
 
       children.toArray().forEach((tooltip) => {
         const tooltipableRect = element.getBoundingClientRect();
@@ -121,10 +133,10 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
           });
         });
       });
+    });
 
-      onCleanup(() => {
-        console.log(111);
-      });
+    onCleanup(() => {
+      //
     });
   };
 
@@ -172,30 +184,30 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
 //   setup(element, accessor);
 // };
 
-export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
-  const directive = createDirective();
-
-  console.log({ tooltipDirective: directive });
-
-  // prettier-ignore
-  const setup = (
-    (
-      withLogging(
-        element,
-        accessor
-      )(
-        (
-          directive
-        )
-      )
-    )
-  );
-
-  setup(element, accessor);
-};
-
 // export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
 //   const directive = createDirective();
 
-//   directive(element, accessor);
+//   console.log({ tooltipDirective: directive });
+
+//   // prettier-ignore
+//   const setup = (
+//     (
+//       withLogging(
+//         element,
+//         accessor
+//       )(
+//         (
+//           directive
+//         )
+//       )
+//     )
+//   );
+
+//   setup(element, accessor);
 // };
+
+export var tooltip: TooltipType.DirectiveFunction = (element, accessor) => {
+  const directive = createDirective();
+
+  directive(element, accessor);
+};
