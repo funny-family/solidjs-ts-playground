@@ -5,11 +5,6 @@
   z-index: 1;
 }
 
-.solid-js-tooltip_transition {
-  /* THIS IS VERY IMPORTANT!!! */
-  transition: 0.0001s;
-}
-
 .solid-js-tooltip::before {
   content: attr(data-tooltip-sr-notification);
   clip: rect(1px, 1px, 1px, 1px);
@@ -20,4 +15,15 @@
   overflow: hidden;
   padding: 0;
   position: absolute;
+}
+
+.solid-js-tooltip_transition {
+  /* THIS IS VERY IMPORTANT!!! */
+  transition: 0.0001s;
+}
+
+.solid-js-tooltip_default-position {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
