@@ -54,34 +54,22 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
     element,
     accessor
   ) => {
+    var tooltipsContainerRef: HTMLDivElement = null as any;
+
     var children = toChildren(() => {
       return accessor();
     }) as ResolvedChildrenOf<TooltipType.AccessorOption>;
 
-    var { 0: bodyRect, 1: setBodyRect } = createSignal(
-      document.body.getBoundingClientRect()
-    );
-
-    <Portal
-      ref={(el) => {
-        var _bodyRect = bodyRect();
-
-        el.style.position = 'absolute';
-        el.style.inset = '0px';
-        el.style.width = `${_bodyRect.width}px`;
-        el.style.height = `${_bodyRect.height}px`;
-        el.style.pointerEvents = 'none';
-        el.style.zIndex = '0';
-        el.style.overflow = 'hidden';
-      }}
-    >
-      {children()}
-    </Portal>;
-
     createEffect(() => {
-      setBodyRect(document.body.getBoundingClientRect());
+      const bodyRect = document.body.getBoundingClientRect();
 
-      console.log(bodyRect());
+      tooltipsContainerRef.style.position = 'absolute';
+      tooltipsContainerRef.style.inset = '0px';
+      tooltipsContainerRef.style.width = `${bodyRect.width}px`;
+      tooltipsContainerRef.style.height = `${bodyRect.height}px`;
+      tooltipsContainerRef.style.pointerEvents = 'none';
+      tooltipsContainerRef.style.zIndex = '0';
+      tooltipsContainerRef.style.overflow = 'hidden';
 
       effectListeners.forEach((listener) => {
         listener();
@@ -121,10 +109,6 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
           `${tooltipableHeight}px`
         );
 
-        tooltipStyle.position = 'absolute';
-        tooltipStyle.top = '0';
-        tooltipStyle.left = '0';
-
         eachElementListeners.forEach((listener) => {
           listener({
             tooltip,
@@ -135,9 +119,7 @@ export var createDirective: TooltipType.CreateDirectiveFunction = () => {
       });
     });
 
-    onCleanup(() => {
-      //
-    });
+    <Portal ref={tooltipsContainerRef}>{children()}</Portal>;
   };
 
   directive.on = (type, listener) => {
