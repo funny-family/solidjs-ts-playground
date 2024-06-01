@@ -20,10 +20,6 @@ import type {
 } from './tooltip.directive.types';
 import { withLogging } from './decorators/with-logging.decorator';
 import {
-  withPositions,
-  defaultPositionsMap,
-} from './decorators/with-positions.decorator';
-import {
   ZERO_PIXELS,
   eachElementTypeListenerName,
   effectTypeListenerName,
