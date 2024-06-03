@@ -13,7 +13,6 @@ import type {
   TooltipPosition,
   WithResolvedChildren,
 } from '../../types';
-import { createTranslate3dStyle } from '../../utils';
 import type {
   ResolvedChildrenOf,
   TooltipType,
