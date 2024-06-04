@@ -2,7 +2,6 @@ import { Portal } from 'solid-js/web';
 import {
   children as toChildren,
   createEffect,
-  onCleanup,
   createSignal,
   createRenderEffect,
 } from 'solid-js';
