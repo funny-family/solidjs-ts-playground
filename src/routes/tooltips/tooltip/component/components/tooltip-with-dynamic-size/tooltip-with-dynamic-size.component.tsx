@@ -1,32 +1,27 @@
 import {
   createEffect,
-  createRenderEffect,
-  on,
+  createUniqueId,
   onCleanup,
-  onMount,
   children as toChildren,
 } from 'solid-js';
 import type { TooltipWithDynamicSizeComponent } from './tooltip-with-dynamic-size.component.types';
-import { ResolvedChildrenOf } from '../../../directive/tooltip.directive.types';
 
-var isOverflowing = <T extends HTMLElement>(element: T) => {
-  return (
-    element.scrollHeight !==
-    Math.max(element.offsetHeight, element.clientHeight)
-  );
-};
+var transitionEndListenersMap = new Map<
+  string,
+  (event: DocumentEventMap['transitionend']) => any
+>();
 
-var isElementOverflowingBody = <T extends HTMLElement>(element: T) => {
-  var bodyElementRect = document.body.getBoundingClientRect();
-  var elementRect = element.getBoundingClientRect();
+window.transitionEndListenersMap = transitionEndListenersMap;
 
-  return (
-    elementRect.top < bodyElementRect.top ||
-    elementRect.right > bodyElementRect.right ||
-    elementRect.bottom > bodyElementRect.bottom ||
-    elementRect.left < bodyElementRect.left
-  );
-};
+document.addEventListener(
+  'transitionend',
+  (event) => {
+    transitionEndListenersMap.forEach((listener) => {
+      listener(event);
+    });
+  },
+  true
+);
 
 export var TooltipWithDynamicSize: TooltipWithDynamicSizeComponent = (
   props
@@ -35,20 +30,41 @@ export var TooltipWithDynamicSize: TooltipWithDynamicSizeComponent = (
     return props.children;
   }) as unknown as () => HTMLElement;
 
-  var onTransitionEnd = (event: TransitionEvent) => {
-    console.group('"transitionend"');
-    console.log('event:', event);
-    console.log('target:', event.target);
-    console.log(
-      'elementRect:',
-      (event.target as Element).getBoundingClientRect()
-    );
-    console.groupEnd();
+  console.log('created!');
+
+  var uniqueId = createUniqueId();
+
+  const onTransitionEnd = (event: TransitionEvent) => {
+    const target = event.target as HTMLElement;
+    const bodyRect = document.body.getBoundingClientRect();
+    const bodyRectWidth = bodyRect.width;
+    const elementRect = target.getBoundingClientRect();
+    const elementRectLeft = elementRect.left;
+
+    // // prettier-ignore
+    // const availableMaxWidth = (
+    //   ((elementRectLeft + elementRect.width) > bodyRectWidth) ?
+    //     (bodyRectWidth - elementRectLeft) :
+    //       0
+    // );
+
+    // prettier-ignore
+    const availableMaxWidth = elementRect.width - ((elementRect.left + elementRect.width) - bodyRect.width);
+
+    console.log({ uniqueId, availableMaxWidth, target, bodyRect, elementRect });
+
+    // availableMaxWidth && (target.style.maxWidth = `${availableMaxWidth}px`);
   };
 
-  // children().addEventListener('transitionend', onTransitionEnd);
+  transitionEndListenersMap.set(uniqueId, onTransitionEnd);
 
-  console.log(1231231, children());
+  // children().ontransitionend = (event) => {
+  //   console.log(event);
+  // };
+
+  onCleanup(() => {
+    transitionEndListenersMap.delete(uniqueId);
+  });
 
   return children;
 };
