@@ -1,10 +1,12 @@
 import type { Component, JSX } from 'solid-js';
 
 export type TooltipWithFallbackPositionAttrs = {
-  children: JSX.Element
+  children: JSX.Element;
 };
 
-export type TooltipWithFallbackPositionProps = {};
+export type TooltipWithFallbackPositionProps = {
+  classes?: string[];
+};
 
 export type TooltipWithFallbackPositionAttrsAndProps =
   TooltipWithFallbackPositionAttrs & TooltipWithFallbackPositionProps;
