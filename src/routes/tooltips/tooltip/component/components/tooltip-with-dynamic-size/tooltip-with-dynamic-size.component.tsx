@@ -5,23 +5,7 @@ import {
   children as toChildren,
 } from 'solid-js';
 import type { TooltipWithDynamicSizeComponent } from './tooltip-with-dynamic-size.component.types';
-
-var transitionEndListenersMap = new Map<
-  string,
-  (event: DocumentEventMap['transitionend']) => any
->();
-
-window.transitionEndListenersMap = transitionEndListenersMap;
-
-document.addEventListener(
-  'transitionend',
-  (event) => {
-    transitionEndListenersMap.forEach((listener) => {
-      listener(event);
-    });
-  },
-  true
-);
+import { transitionEndListenersMap } from '../../../utils';
 
 export var TooltipWithDynamicSize: TooltipWithDynamicSizeComponent = (
   props
@@ -53,7 +37,9 @@ export var TooltipWithDynamicSize: TooltipWithDynamicSizeComponent = (
 
     console.log({ uniqueId, availableMaxWidth, target, bodyRect, elementRect });
 
-    // availableMaxWidth && (target.style.maxWidth = `${availableMaxWidth}px`);
+    if (target.isEqualNode(children())) {
+      availableMaxWidth && (target.style.maxWidth = `${availableMaxWidth}px`);
+    }
   };
 
   transitionEndListenersMap.set(uniqueId, onTransitionEnd);
