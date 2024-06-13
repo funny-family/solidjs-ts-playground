@@ -14,6 +14,7 @@ import { tooltip } from './tooltip/directive/tooltip.directive';
 import { TooltipType } from './tooltip/directive/tooltip.directive.types';
 import './tooltip/positions.scss';
 import { TooltipWithDynamicSize } from './tooltip/component/components/tooltip-with-dynamic-size/tooltip-with-dynamic-size.component';
+import { TooltipWithFallbackPosition } from './tooltip/component/components/tooltip-with-fallback-position/tooltip-with-fallback-position.component';
 
 declare module 'solid-js' {
   namespace JSX {
@@ -67,7 +68,7 @@ var Tooltips = () => {
                 setTooltipVisibility(true);
               }}
               onMouseLeave={() => {
-                setTooltipVisibility(false);
+                // setTooltipVisibility(false);
               }}
               // use:tooltip={
               //   <Show when={isTooltipVisible()}>
@@ -122,15 +123,44 @@ var Tooltips = () => {
                   <Show when={isTooltipVisible()}>
                     <For
                       each={[
-                        <TooltipWithDynamicSize>
-                          <Tooltip
-                            class="custom-tooltip solid-js-tooltip_default-position solid-js-tooltip-position__top-center"
-                            data-has-transition-class={false}
-                          >
-                            just tooltip!
-                          </Tooltip>
-                        </TooltipWithDynamicSize>,
-                        <TooltipWithDynamicSize>
+                        <Tooltip
+                          class="custom-tooltip solid-js-tooltip_default-position solid-js-tooltip-position__top-center"
+                          data-has-transition-class={false}
+                        >
+                          Lorem ipsum dolor, sit amet consectetur adipisicing
+                          elit. Illum, ipsa!
+                        </Tooltip>,
+
+                        // <TooltipWithDynamicSize>
+                        //   <Tooltip
+                        //     class="custom-tooltip solid-js-tooltip_default-position solid-js-tooltip-position__top-center"
+                        //     data-has-transition-class={false}
+                        //   >
+                        //     Lorem ipsum dolor, sit amet consectetur adipisicing
+                        //     elit. Illum, ipsa!
+                        //   </Tooltip>
+                        // </TooltipWithDynamicSize>,
+
+                        // <TooltipWithDynamicSize>
+                        //   <Tooltip
+                        //     style={{ width: '300px' }}
+                        //     class="custom-tooltip solid-js-tooltip_default-position solid-js-tooltip-position__bottom-right-corner"
+                        //     data-has-transition-class={false}
+                        //   >
+                        //     Lorem ipsum dolor, sit amet consectetur adipisicing
+                        //     elit. Maxime, facilis.
+                        //   </Tooltip>
+                        // </TooltipWithDynamicSize>,
+
+                        <TooltipWithFallbackPosition
+                          classes={[
+                            '1',
+                            'solid-js-tooltip-position__bottom-center',
+                            '2',
+                            'solid-js-tooltip-position__left-center',
+                            '3',
+                          ]}
+                        >
                           <Tooltip
                             style={{ width: '300px' }}
                             class="custom-tooltip solid-js-tooltip_default-position solid-js-tooltip-position__bottom-right-corner"
@@ -139,7 +169,16 @@ var Tooltips = () => {
                             Lorem ipsum dolor, sit amet consectetur adipisicing
                             elit. Maxime, facilis.
                           </Tooltip>
-                        </TooltipWithDynamicSize>,
+                        </TooltipWithFallbackPosition>,
+
+                        // <Tooltip
+                        //   style={{ width: '300px' }}
+                        //   class="custom-tooltip solid-js-tooltip_default-position solid-js-tooltip-position__bottom-right-corner"
+                        //   data-has-transition-class={false}
+                        // >
+                        //   Lorem ipsum dolor, sit amet consectetur adipisicing
+                        //   elit. Maxime, facilis.
+                        // </Tooltip>,
                       ]}
                     >
                       {(el) => {
