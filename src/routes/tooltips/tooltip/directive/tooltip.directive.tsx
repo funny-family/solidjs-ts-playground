@@ -16,7 +16,6 @@ import type {
   ResolvedChildrenOf,
   TooltipType,
 } from './tooltip.directive.types';
-import { withLogging } from './decorators/with-logging.decorator';
 import {
   ZERO_PIXELS,
   eachElementTypeListenerName,
