@@ -105,7 +105,7 @@ export var register: FormStoreField.Register = function (
       // el.name = name;
 
       // console.log({ el, name: el.name });
-      console.log(name, { el }, this.formStore.defaultValues?.[name]);
+      // console.log(name, { el }, this.formStore.defaultValues?.[name]);
 
       if (this.formStore.defaultValues?.[name] != null) {
         el.defaultValue = this.formStore.defaultValues?.[name];
@@ -221,7 +221,7 @@ export var useForm = ((args: DeepRequired<UseFormHookArgs>) => {
   };
 
   createEffect(() => {
-    console.log('"formStore" changed:', formStore);
+    // console.log('"formStore" changed:', formStore);
   });
 
   formStore.register = register.bind(context);
@@ -229,10 +229,10 @@ export var useForm = ((args: DeepRequired<UseFormHookArgs>) => {
   formStore.reset = reset.bind(context);
   formStore.submit = submit.bind(context);
 
-  console.group('form');
-  console.log('formStore:', formStore);
-  console.log('context:', context);
-  console.groupEnd();
+  // console.group('form');
+  // console.log('formStore:', formStore);
+  // console.log('context:', context);
+  // console.groupEnd();
 
   return formStore;
 }) as UseFormHook;
