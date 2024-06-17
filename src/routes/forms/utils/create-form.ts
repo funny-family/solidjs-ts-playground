@@ -47,17 +47,17 @@ export namespace CreateFormHook {
 
   export type Unregister = <TName extends string = string>(name: TName) => void;
 
-  export type SetValue<
+  export type SetFieldValue<
     TFieldName extends string = string,
     TFieldValue extends unknown = unknown
   > = (name: TFieldName, value: TFieldValue) => TFieldValue;
 
-  export type GetValue<
+  export type GetFieldValue<
     TFieldName extends string = string,
     TFieldValue extends unknown = unknown
   > = (name: TFieldName) => TFieldValue;
 
-  export type GetValues<> = () => null;
+  export type GetFieldsValues<> = () => null;
 
   export type Submit = <
     TElement extends HTMLElement = HTMLElement,
@@ -99,17 +99,17 @@ export var createForm = () => {
     fieldsMap.delete(fieldName);
   };
 
-  var setValue: CreateFormHook.SetValue = (fieldName, fieldValue) => {
+  var setFieldValue: CreateFormHook.SetFieldValue = (fieldName, fieldValue) => {
     fieldValuesMap.set(fieldName, fieldValue);
 
     return fieldValue;
   };
 
-  var getValue: CreateFormHook.GetValue = (fieldName) => {
+  var getFieldValue: CreateFormHook.GetFieldValue = (fieldName) => {
     return fieldValuesMap.get(fieldName);
   };
 
-  var getValues: CreateFormHook.GetValues = (fieldName) => {
+  var getFieldsValues: CreateFormHook.GetFieldsValues = (fieldName) => {
     return fieldValuesMap.get(fieldName);
   };
 
