@@ -157,9 +157,9 @@ export var createForm = () => {
   return {
     register,
     unregister,
-    setValue,
-    getValue,
-    getValues,
+    setFieldValue,
+    getFieldValue,
+    getFieldsValues,
     submit,
   };
 };
