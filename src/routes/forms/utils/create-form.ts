@@ -24,9 +24,6 @@ export interface UseFormHook extends UseFormHookReturn {
   (): UseFormHookReturn;
 }
 
-// var f = new FormData();
-// f.append
-
 export namespace CreateFormHook {
   export type FieldsMap<
     TName extends string = string,
@@ -79,9 +76,6 @@ export var createForm = () => {
   var register: CreateFormHook.Register = (fieldName) => {
     var field: ReturnType<CreateFormHook.Register> = {
       name: fieldName,
-      // ref: function (element) {
-      //   //
-      // },
       onChange: () => {
         //
       },
