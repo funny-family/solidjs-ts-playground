@@ -1,5 +1,6 @@
 import { type JSX } from 'solid-js';
-import { createMutable } from 'solid-js/store';
+import { createMutable, createStore } from 'solid-js/store';
+import { ReactiveMap } from '@solid-primitives/map';
 
 export type UseFormHook_On = (type: string, listener: () => void) => void;
 
@@ -38,23 +39,26 @@ export namespace CreateFormHook {
   export type Register<TName extends string = string> = (name: TName) => {
     name: TName;
     // ref: <TElement extends HTMLElement>(element: TElement) => void;
-    onChange: () => void;
+    onChange: <T extends any>(fieldValue: T) => void;
     onBlur: () => void;
+    getValue: <T extends any>() => T;
+    setValue: <T extends any>(fieldName: T) => T;
   };
 
   export type Unregister = <TName extends string = string>(name: TName) => void;
 
-  export type SetFieldValue<
+  export type SetValue<
     TFieldName extends string = string,
     TFieldValue extends unknown = unknown
   > = (name: TFieldName, value: TFieldValue) => TFieldValue;
 
-  export type GetFieldValue<
+  export type GetValue<
     TFieldName extends string = string,
     TFieldValue extends unknown = unknown
   > = (name: TFieldName) => TFieldValue;
 
-  export type GetFieldsValues<> = () => null;
+  export type GetValues<T extends Record<string, any> = Record<string, any>> =
+    () => T;
 
   export type Submit = <
     TElement extends HTMLElement = HTMLElement,
@@ -71,16 +75,60 @@ export type CreateFormFunction = () => UseFormHook;
 
 export var createForm = () => {
   var fieldsMap: CreateFormHook.FieldsMap = new Map();
-  var fieldValuesMap: CreateFormHook.ValuesMap = new Map();
+  // var fieldValuesMap: CreateFormHook.ValuesMap = new ReactiveMap();
+  var [getFieldStoreValue, setFieldStoreValue] = createStore(null as any as {});
+
+  var setValue: CreateFormHook.SetValue = (fieldName, fieldValue) => {
+    // // if (fieldValuesMap.has(fieldName)) {
+    // // }
+
+    // // return undefined;
+    // fieldValuesMap.set(fieldName, fieldValue);
+
+    // return fieldValue;
+
+    var f = getFieldStoreValue[fieldName];
+
+    if (f == null) {
+      return undefined;
+    }
+
+    setFieldStoreValue((state) => {
+      return {
+        ...state,
+        [fieldName]: fieldValue,
+      };
+    });
+
+    return f;
+  };
+
+  var getValue: CreateFormHook.GetValue = (fieldName) => {
+    // return fieldValuesMap.get(fieldName);
+
+    return getFieldStoreValue[fieldName];
+  };
+
+  var getValues: CreateFormHook.GetValues = () => {
+    // return Object.fromEntries(fieldValuesMap);
+
+    return getFieldStoreValue;
+  };
 
   var register: CreateFormHook.Register = (fieldName) => {
     var field: ReturnType<CreateFormHook.Register> = {
       name: fieldName,
-      onChange: () => {
-        //
+      onChange: (fieldValue) => {
+        setValue(fieldName, fieldValue);
       },
       onBlur: () => {
         //
+      },
+      getValue: () => {
+        return getValue(fieldName);
+      },
+      setValue: (fieldValue) => {
+        return setValue(fieldName, fieldValue);
       },
     };
 
@@ -91,20 +139,6 @@ export var createForm = () => {
 
   var unregister: CreateFormHook.Unregister = (fieldName) => {
     fieldsMap.delete(fieldName);
-  };
-
-  var setFieldValue: CreateFormHook.SetFieldValue = (fieldName, fieldValue) => {
-    fieldValuesMap.set(fieldName, fieldValue);
-
-    return fieldValue;
-  };
-
-  var getFieldValue: CreateFormHook.GetFieldValue = (fieldName) => {
-    return fieldValuesMap.get(fieldName);
-  };
-
-  var getFieldsValues: CreateFormHook.GetFieldsValues = (fieldName) => {
-    return fieldValuesMap.get(fieldName);
   };
 
   // var submit = <
@@ -151,9 +185,9 @@ export var createForm = () => {
   return {
     register,
     unregister,
-    setFieldValue,
-    getFieldValue,
-    getFieldsValues,
+    setValue,
+    getValue,
+    getValues,
     submit,
   };
 };
@@ -181,8 +215,8 @@ export var withFormState = (form: ReturnType<typeof createForm>) => {
     submitCount: 0,
   });
 
-  var register: CreateFormHook.Register = (name, value) => {
-    var registerObject = form.register(name, value);
+  var register: CreateFormHook.Register = (fieldName) => {
+    var registerObject = form.register(fieldName);
 
     var onChange = registerObject.onChange;
     registerObject.onChange = () => {
