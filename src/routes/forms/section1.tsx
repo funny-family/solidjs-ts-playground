@@ -1,10 +1,16 @@
+import { createEffect } from 'solid-js';
 import { createForm, withFormState } from './utils/create-form';
 
-export const Section1 = () => {
+var field = {
+  name: 'name',
+  agree: 'agree',
+};
+
+export var Section1 = () => {
   var form = createForm();
   // const form = withFormState(createForm());
-  const nameField = form.register('name');
-  const agreeField = form.register('agree');
+  var nameField = form.register(field.name);
+  var agreeField = form.register(field.agree);
 
   window.form1 = form;
 
@@ -20,19 +26,22 @@ export const Section1 = () => {
             'border': '2px solid red',
             'padding': '0.8em',
           }}
-          onSubmit={() => {
-            //
+          onSubmit={(event) => {
+            event.preventDefault();
+
+            console.log({ event });
           }}
         >
           <input
             type="text"
             placeholder="name"
             name={nameField.name}
+            value={nameField.setValue('hfsuf7674')}
             ref={(el) => {
-              // nameField.ref(el);
+              // form.setValue(field.name, el.value);
             }}
             onChange={(event) => {
-              nameField.onChange();
+              nameField.onChange((event.target as HTMLInputElement).value);
             }}
             onBlur={(event) => {
               nameField.onBlur();
@@ -43,11 +52,12 @@ export const Section1 = () => {
               id="fsjhf675"
               type="checkbox"
               name={agreeField.name}
+              checked={agreeField.setValue(true)}
               ref={(el) => {
-                // agreeField.ref(el);
+                // form.setValue(field.agree, el.checked);
               }}
               onChange={(event) => {
-                agreeField.onChange();
+                agreeField.onChange((event.target as HTMLInputElement).checked);
               }}
               onBlur={(event) => {
                 agreeField.onBlur();
