@@ -99,7 +99,7 @@ export var createForm = () => {
 
     var i = 0;
     fieldsMap.forEach((value, key) => {
-      fieldsEntries[i] = [key, value[0]];
+      fieldsEntries[i] = [key, value[0]()];
 
       i++;
     });
