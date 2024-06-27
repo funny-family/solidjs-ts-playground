@@ -1,4 +1,4 @@
-import { type JSX } from 'solid-js';
+import { createSignal, type JSX } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
 import { ReactiveMap } from '@solid-primitives/map';
 
@@ -73,7 +73,7 @@ export namespace CreateFormHook {
 
 export type CreateFormFunction = () => UseFormHook;
 
-export var createForm = () => {
+export var createForm1 = () => {
   var fieldsMap: CreateFormHook.FieldsMap = new Map();
   // var fieldValuesMap: CreateFormHook.ValuesMap = new ReactiveMap();
   var [getFieldStoreValue, setFieldStoreValue] = createStore(null as any as {});
@@ -253,5 +253,119 @@ export var withFormState = (form: ReturnType<typeof createForm>) => {
 
 // =================================================================
 
+export var createForm = () => {
+  var fieldsMap = new Map();
+
+  var setValue = (fieldName: string, fieldValue: any) => {
+    var signal = fieldsMap.get(fieldName);
+
+    if (signal == null) {
+      return () => undefined;
+    }
+
+    signal[1](fieldValue);
+
+    return signal[0];
+  };
+
+  var getValue = (fieldName: string) => {
+    return fieldsMap.get(fieldName)[0]();
+  };
+
+  var getValues = () => {
+    var fieldsEntries = Array(fieldsMap.size);
+
+    var i = 0;
+    fieldsMap.forEach((value, key) => {
+      fieldsEntries[i] = [key, value[0]];
+
+      i++;
+    });
+
+    return Object.fromEntries(fieldsEntries);
+  };
+
+  var register = (fieldName: string) => {
+    var field = {
+      ...createSignal(null),
+      name: fieldName,
+      onChange: (fieldValue: any) => {
+        setValue(fieldName, fieldValue);
+      },
+      onBlur: () => {
+        //
+      },
+      getValue: () => {
+        return getValue(fieldName);
+      },
+      setValue: (fieldValue: any) => {
+        return setValue(fieldName, fieldValue);
+      },
+    };
+
+    fieldsMap.set(fieldName, field);
+
+    return field;
+  };
+
+  var unregister = (fieldName: string) => {
+    fieldsMap.delete(fieldName);
+  };
+
+  var submit = () => {
+    //
+  };
+
+  return {
+    setValue,
+    getValue,
+    getValues,
+    register,
+    unregister,
+    submit,
+  };
+};
+
+// =================================================================
+
+// export var createForm = () => {
+//   var fieldsMap = new Map();
+//   const [fieldValue, setFieldValue] = createStore({});
+
+//   var setValue = (fieldName: string, fieldValue: any) => {
+//     //
+//   };
+
+//   var getValue = (fieldName: string) => {
+//     //
+//   };
+
+//   var getValues = () => {
+//     //
+//   };
+
+//   var register = (fieldName: string) => {
+//     setFieldValue()
+//   };
+
+//   var unregister = (fieldName: string) => {
+//     setFieldValue()
+//   };
+
+//   var submit = () => {
+//     //
+//   };
+
+//   return {
+//     setValue,
+//     getValue,
+//     getValues,
+//     register,
+//     unregister,
+//     submit,
+//   };
+// };
+
+// =================================================================
 // const form = createForm();
 // const form = useForm();
