@@ -194,65 +194,6 @@ export var createForm1 = () => {
 
 // =================================================================
 
-export type FormState = {
-  isTouched: boolean;
-  isDirty: boolean;
-  isSubmitted: boolean;
-  isSubmitSuccessful: boolean;
-  isSubmitting: boolean;
-  isLoading: boolean;
-  submitCount: number;
-};
-
-export var withFormState = (form: ReturnType<typeof createForm>) => {
-  var state = createMutable<FormState>({
-    isTouched: false,
-    isDirty: false,
-    isSubmitted: false,
-    isSubmitSuccessful: false,
-    isSubmitting: false,
-    isLoading: false,
-    submitCount: 0,
-  });
-
-  var register: CreateFormHook.Register = (fieldName) => {
-    var registerObject = form.register(fieldName);
-
-    var onChange = registerObject.onChange;
-    registerObject.onChange = () => {
-      onChange();
-
-      state.isDirty = true;
-    };
-
-    var onBlur = registerObject.onBlur;
-    registerObject.onBlur = () => {
-      onBlur();
-
-      state.isTouched = true;
-    };
-
-    return registerObject;
-  };
-
-  // var submit: CreateFormHook.Submit = (event) => {
-  //   const f = form.submit(event);
-
-  //   return f((e) => {
-  //     //
-  //   });
-  // };
-
-  return {
-    ...form,
-    // submit,
-    register,
-    state,
-  };
-};
-
-// =================================================================
-
 export var createForm = () => {
   var fieldsMap = new Map();
 
