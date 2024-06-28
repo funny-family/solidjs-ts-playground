@@ -1,5 +1,8 @@
 import { createEffect } from 'solid-js';
-import { createForm, withFormState } from './utils/create-form';
+import { createForm } from './utils/create-form';
+import { withState } from './utils/decorators/with-state';
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 var field = {
   name: 'name',
@@ -7,12 +10,37 @@ var field = {
 };
 
 export var Section1 = () => {
-  var form = createForm();
-  // const form = withFormState(createForm());
-  var nameField = form.register(field.name);
-  var agreeField = form.register(field.agree);
+  // var useForm = createForm();
+  // var form = useForm();
 
+  // var form = createForm();
+  var form = withState(createForm());
   window.form1 = form;
+
+  var nameField = form.register(field.name, 'test');
+  var agreeField = form.register(field.agree, true);
+
+  // var nameFieldValue = nameField.setValue('hfsuf7674');
+  // var agreeFieldValue = agreeField.setValue(true);
+
+  var onSubmit = async (event: Event) => {
+    event.preventDefault();
+
+    await sleep(3000);
+
+    var v = Math.round(Math.random() * 10);
+    console.log('v:', v);
+    if (v < 6) {
+      throw 'Oooops...';
+    }
+
+    console.log({ event, field: form.getValues() });
+  };
+
+  // createEffect(() => {
+  //   nameField.setValue('hfsuf7674');
+  //   agreeField.setValue(true);
+  // });
 
   return (
     <section>
@@ -27,16 +55,16 @@ export var Section1 = () => {
             'padding': '0.8em',
           }}
           onSubmit={(event) => {
-            event.preventDefault();
-
-            console.log({ event });
+            form.submit(event)(onSubmit);
           }}
         >
           <input
             type="text"
             placeholder="name"
             name={nameField.name}
-            value={nameField.setValue('hfsuf7674')}
+            // value={nameField.setValue('hfsuf7674')()}
+            // value={nameFieldValue()}
+            value={nameField.getValue()}
             ref={(el) => {
               // form.setValue(field.name, el.value);
             }}
@@ -52,7 +80,9 @@ export var Section1 = () => {
               id="fsjhf675"
               type="checkbox"
               name={agreeField.name}
-              checked={agreeField.setValue(true)}
+              // checked={agreeField.setValue(true)()}
+              // checked={agreeFieldValue()}
+              checked={agreeField.getValue()}
               ref={(el) => {
                 // form.setValue(field.agree, el.checked);
               }}
@@ -67,6 +97,84 @@ export var Section1 = () => {
           </div>
           <button type="submit">submit</button>
         </form>
+
+        <pre>
+          <h1>Form values</h1>
+          <code>
+            {() => {
+              return JSON.stringify(form.getValues(), null, 2);
+            }}
+          </code>
+        </pre>
+
+        <hr />
+
+        <pre>
+          <h1>Form default values</h1>
+          <code>
+            {() => {
+              return JSON.stringify(form.getDefaultValues(), null, 2);
+            }}
+          </code>
+        </pre>
+
+        <hr />
+
+        <pre>
+          <h1>Form state</h1>
+          <code>
+            {() => {
+              return JSON.stringify(form?.state || {}, null, 2);
+            }}
+          </code>
+        </pre>
+
+        <hr />
+
+        <pre>
+          <h1>Form dirty fields</h1>
+          <code>
+            {() => {
+              return JSON.stringify(
+                form?.state.getDirtyFields() || {},
+                null,
+                2
+              );
+            }}
+          </code>
+        </pre>
+
+        <hr />
+
+        <pre>
+          <h1>Form touched fields</h1>
+          <code>
+            {() => {
+              return JSON.stringify(
+                form?.state.getTouchedFields() || {},
+                null,
+                2
+              );
+            }}
+          </code>
+        </pre>
+
+        <hr />
+
+        <pre>
+          <h1>"name" field state</h1>
+          <code>
+            {() => {
+              return JSON.stringify(
+                form?.state.getFieldState('name') || {},
+                null,
+                2
+              );
+            }}
+          </code>
+        </pre>
+
+        <hr />
       </div>
     </section>
   );
