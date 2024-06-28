@@ -156,7 +156,7 @@ export var createForm = () => {
     const field = fieldsMap.get(fieldName);
 
     if (defaultFieldValue == null || field == null) {
-      return;
+      return undefined;
     }
 
     return field.setValue(defaultFieldValue);
@@ -195,24 +195,36 @@ export var createForm = () => {
 
 // =================================================================
 
-export var withFormState = (form: ReturnType<typeof createForm>) => {
-  var dirtyFieldsMap = new Map();
+export var withState = (form: ReturnType<typeof createForm>) => {
+  var dirtyFieldsMap = new ReactiveMap();
   var getDirtyFields = () => {
     return Object.fromEntries(dirtyFieldsMap);
   };
 
-  var touchedFieldsMap = new Map();
+  var touchedFieldsMap = new ReactiveMap();
   var getTouchedFields = () => {
     return Object.fromEntries(touchedFieldsMap);
+  };
+
+  var getFieldState = (fieldName: string) => {
+    return {
+      isDirty: dirtyFieldsMap.get(fieldName),
+      isTouched: touchedFieldsMap.get(fieldName),
+    };
   };
 
   var register = form.register;
   form.register = (fieldName: string, fieldValue: any) => {
     const field = register(fieldName, fieldValue);
 
+    dirtyFieldsMap.set(fieldName, false);
+    touchedFieldsMap.set(fieldName, false);
+
     const onChange = field.onChange;
     field.onChange = (fieldValue: any) => {
       onChange(fieldValue);
+
+      setState('isDirty', true);
 
       dirtyFieldsMap.set(fieldName, true);
     };
@@ -220,6 +232,8 @@ export var withFormState = (form: ReturnType<typeof createForm>) => {
     const onBlur = field.onBlur;
     field.onBlur = () => {
       onBlur();
+
+      setState('isTouched', true);
 
       touchedFieldsMap.set(fieldName, true);
     };
@@ -235,13 +249,55 @@ export var withFormState = (form: ReturnType<typeof createForm>) => {
     touchedFieldsMap.delete(fieldName);
   };
 
-  var [state, setState] = createStore({
+  var reset = form.reset;
+  form.reset = () => {
+    reset();
+
+    setState('isDirty', false);
+    setState('isTouched', false);
+
+    dirtyFieldsMap.forEach((fieldValue, fieldName, map) => {
+      map.set(fieldName, false);
+    });
+    touchedFieldsMap.forEach((fieldValue, fieldName, map) => {
+      map.set(fieldName, false);
+    });
+  };
+
+  var resetField = form.resetField;
+  form.resetField = (fieldName: string) => {
+    // var dirtyFieldsValues = dirtyFieldsMap.set(fieldName, false).values().toArray();
+    var dirtyFieldsValues = [...dirtyFieldsMap.set(fieldName, false).values()];
+    var isAllFields_NOT_Dirty = dirtyFieldsValues.every((value) => {
+      return value === false;
+    });
+    if (isAllFields_NOT_Dirty) {
+      setState('isDirty', false);
+    }
+
+    // var touchedFieldsValues = touchedFieldsMap.set(fieldName, false).values().toArray();
+    var touchedFieldsValues = [
+      ...touchedFieldsMap.set(fieldName, false).values(),
+    ];
+    var isAllFields_NOT_Touched = touchedFieldsValues.every((value) => {
+      return value === false;
+    });
+    if (isAllFields_NOT_Touched) {
+      setState('isTouched', false);
+    }
+
+    return resetField(fieldName);
+  };
+
+  var { 0: state, 1: setState } = createStore({
+    isTouched: false,
     isDirty: false,
     isSubmitted: false,
     isSubmitSuccessful: false,
     isSubmitting: false,
     isLoading: false,
     submitCount: 0,
+    getFieldState,
     getDirtyFields,
     getTouchedFields,
   });
