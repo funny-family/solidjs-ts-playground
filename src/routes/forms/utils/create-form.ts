@@ -78,52 +78,28 @@ export type CreateFormFunction = () => UseFormHook;
 export var createForm = () => {
   var fieldsMap = new Map();
 
-  var setValue = (fieldName: string, fieldValue: any) => {
-    var signal = fieldsMap.get(fieldName);
+  var register = (fieldName: string, fieldValue: any) => {
+    var { 0: value, 1: setValue } = createSignal(fieldValue);
 
-    if (signal == null) {
-      return () => undefined;
-    }
-
-    signal[1](fieldValue);
-
-    return signal[0];
-  };
-
-  var getValue = (fieldName: string) => {
-    return fieldsMap.get(fieldName)[0]();
-  };
-
-  var getValues = () => {
-    var fieldsEntries = Array(fieldsMap.size);
-
-    var i = 0;
-    fieldsMap.forEach((value, key) => {
-      fieldsEntries[i] = [key, value[0]()];
-
-      i++;
-    });
-
-    return Object.fromEntries(fieldsEntries);
-  };
-
-  var register = (fieldName: string) => {
     var field = {
-      ...createSignal(null),
       name: fieldName,
       onChange: (fieldValue: any) => {
-        setValue(fieldName, fieldValue);
+        setValue(fieldValue);
       },
       onBlur: () => {
         //
       },
       getValue: () => {
-        return getValue(fieldName);
+        return value();
       },
       setValue: (fieldValue: any) => {
-        return setValue(fieldName, fieldValue);
+        setValue(fieldValue);
+
+        return value;
       },
     };
+
+    defaultValuesMap.set(fieldName, fieldValue);
 
     fieldsMap.set(fieldName, field);
 
@@ -132,24 +108,148 @@ export var createForm = () => {
 
   var unregister = (fieldName: string) => {
     fieldsMap.delete(fieldName);
+
+    defaultValuesMap.delete(fieldName);
   };
 
-  var submit = () => {
-    //
+  var setValue = (fieldName: string, fieldValue: any) => {
+    var field = fieldsMap.get(fieldName);
+
+    if (field == null) {
+      return () => undefined;
+    }
+
+    return field.setValue(fieldValue);
   };
+
+  var getValue = (fieldName: string) => {
+    return fieldsMap.get(fieldName)?.getValue();
+  };
+
+  var getValues = () => {
+    var fieldsEntries = Array(fieldsMap.size);
+
+    var i = 0;
+    fieldsMap.forEach((field, key) => {
+      fieldsEntries[i] = [key, field.getValue()];
+
+      i++;
+    });
+
+    return Object.fromEntries(fieldsEntries);
+  };
+
+  var defaultValuesMap = new Map();
+
+  var getDefaultValues = () => {
+    return Object.fromEntries(defaultValuesMap);
+  };
+
+  var reset = () => {
+    fieldsMap.forEach((field, key) => {
+      field.setValue(defaultValuesMap.get(key));
+    });
+  };
+
+  var resetField = (fieldName: string) => {
+    const defaultFieldValue = defaultValuesMap.get(fieldName);
+    const field = fieldsMap.get(fieldName);
+
+    if (defaultFieldValue == null || field == null) {
+      return;
+    }
+
+    return field.setValue(defaultFieldValue);
+  };
+
+  var submit = (event: Event) => {
+    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
+      event.preventDefault();
+
+      onSubmit(event);
+    };
+
+    return submitter;
+  };
+
+  /*
+      var submit = (event: Event, onSubmit: (event: Event) => Promise<any>) => {
+        event.preventDefault();
+
+        onSubmit(event);
+      };
+  */
 
   return {
     setValue,
     getValue,
     getValues,
+    getDefaultValues,
     register,
     unregister,
+    reset,
+    resetField,
     submit,
   };
 };
 
 // =================================================================
 
-// export var withFormState =
+export var withFormState = (form: ReturnType<typeof createForm>) => {
+  var dirtyFieldsMap = new Map();
+  var getDirtyFields = () => {
+    return Object.fromEntries(dirtyFieldsMap);
+  };
+
+  var touchedFieldsMap = new Map();
+  var getTouchedFields = () => {
+    return Object.fromEntries(touchedFieldsMap);
+  };
+
+  var register = form.register;
+  form.register = (fieldName: string, fieldValue: any) => {
+    const field = register(fieldName, fieldValue);
+
+    const onChange = field.onChange;
+    field.onChange = (fieldValue: any) => {
+      onChange(fieldValue);
+
+      dirtyFieldsMap.set(fieldName, true);
+    };
+
+    const onBlur = field.onBlur;
+    field.onBlur = () => {
+      onBlur();
+
+      touchedFieldsMap.set(fieldName, true);
+    };
+
+    return field;
+  };
+
+  var unregister = form.unregister;
+  form.unregister = (fieldName: string) => {
+    unregister(fieldName);
+
+    dirtyFieldsMap.delete(fieldName);
+    touchedFieldsMap.delete(fieldName);
+  };
+
+  var [state, setState] = createStore({
+    isDirty: false,
+    isSubmitted: false,
+    isSubmitSuccessful: false,
+    isSubmitting: false,
+    isLoading: false,
+    submitCount: 0,
+    getDirtyFields,
+    getTouchedFields,
+  });
+
+  return {
+    ...form,
+    state,
+  };
+};
 
 // =================================================================
