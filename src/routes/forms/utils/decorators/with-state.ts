@@ -34,16 +34,14 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     };
   };
 
-  var _register = form.register;
   var register = (fieldName: string, fieldValue: any) => {
-    const field = _register(fieldName, fieldValue);
+    const field = form.register(fieldName, fieldValue);
 
     dirtyFieldsMap.set(fieldName, false);
     touchedFieldsMap.set(fieldName, false);
 
-    var onChange = field.onChange;
     field.onChange = (fieldValue: any) => {
-      onChange(fieldValue);
+      field.onChange(fieldValue);
 
       if (dirtyFieldsMap.has(fieldName)) {
         setState('isDirty', true);
@@ -52,9 +50,8 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       }
     };
 
-    var onBlur = field.onBlur;
     field.onBlur = () => {
-      onBlur();
+      field.onBlur();
 
       if (touchedFieldsMap.has(fieldName)) {
         setState('isTouched', true);
@@ -66,9 +63,8 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     return field;
   };
 
-  var _unregister = form.unregister;
   var unregister = (fieldName: string) => {
-    var isDeleted = _unregister(fieldName);
+    var isDeleted = form.unregister(fieldName);
 
     if (isDeleted) {
       resetField(fieldName);
@@ -80,7 +76,6 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     return isDeleted;
   };
 
-  var _reset = form.reset;
   var reset = (option?: {
     keepDirty?: boolean;
     keepTouched?: boolean;
@@ -112,11 +107,10 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     }
 
     if (keepValues === false) {
-      _reset();
+      form.reset();
     }
   };
 
-  var _resetField = form.resetField;
   var resetField = (
     fieldName: string,
     option?: {
@@ -162,7 +156,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       return form.getValue(fieldName);
     }
 
-    return _resetField(fieldName);
+    return form.resetField(fieldName);
   };
 
   var _submit = form.submit;
