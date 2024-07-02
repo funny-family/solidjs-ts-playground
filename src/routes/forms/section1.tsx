@@ -61,36 +61,39 @@ export var Section1 = () => {
           <input
             type="text"
             placeholder="name"
-            name={nameField.name}
+            autocomplete="off"
+            name={nameField()?.name}
             // value={nameField.setValue('hfsuf7674')()}
             // value={nameFieldValue()}
-            value={nameField.getValue()}
+            value={nameField()?.getValue()}
             ref={(el) => {
               // form.setValue(field.name, el.value);
             }}
             onChange={(event) => {
-              nameField.onChange((event.target as HTMLInputElement).value);
+              nameField()?.onChange((event.target as HTMLInputElement).value);
             }}
             onBlur={(event) => {
-              nameField.onBlur();
+              nameField()?.onBlur();
             }}
           />
           <div>
             <input
               id="fsjhf675"
               type="checkbox"
-              name={agreeField.name}
+              name={agreeField()?.name}
               // checked={agreeField.setValue(true)()}
               // checked={agreeFieldValue()}
-              checked={agreeField.getValue()}
+              checked={agreeField()?.getValue()}
               ref={(el) => {
                 // form.setValue(field.agree, el.checked);
               }}
               onChange={(event) => {
-                agreeField.onChange((event.target as HTMLInputElement).checked);
+                agreeField()?.onChange(
+                  (event.target as HTMLInputElement).checked
+                );
               }}
               onBlur={(event) => {
-                agreeField.onBlur();
+                agreeField()?.onBlur();
               }}
             />
             <label for="fsjhf675">Agree</label>
@@ -102,7 +105,7 @@ export var Section1 = () => {
           <h1>Form values</h1>
           <code>
             {() => {
-              return JSON.stringify(form.getValues(), null, 2);
+              return JSON.stringify(form?.getValues(), null, 2);
             }}
           </code>
         </pre>
@@ -165,8 +168,17 @@ export var Section1 = () => {
           <h1>"name" field state</h1>
           <code>
             {() => {
+              // return JSON.stringify(
+              //   form?.state?.getFieldState('name') || {},
+              //   null,
+              //   2
+              // );
               return JSON.stringify(
-                form?.state.getFieldState('name') || {},
+                Object.keys(form?.getValues()).reduce((acc, curr) => {
+                  acc[curr] = form?.state?.getFieldState(curr);
+
+                  return acc;
+                }, {}) || {},
                 null,
                 2
               );
