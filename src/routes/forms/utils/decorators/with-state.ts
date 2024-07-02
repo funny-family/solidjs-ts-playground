@@ -1,6 +1,12 @@
-import { ReactiveMap } from '@solid-primitives/map';
-import { FIELDS_MAP, type createForm } from '../create-form';
+import {
+  DEFAULT_VALUES_MAP,
+  FIELDS_MAP,
+  nullableField,
+  type createForm,
+} from '../create-form';
 import { createStore } from 'solid-js/store';
+import { createEffect, on } from 'solid-js';
+import { ReactiveMap } from '~/utils/reactive-map';
 
 export var DIRTY_FIELDS_MAP = Symbol('DIRTY_FIELDS_MAP_SYMBOL') as symbol;
 export var TOUCHED_FIELDS_MAP = Symbol('TOUCHED_FIELDS_MAP_SYMBOL') as symbol;
@@ -20,6 +26,7 @@ var stateKey = {
 
 export var withState = (form: ReturnType<typeof createForm>) => {
   var fieldsMap = form[FIELDS_MAP];
+  var defaultValuesMap = form[DEFAULT_VALUES_MAP];
 
   var dirtyFieldsMap = new ReactiveMap();
   var touchedFieldsMap = new ReactiveMap();
@@ -40,7 +47,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
   };
 
   var register = (fieldName: string, fieldValue: any) => {
-    const field = form.register(fieldName, fieldValue);
+    const field = form.register(fieldName, fieldValue)();
 
     dirtyFieldsMap.set(fieldName, false);
     touchedFieldsMap.set(fieldName, false);
@@ -58,13 +65,25 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     field.onChange = (fieldValue: any) => {
       onChange(fieldValue);
 
-      console.log({ fieldName, fieldValue });
       setState('isDirty', true);
 
       dirtyFieldsMap.set(fieldName, true);
+      console.log('onChange 2:', { fieldName, fieldValue });
     };
 
-    return fieldsMap.get(fieldName);
+    var defaultValue = defaultValuesMap.get(fieldName);
+    var map = fieldsMap.set(fieldName, field);
+
+    return () => {
+      return (
+        map.get(fieldName) || {
+          ...nullableField,
+          getValue: () => {
+            return defaultValue;
+          },
+        }
+      );
+    };
   };
 
   var unregister = (fieldName: string) => {
