@@ -1,6 +1,9 @@
 import { ReactiveMap } from '@solid-primitives/map';
-import { type createForm } from '../create-form';
+import { FIELDS_MAP, type createForm } from '../create-form';
 import { createStore } from 'solid-js/store';
+
+export var DIRTY_FIELDS_MAP = Symbol('DIRTY_FIELDS_MAP_SYMBOL') as symbol;
+export var TOUCHED_FIELDS_MAP = Symbol('TOUCHED_FIELDS_MAP_SYMBOL') as symbol;
 
 var stateKey = {
   isTouched: 'isTouched',
@@ -16,6 +19,8 @@ var stateKey = {
 } as const;
 
 export var withState = (form: ReturnType<typeof createForm>) => {
+  var fieldsMap = form[FIELDS_MAP];
+
   var dirtyFieldsMap = new ReactiveMap();
   var touchedFieldsMap = new ReactiveMap();
 
@@ -40,27 +45,26 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     dirtyFieldsMap.set(fieldName, false);
     touchedFieldsMap.set(fieldName, false);
 
-    field.onChange = (fieldValue: any) => {
-      field.onChange(fieldValue);
-
-      if (dirtyFieldsMap.has(fieldName)) {
-        setState('isDirty', true);
-
-        dirtyFieldsMap.set(fieldName, true);
-      }
-    };
-
+    var onBlur = field.onBlur;
     field.onBlur = () => {
-      field.onBlur();
+      onBlur();
 
-      if (touchedFieldsMap.has(fieldName)) {
-        setState('isTouched', true);
+      setState('isTouched', true);
 
-        touchedFieldsMap.set(fieldName, true);
-      }
+      touchedFieldsMap.set(fieldName, true);
     };
 
-    return field;
+    var onChange = field.onChange;
+    field.onChange = (fieldValue: any) => {
+      onChange(fieldValue);
+
+      console.log({ fieldName, fieldValue });
+      setState('isDirty', true);
+
+      dirtyFieldsMap.set(fieldName, true);
+    };
+
+    return fieldsMap.get(fieldName);
   };
 
   var unregister = (fieldName: string) => {
@@ -159,9 +163,8 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     return form.resetField(fieldName);
   };
 
-  var _submit = form.submit;
   var submit = (event: Event) => {
-    const submitter = _submit(event);
+    const submitter = form.submit(event);
 
     setState('isSubmitting', true);
     setState('isSubmitSuccessful', false);
@@ -197,12 +200,9 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     getTouchedFields,
   });
 
-  // ======================= DEV =======================
-  FORM_DEV.dirtyFieldsMap = dirtyFieldsMap;
-  FORM_DEV.touchedFieldsMap = touchedFieldsMap;
-  // ======================= DEV =======================
-
   return {
+    [DIRTY_FIELDS_MAP]: dirtyFieldsMap,
+    [TOUCHED_FIELDS_MAP]: touchedFieldsMap,
     ...form,
     state,
     register,
