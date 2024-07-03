@@ -122,7 +122,7 @@ export var createForm = () => {
         //
       },
       onChange: (fieldValue: any) => {
-        console.log('onChange 1:', { fieldName, fieldValue });
+        // console.log('onChange 1:', { fieldName, fieldValue });
 
         setValue(fieldValue);
       },
@@ -277,12 +277,3 @@ export var createForm = () => {
 };
 
 // =================================================================
-
-/*
-  var manage = ({
-    register: boolean,
-    defaultValue: any,
-  }) => {
-     //
-  };
-*/
