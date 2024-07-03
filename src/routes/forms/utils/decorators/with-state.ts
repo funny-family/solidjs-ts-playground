@@ -68,7 +68,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       setState('isDirty', true);
 
       dirtyFieldsMap.set(fieldName, true);
-      console.log('onChange 2:', { fieldName, fieldValue });
+      // console.log('onChange 2:', { fieldName, fieldValue });
     };
 
     var defaultValue = defaultValuesMap.get(fieldName);
