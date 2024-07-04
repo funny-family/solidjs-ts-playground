@@ -26,7 +26,7 @@ export var Section1 = () => {
   var onSubmit = async (event: Event) => {
     event.preventDefault();
 
-    await sleep(3000);
+    await sleep(1000);
 
     var v = Math.round(Math.random() * 10);
     console.log('v:', v);
@@ -36,11 +36,6 @@ export var Section1 = () => {
 
     console.log({ event, field: form.getValues() });
   };
-
-  // createEffect(() => {
-  //   nameField.setValue('hfsuf7674');
-  //   agreeField.setValue(true);
-  // });
 
   return (
     <section>
@@ -98,7 +93,9 @@ export var Section1 = () => {
             />
             <label for="fsjhf675">Agree</label>
           </div>
-          <button type="submit">submit</button>
+          <button type="submit" disabled={form?.state?.isSubmitting}>
+            submit
+          </button>
         </form>
 
         <pre>
