@@ -122,8 +122,6 @@ export var createForm = () => {
         //
       },
       onChange: (fieldValue: any) => {
-        // console.log('onChange 1:', { fieldName, fieldValue });
-
         setValue(fieldValue);
       },
     };
@@ -205,59 +203,31 @@ export var createForm = () => {
     return field.setValue(defaultFieldValue);
   };
 
-  var thenListeners = new Array<() => void>();
-  var catchListeners = new Array<() => void>();
-  var finallyListeners = new Array<() => void>();
-
   var submit = (event: Event) => {
-    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      event.preventDefault();
+    event.preventDefault();
 
-      onSubmit(event)
+    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
+      var promise = onSubmit(event);
+
+      promise
         .then(() => {
-          thenListeners.forEach((listener) => {
-            listener();
-          });
+          //
+          console.log('on then');
         })
         .catch(() => {
-          catchListeners.forEach((listener) => {
-            listener();
-          });
+          //
+          console.log('on catch');
         })
         .finally(() => {
-          finallyListeners.forEach((listener) => {
-            listener();
-          });
+          //
+          console.log('on finally');
         });
-    };
 
-    submitter.on = (
-      type: 'then' | 'catch' | 'finally',
-      listener: () => void
-    ) => {
-      if (type === 'then') {
-        thenListeners.push(listener);
-      }
-
-      if (type === 'catch') {
-        catchListeners.push(listener);
-      }
-
-      if (type === 'finally') {
-        finallyListeners.push(listener);
-      }
+      return promise;
     };
 
     return submitter;
   };
-
-  /*
-      var submit = (event: Event, onSubmit: (event: Event) => Promise<any>) => {
-        event.preventDefault();
-
-        onSubmit(event);
-      };
-  */
 
   return {
     [FIELDS_MAP]: fieldsMap,
