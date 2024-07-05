@@ -183,26 +183,34 @@ export var withState = (form: ReturnType<typeof createForm>) => {
   };
 
   var submit = (event: Event) => {
-    const submitter = form.submit(event);
+    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
+      setState('isSubmitting', true);
 
-    setState('isSubmitting', true);
-    setState('isSubmitSuccessful', false);
+      var promise = form.submit(event)(onSubmit);
 
-    submitter.on('then', () => {
-      setState('isSubmitSuccessful', true);
-    });
+      promise
+        .then(() => {
+          setState('isSubmitSuccessful', true);
+          console.log('on then1');
+        })
+        .catch(() => {
+          setState('isSubmitSuccessful', false);
+          console.log('on catch1');
+        })
+        .finally(() => {
+          setState((state) => {
+            return {
+              ...state,
+              isSubmitted: true,
+              isSubmitting: false,
+              submitCount: state.submitCount + 1,
+            };
+          });
+          console.log('on finally1');
+        });
 
-    submitter.on('catch', () => {
-      setState('isSubmitSuccessful', false);
-    });
-
-    submitter.on('finally', () => {
-      setState('isSubmitting', false);
-      setState('isSubmitted', false);
-      setState('submitCount', (state) => {
-        return state + 1;
-      });
-    });
+      return promise;
+    };
 
     return submitter;
   };
