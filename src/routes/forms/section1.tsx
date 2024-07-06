@@ -2,7 +2,21 @@ import { createEffect } from 'solid-js';
 import { createForm } from './utils/create-form';
 import { withState } from './utils/decorators/with-state';
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+var sleep = (ms: number) => {
+  return new Promise((resolve, reject) => {
+    if (ms > 3000) {
+      setTimeout(resolve, ms);
+
+      return;
+    }
+
+    setTimeout(reject, ms);
+  });
+};
+
+var randInt = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
 var field = {
   name: 'name',
@@ -24,17 +38,17 @@ export var Section1 = () => {
   // var agreeFieldValue = agreeField.setValue(true);
 
   var onSubmit = async (event: Event) => {
-    event.preventDefault();
+    // await sleep(randInt(1000, 6000));
 
-    await sleep(1000);
+    try {
+      await sleep(randInt(1000, 6000));
 
-    var v = Math.round(Math.random() * 10);
-    console.log('v:', v);
-    if (v < 6) {
-      throw 'Oooops...';
+      console.log({ event, field: form.getValues() });
+    } catch {
+      console.log('Ooops...');
+    } finally {
+      console.log('Finally!');
     }
-
-    console.log({ event, field: form.getValues() });
   };
 
   return (
