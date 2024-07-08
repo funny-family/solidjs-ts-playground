@@ -133,6 +133,8 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     if (keepValues === false) {
       form.reset();
     }
+
+    state.isSubmitted = false;
   };
 
   var resetField = (
