@@ -191,11 +191,11 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       promise
         .then(() => {
           setState('isSubmitSuccessful', true);
-          console.log('on then1');
+          // console.log('on then1');
         })
         .catch(() => {
           setState('isSubmitSuccessful', false);
-          console.log('on catch1');
+          // console.log('on catch1');
         })
         .finally(() => {
           setState((state) => {
@@ -206,7 +206,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
               submitCount: state.submitCount + 1,
             };
           });
-          console.log('on finally1');
+          // console.log('on finally1');
         });
 
       return promise;
