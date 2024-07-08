@@ -211,16 +211,13 @@ export var createForm = () => {
 
       promise
         .then(() => {
-          //
-          console.log('on then');
+          // console.log('on then');
         })
         .catch(() => {
-          //
-          console.log('on catch');
+          // console.log('on catch');
         })
         .finally(() => {
-          //
-          console.log('on finally');
+          // console.log('on finally');
         });
 
       return promise;
