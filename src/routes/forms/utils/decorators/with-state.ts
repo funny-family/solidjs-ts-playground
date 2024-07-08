@@ -126,7 +126,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       });
     }
 
-    if (keepSubmitCount) {
+    if (keepSubmitCount === false) {
       state.submitCount = 0;
     }
 
