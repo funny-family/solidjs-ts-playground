@@ -4,8 +4,8 @@ import {
   nullableField,
   type createForm,
 } from '../create-form';
-import { createStore } from 'solid-js/store';
-import { createEffect, on } from 'solid-js';
+import { createMutable, createStore } from 'solid-js/store';
+import { batch, createEffect, on } from 'solid-js';
 import { ReactiveMap } from '~/utils/reactive-map';
 
 export var DIRTY_FIELDS_MAP = Symbol('DIRTY_FIELDS_MAP_SYMBOL') as symbol;
@@ -56,7 +56,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     field.onBlur = () => {
       onBlur();
 
-      setState('isTouched', true);
+      state.isTouched = true;
 
       touchedFieldsMap.set(fieldName, true);
     };
@@ -65,7 +65,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     field.onChange = (fieldValue: any) => {
       onChange(fieldValue);
 
-      setState('isDirty', true);
+      state.isDirty = true;
 
       dirtyFieldsMap.set(fieldName, true);
       // console.log('onChange 2:', { fieldName, fieldValue });
@@ -111,14 +111,15 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     var keepValues = option?.keepValues || false;
 
     if (keepDirty === false) {
-      setState('isDirty', false);
+      state.isDirty = false;
+
       dirtyFieldsMap.forEach((fieldValue, fieldName, map) => {
         map.set(fieldName, false);
       });
     }
 
     if (keepTouched === false) {
-      setState('isTouched', false);
+      state.isTouched = false;
 
       touchedFieldsMap.forEach((fieldValue, fieldName, map) => {
         map.set(fieldName, false);
@@ -126,7 +127,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     }
 
     if (keepSubmitCount) {
-      setState('submitCount', 0);
+      state.submitCount = 0;
     }
 
     if (keepValues === false) {
@@ -157,7 +158,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       });
 
       if (isAllFields_NOT_Dirty) {
-        setState('isDirty', false);
+        state.isDirty = false;
       }
     }
 
@@ -171,7 +172,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
       });
 
       if (isAllFields_NOT_Touched) {
-        setState('isTouched', false);
+        state.isTouched = false;
       }
     }
 
@@ -184,29 +185,23 @@ export var withState = (form: ReturnType<typeof createForm>) => {
 
   var submit = (event: Event) => {
     var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      setState('isSubmitting', true);
+      state.isSubmitting = true;
 
       var promise = form.submit(event)(onSubmit);
 
       promise
         .then(() => {
-          setState('isSubmitSuccessful', true);
-          // console.log('on then1');
+          state.isSubmitSuccessful = true;
         })
         .catch(() => {
-          setState('isSubmitSuccessful', false);
-          // console.log('on catch1');
+          state.isSubmitSuccessful = false;
         })
         .finally(() => {
-          setState((state) => {
-            return {
-              ...state,
-              isSubmitted: true,
-              isSubmitting: false,
-              submitCount: state.submitCount + 1,
-            };
+          batch(() => {
+            state.isSubmitted = true;
+            state.isSubmitting = false;
+            state.submitCount = state.submitCount + 1;
           });
-          // console.log('on finally1');
         });
 
       return promise;
@@ -215,7 +210,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     return submitter;
   };
 
-  var { 0: state, 1: setState } = createStore({
+  var state = createMutable({
     isTouched: false,
     isDirty: false,
     isSubmitted: false,
@@ -231,7 +226,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     [DIRTY_FIELDS_MAP]: dirtyFieldsMap,
     [TOUCHED_FIELDS_MAP]: touchedFieldsMap,
     ...form,
-    state,
+    state: state as Readonly<typeof state>,
     register,
     unregister,
     reset,
