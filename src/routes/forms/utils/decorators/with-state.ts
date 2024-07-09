@@ -24,7 +24,9 @@ var stateKey = {
   getTouchedFields: 'getTouchedFields',
 } as const;
 
-export var withState = (form: ReturnType<typeof createForm>) => {
+export var withState = <TForm extends ReturnType<typeof createForm>>(
+  form: TForm
+) => {
   var fieldsMap = form[FIELDS_MAP];
   var defaultValuesMap = form[DEFAULT_VALUES_MAP];
 
@@ -47,7 +49,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
   };
 
   var register = (fieldName: string, fieldValue: any) => {
-    const field = form.register(fieldName, fieldValue)();
+    var field = form.register(fieldName, fieldValue)();
 
     dirtyFieldsMap.set(fieldName, false);
     touchedFieldsMap.set(fieldName, false);
@@ -135,6 +137,7 @@ export var withState = (form: ReturnType<typeof createForm>) => {
     }
 
     state.isSubmitted = false;
+    state.isSubmitSuccessful = false;
   };
 
   var resetField = (
@@ -187,9 +190,9 @@ export var withState = (form: ReturnType<typeof createForm>) => {
 
   var submit = (event: Event) => {
     var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      state.isSubmitting = true;
-
       var promise = form.submit(event)(onSubmit);
+
+      state.isSubmitting = true;
 
       promise
         .then(() => {
