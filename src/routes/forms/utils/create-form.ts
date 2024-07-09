@@ -170,9 +170,7 @@ export var createForm = () => {
 
     var i = 0;
     fieldsMap.forEach((field, key) => {
-      fieldsEntries[i] = [key, field?.getValue()];
-
-      i++;
+      fieldsEntries[i++] = [key, field?.getValue()];
     });
 
     return Object.fromEntries(fieldsEntries);
