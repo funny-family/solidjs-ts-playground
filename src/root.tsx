@@ -51,6 +51,8 @@ export default function Root() {
             <A href="/tooltips">tooltips</A>
             <br />
             <A href="/list-render-object">list-render-object</A>
+            <br />
+            <A href="/date-picker">date-picker</A>
             <hr />
 
             <Routes>
