@@ -1,6 +1,7 @@
-import { createEffect } from 'solid-js';
+import { createEffect, onMount } from 'solid-js';
 import { createForm } from './utils/create-form';
 import { withState } from './utils/decorators/with-state';
+import { withEvents } from './utils/decorators/with-evens';
 
 var sleep = (ms: number) => {
   return new Promise((resolve, reject) => {
@@ -18,6 +19,27 @@ var randInt = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+// var toAwaited = (f: () => Promise<any>) => {
+//   var obj = {
+//     thenObj: null,
+//     catchObj: null,
+//     finallyObj: null,
+//   };
+
+//   f()
+//     .then((v) => {
+//       //
+//     })
+//     .catch((v) => {
+//       //
+//     })
+//     .finally(() => {
+//       //
+//     });
+
+//   return obj;
+// };
+
 var field = {
   name: 'name',
   agree: 'agree',
@@ -28,7 +50,7 @@ export var Section1 = () => {
   // var form = useForm();
 
   // var form = createForm();
-  var form = withState(createForm());
+  var form = withEvents(withState(createForm()));
   window.form1 = form;
 
   var nameField = form.register(field.name, 'test');
@@ -36,6 +58,40 @@ export var Section1 = () => {
 
   // var nameFieldValue = nameField.setValue('hfsuf7674');
   // var agreeFieldValue = agreeField.setValue(true);
+
+  onMount(() => {
+    form.on('register', () => {
+      console.log('"register" event');
+    });
+
+    form.on('unregister', () => {
+      console.log('"unregister" event');
+    });
+
+    form.on('submit-start', () => {
+      console.log('"submit-start" event');
+    });
+
+    form.on('submit-success', () => {
+      console.log('"submit-success" event');
+    });
+
+    form.on('submit-fail', () => {
+      console.log('"submit-fail" event');
+    });
+
+    form.on('submit-end', () => {
+      console.log('"submit-end" event');
+    });
+
+    form.on('reset', () => {
+      console.log('"reset" event');
+    });
+
+    form.on('reset-field', () => {
+      console.log('"reset-field" event');
+    });
+  });
 
   var onSubmit = async (event: Event) => {
     // await sleep(randInt(1000, 6000));
@@ -46,6 +102,8 @@ export var Section1 = () => {
       console.log({ event, field: form.getValues() });
     } catch {
       console.log('Ooops...');
+
+      throw undefined;
     } finally {
       console.log('Finally!');
     }
@@ -108,7 +166,16 @@ export var Section1 = () => {
             <label for="fsjhf675">Agree</label>
           </div>
           <button type="submit" disabled={form?.state?.isSubmitting}>
-            submit
+            submit!
+          </button>
+          <button
+            type="button"
+            disabled={form?.state?.isSubmitting}
+            onClick={() => {
+              form.reset();
+            }}
+          >
+            reset
           </button>
         </form>
 
