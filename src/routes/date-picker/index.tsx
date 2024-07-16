@@ -1,6 +1,6 @@
-import { Section1 } from '../forms/section1';
+import { Section1 } from './section1/section1';
 
-const A = () => {
+const DatePickerPage = () => {
   return (
     <main>
       <Section1 />
@@ -8,4 +8,4 @@ const A = () => {
   );
 };
 
-export default A;
+export default DatePickerPage;
