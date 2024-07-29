@@ -116,7 +116,7 @@ export var createForm = () => {
       setValue: (fieldValue: any) => {
         setValue(fieldValue);
 
-        return value;
+        return value();
       },
       onBlur: () => {
         //
@@ -126,18 +126,18 @@ export var createForm = () => {
       },
     };
 
-    var defaultValue = defaultValuesMap.get(fieldName);
+    // var defaultValue = defaultValuesMap.get(fieldName);
     var map = fieldsMap.set(fieldName, field);
 
+    var _nullableField = {
+      ...nullableField,
+      getValue: () => {
+        return value();
+      },
+    };
+
     return () => {
-      return (
-        map.get(fieldName) || {
-          ...nullableField,
-          getValue: () => {
-            return defaultValue;
-          },
-        }
-      );
+      return map.get(fieldName) || _nullableField;
     };
   };
 
@@ -147,10 +147,6 @@ export var createForm = () => {
     return fieldsMap.delete(fieldName);
   };
 
-  var getRegistered = (fieldName: string) => {
-    return fieldsMap.get(fieldName);
-  };
-
   var setValue = (fieldName: string, fieldValue: any) => {
     var field = fieldsMap.get(fieldName);
 
@@ -158,11 +154,11 @@ export var createForm = () => {
       return () => undefined;
     }
 
-    return field.setValue(fieldValue);
+    return field?.setValue(fieldValue);
   };
 
   var getValue = (fieldName: string) => {
-    return fieldsMap.get(fieldName).getValue();
+    return fieldsMap.get(fieldName)?.getValue();
   };
 
   var getValues = () => {
@@ -186,7 +182,7 @@ export var createForm = () => {
 
   var reset = () => {
     fieldsMap.forEach((field, key) => {
-      field.setValue(defaultValuesMap.get(key));
+      field?.setValue(defaultValuesMap.get(key));
     });
   };
 
@@ -234,7 +230,6 @@ export var createForm = () => {
     getDefaultValues,
     register,
     unregister,
-    getRegistered,
     reset,
     resetField,
     submit,
