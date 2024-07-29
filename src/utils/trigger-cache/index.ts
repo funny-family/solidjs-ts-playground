@@ -33,23 +33,35 @@ export class TriggerCache<T> {
   }
 
   dirty(key: T) {
-    if (isServer) return;
+    if (isServer) {
+      return;
+    }
+
     this.#map.get(key)?.$$();
   }
 
   track(key: T) {
-    if (!getListener()) return;
+    if (!getListener()) {
+      return;
+    }
+
     let trigger = this.#map.get(key);
+
     if (!trigger) {
       const [$, $$] = createSignal(undefined, triggerCacheOptions);
+
       this.#map.set(key, (trigger = { $, $$, n: 1 }));
-    } else trigger.n++;
+    } else {
+      trigger.n++;
+    }
+
     onCleanup(() => {
       // remove the trigger when no one is listening to it
       if (trigger!.n-- === 1)
         // microtask is to avoid removing the trigger used by a single listener
         queueMicrotask(() => trigger!.n === 0 && this.#map.delete(key));
     });
+
     trigger.$();
   }
 }
