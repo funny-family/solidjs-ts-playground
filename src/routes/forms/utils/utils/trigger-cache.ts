@@ -44,14 +44,19 @@ export class TriggerCache<T> {
     var trigger = this.#map.get(key);
     if (!trigger) {
       const { 0: $, 1: $$ } = createSignal(undefined, triggerCacheOptions);
+
       this.#map.set(key, (trigger = { $, $$, n: 1 }));
-    } else trigger.n++;
+    } else {
+      trigger.n++;
+    }
 
     onCleanup(() => {
       // remove the trigger when no one is listening to it
       if (trigger!.n-- === 1) {
         // microtask is to avoid removing the trigger used by a single listener
-        queueMicrotask(() => trigger!.n === 0 && this.#map.delete(key));
+        queueMicrotask(() => {
+          trigger!.n === 0 && this.#map.delete(key);
+        });
       }
     });
 
