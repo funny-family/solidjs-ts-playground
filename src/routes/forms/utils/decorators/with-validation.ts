@@ -1,3 +1,4 @@
+import { $PROXY } from 'solid-js'
 import { createMutable } from 'solid-js/store';
 import {
   DEFAULT_VALUES_MAP,
@@ -36,14 +37,16 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
     var map = fieldsMap.set(fieldName, field);
 
     return () => {
-      return (
-        map.get(fieldName) || {
-          ...nullableField,
-          getValue: () => {
-            return defaultValue;
-          },
-        }
-      );
+      // return (
+      //   map.get(fieldName) || {
+      //     ...nullableField,
+      //     getValue: () => {
+      //       return defaultValue;
+      //     },
+      //   }
+      // );
+
+      return map.get(fieldName);
     };
   };
 

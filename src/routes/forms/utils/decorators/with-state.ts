@@ -1,6 +1,7 @@
 import {
   DEFAULT_VALUES_MAP,
   FIELDS_MAP,
+  NULLABLE_FIELDS_MAP,
   nullableField,
   type createForm,
 } from '../create-form';
@@ -29,6 +30,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
 ) => {
   var fieldsMap = form[FIELDS_MAP];
   var defaultValuesMap = form[DEFAULT_VALUES_MAP];
+  var nullableFieldsMap = form[NULLABLE_FIELDS_MAP];
 
   var dirtyFieldsMap = new ReactiveMap();
   var touchedFieldsMap = new ReactiveMap();
@@ -48,8 +50,22 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
     };
   };
 
+  var state = createMutable({
+    isTouched: false,
+    isDirty: false,
+    isSubmitted: false,
+    isSubmitSuccessful: false,
+    isSubmitting: false,
+    submitCount: 0,
+    getFieldState,
+    getDirtyFields,
+    getTouchedFields,
+  });
+
   var register = (fieldName: string, fieldValue: any) => {
-    var field = form.register(fieldName, fieldValue)();
+    form.register(fieldName, fieldValue);
+
+    var field = fieldsMap.get(fieldName);
 
     dirtyFieldsMap.set(fieldName, false);
     touchedFieldsMap.set(fieldName, false);
@@ -70,35 +86,58 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       state.isDirty = true;
 
       dirtyFieldsMap.set(fieldName, true);
-      // console.log('onChange 2:', { fieldName, fieldValue });
     };
 
-    var defaultValue = defaultValuesMap.get(fieldName);
     var map = fieldsMap.set(fieldName, field);
 
     return () => {
-      return (
-        map.get(fieldName) || {
-          ...nullableField,
-          getValue: () => {
-            return defaultValue;
-          },
-        }
-      );
+      return map.get(fieldName) || nullableFieldsMap.get(fieldName);
     };
   };
 
-  var unregister = (fieldName: string) => {
-    var isDeleted = form.unregister(fieldName);
+  var unregister = (
+    fieldName: string,
+    option?: { keepDefaultValue?: boolean }
+  ) => {
+    var keepDefaultValue = option?.keepDefaultValue || false;
 
-    if (isDeleted) {
-      resetField(fieldName);
+    var field = fieldsMap.get(fieldName);
 
-      dirtyFieldsMap.delete(fieldName);
-      touchedFieldsMap.delete(fieldName);
+    if (field == null) {
+      return false;
     }
 
-    return isDeleted;
+    var defaultValue = defaultValuesMap.get(fieldName);
+
+    if (keepDefaultValue) {
+      nullableFieldsMap.set(fieldName, {
+        name: null,
+        getValue: () => {
+          return defaultValue;
+        },
+        setValue: null,
+        onBlur: null,
+        onChange: null,
+      });
+    } else {
+      nullableFieldsMap.set(fieldName, {
+        name: null,
+        getValue: () => {
+          return field.getValue();
+        },
+        setValue: null,
+        onBlur: null,
+        onChange: null,
+      });
+    }
+
+    defaultValuesMap.delete(fieldName);
+    fieldsMap.delete(fieldName);
+    dirtyFieldsMap.delete(fieldName);
+    touchedFieldsMap.delete(fieldName);
+    nullableFieldsMap.delete(fieldName);
+
+    return true;
   };
 
   var reset = (option?: {
@@ -214,18 +253,6 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
 
     return submitter;
   };
-
-  var state = createMutable({
-    isTouched: false,
-    isDirty: false,
-    isSubmitted: false,
-    isSubmitSuccessful: false,
-    isSubmitting: false,
-    submitCount: 0,
-    getFieldState,
-    getDirtyFields,
-    getTouchedFields,
-  });
 
   return {
     [DIRTY_FIELDS_MAP]: dirtyFieldsMap,
