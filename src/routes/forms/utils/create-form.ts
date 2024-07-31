@@ -4,10 +4,11 @@ import {
   createRenderEffect,
   createSignal,
   on,
+  untrack,
   type JSX,
 } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
-import { ReactiveMap } from '~/utils/reactive-map';
+import { ReactiveMap } from './utils/reactive-map';
 
 export var DEFAULT_VALUES_MAP = Symbol('DEFAULT_VALUES_MAP_SYMBOL') as symbol;
 export var FIELDS_MAP = Symbol('FIELDS_MAP_SYMBOL') as symbol;
@@ -102,13 +103,17 @@ export var nullableField = {
 };
 
 export var createForm = () => {
-  var fieldsMap = new ReactiveMap();
-  var defaultValuesMap = new ReactiveMap();
+  var fieldsMap = new ReactiveMap<string, Record<string, any>>();
+  var nullableFieldsMap = new Map<string, Record<string, any>>();
+  window.nullableFieldsMap = nullableFieldsMap;
+  var defaultValuesMap = new ReactiveMap<string, any>();
 
   var register = (fieldName: string, fieldValue: any) => {
     var { 0: value, 1: setValue } = createSignal(fieldValue);
 
     defaultValuesMap.set(fieldName, fieldValue);
+
+    setValue(fieldValue);
 
     var field = {
       name: fieldName,
@@ -116,42 +121,81 @@ export var createForm = () => {
       setValue: (fieldValue: any) => {
         setValue(fieldValue);
 
-        return value();
+        return value;
       },
       onBlur: () => {
         //
+
+        console.log('blur');
       },
       onChange: (fieldValue: any) => {
         setValue(fieldValue);
+        console.log('change');
       },
     };
 
-    // var defaultValue = defaultValuesMap.get(fieldName);
     var map = fieldsMap.set(fieldName, field);
 
-    var _nullableField = {
-      ...nullableField,
-      getValue: () => {
-        return value();
-      },
-    };
-
     return () => {
-      return map.get(fieldName) || _nullableField;
+      return map.get(fieldName) || nullableFieldsMap.get(fieldName);
     };
   };
 
   var unregister = (fieldName: string) => {
-    defaultValuesMap.delete(fieldName);
+    var defaultValue = defaultValuesMap.get(fieldName);
 
-    return fieldsMap.delete(fieldName);
+    if (defaultValue == null) {
+      return false;
+    }
+
+    nullableFieldsMap.set(fieldName, {
+      name: null,
+      getValue: () => {
+        return defaultValue;
+      },
+      setValue: null,
+      onBlur: null,
+      onChange: null,
+    });
+
+    defaultValuesMap.delete(fieldName);
+    fieldsMap.delete(fieldName);
+    nullableFieldsMap.delete(fieldName);
+
+    return true;
   };
+
+  // var unregister = (fieldName: string) => {
+  //   var field = fieldsMap.get(fieldName);
+
+  //   if (field == null) {
+  //     return false;
+  //   }
+
+  //   nullableFieldsMap.set(fieldName, {
+  //     name: null,
+  //     getValue: () => {
+  //       return field.getValue();
+  //     },
+  //     setValue: null,
+  //     onBlur: null,
+  //     onChange: null,
+  //   });
+
+  //   defaultValuesMap.delete(fieldName);
+  //   fieldsMap.delete(fieldName);
+  //   nullableFieldsMap.delete(fieldName);
+
+  //   return true;
+  // };
 
   var setValue = (fieldName: string, fieldValue: any) => {
     var field = fieldsMap.get(fieldName);
 
     if (field == null) {
-      return () => undefined;
+      return () => {
+        return undefined;
+      };
     }
 
     return field?.setValue(fieldValue);
@@ -166,7 +210,10 @@ export var createForm = () => {
 
     var i = 0;
     fieldsMap.forEach((field, key) => {
+      // console.log(field, key);
+
       fieldsEntries[i++] = [key, field?.getValue()];
+      // fieldsEntries[i++] = [key, fieldsMap.get()];
     });
 
     return Object.fromEntries(fieldsEntries);
