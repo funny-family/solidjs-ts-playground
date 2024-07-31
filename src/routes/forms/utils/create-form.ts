@@ -12,6 +12,7 @@ import { ReactiveMap } from './utils/reactive-map';
 
 export var DEFAULT_VALUES_MAP = Symbol('DEFAULT_VALUES_MAP_SYMBOL') as symbol;
 export var FIELDS_MAP = Symbol('FIELDS_MAP_SYMBOL') as symbol;
+export var NULLABLE_FIELDS_MAP = Symbol('NULLABLE_FIELDS_MAP_SYMBOL') as symbol;
 
 export type UseFormHook_On = (type: string, listener: () => void) => void;
 
@@ -105,7 +106,6 @@ export var nullableField = {
 export var createForm = () => {
   var fieldsMap = new ReactiveMap<string, Record<string, any>>();
   var nullableFieldsMap = new Map<string, Record<string, any>>();
-  window.nullableFieldsMap = nullableFieldsMap;
   var defaultValuesMap = new ReactiveMap<string, any>();
 
   var register = (fieldName: string, fieldValue: any) => {
@@ -141,41 +141,17 @@ export var createForm = () => {
     };
   };
 
-  var unregister = (fieldName: string) => {
-    var defaultValue = defaultValuesMap.get(fieldName);
-
-    if (defaultValue == null) {
-      return false;
-    }
-
-    nullableFieldsMap.set(fieldName, {
-      name: null,
-      getValue: () => {
-        return defaultValue;
-      },
-      setValue: null,
-      onBlur: null,
-      onChange: null,
-    });
-
-    defaultValuesMap.delete(fieldName);
-    fieldsMap.delete(fieldName);
-    nullableFieldsMap.delete(fieldName);
-
-    return true;
-  };
-
   // var unregister = (fieldName: string) => {
-  //   var field = fieldsMap.get(fieldName);
+  //   var defaultValue = defaultValuesMap.get(fieldName);
 
-  //   if (field == null) {
+  //   if (defaultValue == null) {
   //     return false;
   //   }
 
   //   nullableFieldsMap.set(fieldName, {
   //     name: null,
   //     getValue: () => {
-  //       return field.getValue();
+  //       return defaultValue;
   //     },
   //     setValue: null,
   //     onBlur: null,
@@ -188,6 +164,30 @@ export var createForm = () => {
 
   //   return true;
   // };
+
+  var unregister = (fieldName: string) => {
+    var field = fieldsMap.get(fieldName);
+
+    if (field == null) {
+      return false;
+    }
+
+    nullableFieldsMap.set(fieldName, {
+      name: null,
+      getValue: () => {
+        return field!.getValue();
+      },
+      setValue: null,
+      onBlur: null,
+      onChange: null,
+    });
+
+    defaultValuesMap.delete(fieldName);
+    fieldsMap.delete(fieldName);
+    nullableFieldsMap.delete(fieldName);
+
+    return true;
+  };
 
   var setValue = (fieldName: string, fieldValue: any) => {
     var field = fieldsMap.get(fieldName);
@@ -270,6 +270,7 @@ export var createForm = () => {
   return {
     [FIELDS_MAP]: fieldsMap,
     [DEFAULT_VALUES_MAP]: defaultValuesMap,
+    [NULLABLE_FIELDS_MAP]: nullableFieldsMap,
     setValue,
     getValue,
     getValues,
