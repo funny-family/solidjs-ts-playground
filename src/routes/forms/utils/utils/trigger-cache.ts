@@ -32,7 +32,10 @@ export class TriggerCache<T> {
   }
 
   dirty(key: T) {
-    if (isServer) return;
+    if (isServer) {
+      return;
+    }
+
     this.#map.get(key)?.$$();
   }
 
@@ -42,6 +45,7 @@ export class TriggerCache<T> {
     }
 
     var trigger = this.#map.get(key);
+
     if (!trigger) {
       const { 0: $, 1: $$ } = createSignal(undefined, triggerCacheOptions);
 
