@@ -96,6 +96,7 @@ export class ReactiveMap<K, V> extends Map<K, V> {
         this.keyTriggers.dirty(key);
         this.keyTriggers.dirty($KEYS);
       }
+
       this.valueTriggers.dirty(key);
       super.set(key, value);
     });
@@ -139,8 +140,9 @@ export class ReactiveMap<K, V> extends Map<K, V> {
   forEach(callbackfn: (value: V, key: K, map: this) => void) {
     this.keyTriggers.track($KEYS);
 
-    for (const [key, v] of super.entries()) {
+    for (const { 0: key, 1: v } of super.entries()) {
       this.valueTriggers.track(key);
+
       callbackfn(v, key, this);
     }
   }
