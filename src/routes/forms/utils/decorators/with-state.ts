@@ -1,5 +1,6 @@
 import {
   DEFAULT_VALUES_MAP,
+  Field,
   FIELDS_MAP,
   NULLABLE_FIELDS_MAP,
   nullableField,
@@ -7,7 +8,8 @@ import {
 } from '../create-form';
 import { createMutable, createStore } from 'solid-js/store';
 import { batch, createEffect, on } from 'solid-js';
-import { ReactiveMap } from '~/utils/reactive-map';
+import { ReactiveMap } from '../utils/reactive-map';
+import { object_fromEntries } from '../utils/main';
 
 export var DIRTY_FIELDS_MAP = Symbol('DIRTY_FIELDS_MAP_SYMBOL') as symbol;
 export var TOUCHED_FIELDS_MAP = Symbol('TOUCHED_FIELDS_MAP_SYMBOL') as symbol;
@@ -28,26 +30,33 @@ var stateKey = {
 export var withState = <TForm extends ReturnType<typeof createForm>>(
   form: TForm
 ) => {
-  var fieldsMap = form[FIELDS_MAP];
-  var defaultValuesMap = form[DEFAULT_VALUES_MAP];
-  var nullableFieldsMap = form[NULLABLE_FIELDS_MAP];
+  var fieldsMap = form[FIELDS_MAP] as ReactiveMap<string, Field>;
+  var defaultValuesMap = form[DEFAULT_VALUES_MAP] as ReactiveMap<string, any>;
+  var nullableFieldsMap = form[NULLABLE_FIELDS_MAP] as Map<string, Field>;
 
-  var dirtyFieldsMap = new ReactiveMap();
-  var touchedFieldsMap = new ReactiveMap();
+  var dirtyFieldsMap = new ReactiveMap<string, boolean>();
+  var touchedFieldsMap = new ReactiveMap<string, boolean>();
 
   var getDirtyFields = () => {
-    return Object.fromEntries(dirtyFieldsMap);
+    return object_fromEntries(dirtyFieldsMap);
   };
 
   var getTouchedFields = () => {
-    return Object.fromEntries(touchedFieldsMap);
+    return object_fromEntries(touchedFieldsMap);
   };
 
   var getFieldState = (fieldName: string) => {
-    return {
-      isDirty: dirtyFieldsMap.get(fieldName),
-      isTouched: touchedFieldsMap.get(fieldName),
+    var fieldState = {
+      isDirty: false,
+      isTouched: false,
     };
+
+    batch(() => {
+      fieldState.isDirty = dirtyFieldsMap.get(fieldName)!;
+      fieldState.isTouched = touchedFieldsMap.get(fieldName)!;
+    });
+
+    return fieldState;
   };
 
   var state = createMutable({
@@ -65,30 +74,37 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   var register = (fieldName: string, fieldValue: any) => {
     form.register(fieldName, fieldValue);
 
-    var field = fieldsMap.get(fieldName);
+    var field = fieldsMap.get(fieldName)!;
 
-    dirtyFieldsMap.set(fieldName, false);
-    touchedFieldsMap.set(fieldName, false);
+    batch(() => {
+      dirtyFieldsMap.set(fieldName, false);
+      touchedFieldsMap.set(fieldName, false);
+    });
 
-    var onBlur = field.onBlur;
-    field.onBlur = () => {
-      onBlur();
+    var onBlur = field.onBlur!;
+    var onChange = field.onChange!;
 
-      state.isTouched = true;
+    var updatedField = {
+      name: field.name,
+      getValue: field.getValue,
+      setValue: field.setValue,
+      onBlur: () => {
+        onBlur();
 
-      touchedFieldsMap.set(fieldName, true);
+        state.isTouched = true;
+
+        touchedFieldsMap.set(fieldName, true);
+      },
+      onChange: (fieldValue: any) => {
+        onChange(fieldValue);
+
+        state.isDirty = true;
+
+        dirtyFieldsMap.set(fieldName, true);
+      },
     };
 
-    var onChange = field.onChange;
-    field.onChange = (fieldValue: any) => {
-      onChange(fieldValue);
-
-      state.isDirty = true;
-
-      dirtyFieldsMap.set(fieldName, true);
-    };
-
-    var map = fieldsMap.set(fieldName, field);
+    var map = fieldsMap.set(fieldName, updatedField);
 
     return () => {
       return map.get(fieldName) || nullableFieldsMap.get(fieldName);
@@ -97,9 +113,15 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
 
   var unregister = (
     fieldName: string,
-    option?: { keepDefaultValue?: boolean }
+    option?: {
+      keepDefaultValue?: boolean;
+      keepFormDirty?: boolean;
+      keepFormTouched?: boolean;
+    }
   ) => {
     var keepDefaultValue = option?.keepDefaultValue || false;
+    var keepFormDirty = option?.keepFormDirty || false;
+    var keepFormTouched = option?.keepFormTouched || false;
 
     var field = fieldsMap.get(fieldName);
 
@@ -123,7 +145,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       nullableFieldsMap.set(fieldName, {
         name: null,
         getValue: () => {
-          return field.getValue();
+          return field?.getValue!();
         },
         setValue: null,
         onBlur: null,
@@ -131,10 +153,29 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       });
     }
 
-    defaultValuesMap.delete(fieldName);
-    fieldsMap.delete(fieldName);
-    dirtyFieldsMap.delete(fieldName);
-    touchedFieldsMap.delete(fieldName);
+    batch(() => {
+      defaultValuesMap.delete(fieldName);
+      fieldsMap.delete(fieldName);
+      dirtyFieldsMap.delete(fieldName);
+      touchedFieldsMap.delete(fieldName);
+
+      if (keepFormDirty) {
+        state.isDirty = true;
+      } else {
+        if (dirtyFieldsMap.size === 0) {
+          state.isDirty = false;
+        }
+      }
+
+      if (keepFormTouched) {
+        state.isTouched = true;
+      } else {
+        if (touchedFieldsMap.size === 0) {
+          state.isTouched = false;
+        }
+      }
+    });
+
     nullableFieldsMap.delete(fieldName);
 
     return true;
@@ -148,35 +189,37 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   }) => {
     var keepDirty = option?.keepDirty || false;
     var keepTouched = option?.keepTouched || false;
-    var keepSubmitCount = option?.keepSubmitCount || false;
     var keepValues = option?.keepValues || false;
+    var keepSubmitCount = option?.keepSubmitCount || false;
 
-    if (keepDirty === false) {
-      state.isDirty = false;
+    batch(() => {
+      if (keepDirty === false) {
+        state.isDirty = false;
 
-      dirtyFieldsMap.forEach((fieldValue, fieldName, map) => {
-        map.set(fieldName, false);
-      });
-    }
+        dirtyFieldsMap.forEach((fieldValue, fieldName, map) => {
+          map.set(fieldName, false);
+        });
+      }
 
-    if (keepTouched === false) {
-      state.isTouched = false;
+      if (keepTouched === false) {
+        state.isTouched = false;
 
-      touchedFieldsMap.forEach((fieldValue, fieldName, map) => {
-        map.set(fieldName, false);
-      });
-    }
+        touchedFieldsMap.forEach((fieldValue, fieldName, map) => {
+          map.set(fieldName, false);
+        });
+      }
 
-    if (keepSubmitCount === false) {
-      state.submitCount = 0;
-    }
+      if (keepSubmitCount === false) {
+        state.submitCount = 0;
+      }
 
-    if (keepValues === false) {
-      form.reset();
-    }
+      if (keepValues === false) {
+        form.reset();
+      }
 
-    state.isSubmitted = false;
-    state.isSubmitSuccessful = false;
+      state.isSubmitted = false;
+      state.isSubmitSuccessful = false;
+    });
   };
 
   var resetField = (
@@ -185,46 +228,61 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       keepDirty?: boolean;
       keepTouched?: boolean;
       keepValue?: boolean;
-      keepSubmitCount?: boolean;
     }
   ) => {
     var keepDirty = option?.keepDirty || false;
     var keepTouched = option?.keepTouched || false;
     var keepValue = option?.keepValue || false;
 
-    if (keepDirty === false) {
-      // var dirtyFieldsValues = dirtyFieldsMap.set(fieldName, false).values().toArray();
-      var dirtyFieldsValues = [
-        ...dirtyFieldsMap.set(fieldName, false).values(),
-      ];
-      var isAllFields_NOT_Dirty = dirtyFieldsValues.every((value) => {
-        return value === false;
-      });
+    var field = fieldsMap.get(fieldName);
 
-      if (isAllFields_NOT_Dirty) {
-        state.isDirty = false;
-      }
+    if (field == null) {
+      return undefined;
     }
 
-    if (keepTouched === false) {
-      // var touchedFieldsValues = touchedFieldsMap.set(fieldName, false).values().toArray();
-      var touchedFieldsValues = [
-        ...touchedFieldsMap.set(fieldName, false).values(),
-      ];
-      var isAllFields_NOT_Touched = touchedFieldsValues.every((value) => {
-        return value === false;
-      });
+    batch(() => {
+      if (keepDirty === false) {
+        var isAllFields_NOT_Dirty = true;
+        var map = dirtyFieldsMap.set(fieldName, false);
 
-      if (isAllFields_NOT_Touched) {
-        state.isTouched = false;
+        for (var entry of map) {
+          if (entry[1] === true) {
+            isAllFields_NOT_Dirty = false;
+
+            break;
+          }
+        }
+
+        if (isAllFields_NOT_Dirty) {
+          state.isDirty = false;
+        }
       }
-    }
+
+      if (keepTouched === false) {
+        var isAllFields_NOT_Touched = true;
+        var map = touchedFieldsMap.set(fieldName, false);
+
+        for (var entry of map) {
+          if (entry[1] === true) {
+            isAllFields_NOT_Touched = false;
+
+            break;
+          }
+        }
+
+        if (isAllFields_NOT_Touched) {
+          state.isTouched = false;
+        }
+      }
+    });
 
     if (keepValue) {
       return form.getValue(fieldName);
     }
 
-    return form.resetField(fieldName);
+    var value = form.resetField(fieldName)!;
+
+    return value();
   };
 
   var submit = (event: Event) => {

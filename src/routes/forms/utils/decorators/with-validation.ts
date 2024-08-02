@@ -1,32 +1,40 @@
-import { $PROXY } from 'solid-js'
+import { $PROXY } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import {
   DEFAULT_VALUES_MAP,
+  Field,
   FIELDS_MAP,
+  NULLABLE_FIELDS_MAP,
   nullableField,
   type createForm,
 } from '../create-form';
-import { ReactiveMap } from '~/utils/reactive-map';
+import { ReactiveMap } from '../utils/reactive-map';
 
 export var withValidation = (form: ReturnType<typeof createForm>) => {
-  var fieldsMap = form[FIELDS_MAP];
-  var defaultValuesMap = form[DEFAULT_VALUES_MAP];
+  var fieldsMap = form[FIELDS_MAP] as ReactiveMap<string, Field>;
+  var defaultValuesMap = form[DEFAULT_VALUES_MAP] as ReactiveMap<string, Field>;
+  var nullableFieldsMap = form[NULLABLE_FIELDS_MAP] as ReactiveMap<
+    string,
+    Field
+  >;
 
-  var errorsMessagesMap = new ReactiveMap<string, string>();
+  var errorMessagesMap = new ReactiveMap<string, string>();
 
   var register = (fieldName: string, fieldValue: any) => {
-    const field = form.register(fieldName, fieldValue)();
+    form.register(fieldName, fieldValue)();
 
-    errorsMessagesMap.set(fieldName, '');
+    var field = fieldsMap.get(fieldName)!;
 
-    var onBlur = field.onBlur;
+    errorMessagesMap.set(fieldName, '');
+
+    var onBlur = field.onBlur!;
     field.onBlur = () => {
       onBlur();
 
       //
     };
 
-    var onChange = field.onChange;
+    var onChange = field.onChange!;
     field.onChange = (fieldValue: any) => {
       onChange(fieldValue);
 
@@ -37,16 +45,7 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
     var map = fieldsMap.set(fieldName, field);
 
     return () => {
-      // return (
-      //   map.get(fieldName) || {
-      //     ...nullableField,
-      //     getValue: () => {
-      //       return defaultValue;
-      //     },
-      //   }
-      // );
-
-      return map.get(fieldName);
+      return map.get(fieldName) || nullableFieldsMap.get(fieldName);
     };
   };
 
@@ -54,25 +53,29 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
     var isDeleted = form.unregister(fieldName);
 
     if (isDeleted) {
-      errorsMessagesMap.delete(fieldName);
+      errorMessagesMap.delete(fieldName);
     }
 
     return isDeleted;
   };
 
-  var trigger = (fieldName: string) => {
-    //
+  var trigger = (fieldNames?: string[]) => {
+    fieldNames != null
+      ? fieldNames.forEach((fieldName) => {
+          //
+        })
+      : 1;
   };
 
   var getFieldError = (fieldName: string) => {
-    return errorsMessagesMap.get(fieldName);
+    return errorMessagesMap.get(fieldName);
   };
 
   var getFieldsErrors = () => {
-    var entries = Array(errorsMessagesMap.size);
+    var entries = Array(errorMessagesMap.size);
 
     var i = 0;
-    errorsMessagesMap.forEach((value, key) => {
+    errorMessagesMap.forEach((value, key) => {
       entries[i++] = [key, value];
     });
 

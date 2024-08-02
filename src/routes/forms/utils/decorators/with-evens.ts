@@ -58,8 +58,20 @@ export var resetField_ListenerName = 'reset-field' as const;
 //       [TType, any]
 // ) => void;
 
-export var withEvents = <TForm extends ReturnType<typeof createForm>>(
-  form: TForm
+export var register_listener = () => {
+  //
+};
+
+export var unregister_listener = () => {
+  //
+};
+
+export var withEvents = <
+  TForm extends ReturnType<typeof createForm>,
+  TListenersMap extends MapConstructor
+>(
+  form: TForm,
+  listenersMap: TListenersMap[]
 ) => {
   var registerListeners = new Array<Function>();
   var unregisterListeners = new Array<Function>();
@@ -117,7 +129,7 @@ export var withEvents = <TForm extends ReturnType<typeof createForm>>(
     return submitter;
   };
 
-  var reset = () => {
+  var reset = (...args: any) => {
     resetListeners.forEach((listener) => {
       listener();
     });
@@ -176,4 +188,30 @@ export var withEvents = <TForm extends ReturnType<typeof createForm>>(
     resetField,
     on,
   };
+};
+
+type OnFunction = (type: string, listener: Function) => void;
+
+export var withEvents1 = <
+  TForm extends ReturnType<typeof createForm>,
+  TListenersMap extends Map<
+    Exclude<keyof ReturnType<typeof createForm>, symbol>,
+    Function
+  >
+>(
+  form: TForm,
+  listenersMap: TListenersMap
+) => {
+  var groupedByFunctionNameObject = Object.groupBy(listenersMap, (item) => {
+    return item[0];
+  });
+
+  var on: OnFunction = () => {
+    //
+  };
+
+  return {
+    ...form,
+    on,
+  } as TForm & { on: OnFunction };
 };
