@@ -1,14 +1,17 @@
 import {
+  batch,
   createEffect,
   createMemo,
   createRenderEffect,
   createSignal,
   on,
+  Setter,
   untrack,
   type JSX,
 } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
 import { ReactiveMap } from './utils/reactive-map';
+import { object_fromEntries } from './utils/main';
 
 export var DEFAULT_VALUES_MAP = Symbol('DEFAULT_VALUES_MAP_SYMBOL') as symbol;
 export var FIELDS_MAP = Symbol('FIELDS_MAP_SYMBOL') as symbol;
@@ -103,9 +106,17 @@ export var nullableField = {
   },
 };
 
+export type Field = {
+  name: string | null;
+  getValue: (() => any) | null;
+  setValue: ((fieldValue: any) => () => any) | null;
+  onBlur: (() => void) | null;
+  onChange: ((fieldValue: any) => void) | null;
+};
+
 export var createForm = () => {
-  var fieldsMap = new ReactiveMap<string, Record<string, any>>();
-  var nullableFieldsMap = new Map<string, Record<string, any>>();
+  var fieldsMap = new ReactiveMap<string, Field>();
+  var nullableFieldsMap = new Map<string, Field>();
   var defaultValuesMap = new ReactiveMap<string, any>();
 
   var register = (fieldName: string, fieldValue: any) => {
@@ -113,24 +124,19 @@ export var createForm = () => {
 
     defaultValuesMap.set(fieldName, fieldValue);
 
-    setValue(fieldValue);
-
     var field = {
       name: fieldName,
       getValue: value,
-      setValue: (fieldValue: any) => {
+      setValue: (fieldValue: Setter<any>) => {
         setValue(fieldValue);
 
         return value;
       },
       onBlur: () => {
         //
-
-        console.log('blur');
       },
       onChange: (fieldValue: any) => {
         setValue(fieldValue);
-        console.log('change');
       },
     };
 
@@ -141,49 +147,49 @@ export var createForm = () => {
     };
   };
 
-  // var unregister = (fieldName: string) => {
-  //   var defaultValue = defaultValuesMap.get(fieldName);
+  var unregister = (
+    fieldName: string,
+    option?: {
+      keepDefaultValue?: boolean;
+    }
+  ) => {
+    var keepDefaultValue = option?.keepDefaultValue || false;
 
-  //   if (defaultValue == null) {
-  //     return false;
-  //   }
-
-  //   nullableFieldsMap.set(fieldName, {
-  //     name: null,
-  //     getValue: () => {
-  //       return defaultValue;
-  //     },
-  //     setValue: null,
-  //     onBlur: null,
-  //     onChange: null,
-  //   });
-
-  //   defaultValuesMap.delete(fieldName);
-  //   fieldsMap.delete(fieldName);
-  //   nullableFieldsMap.delete(fieldName);
-
-  //   return true;
-  // };
-
-  var unregister = (fieldName: string) => {
     var field = fieldsMap.get(fieldName);
 
     if (field == null) {
       return false;
     }
 
-    nullableFieldsMap.set(fieldName, {
-      name: null,
-      getValue: () => {
-        return field!.getValue();
-      },
-      setValue: null,
-      onBlur: null,
-      onChange: null,
+    var defaultValue = defaultValuesMap.get(fieldName);
+
+    if (keepDefaultValue) {
+      nullableFieldsMap.set(fieldName, {
+        name: null,
+        getValue: () => {
+          return defaultValue;
+        },
+        setValue: null,
+        onBlur: null,
+        onChange: null,
+      });
+    } else {
+      nullableFieldsMap.set(fieldName, {
+        name: null,
+        getValue: () => {
+          return field?.getValue!();
+        },
+        setValue: null,
+        onBlur: null,
+        onChange: null,
+      });
+    }
+
+    batch(() => {
+      defaultValuesMap.delete(fieldName);
+      fieldsMap.delete(fieldName);
     });
 
-    defaultValuesMap.delete(fieldName);
-    fieldsMap.delete(fieldName);
     nullableFieldsMap.delete(fieldName);
 
     return true;
@@ -193,16 +199,16 @@ export var createForm = () => {
     var field = fieldsMap.get(fieldName);
 
     if (field == null) {
-      return () => {
-        return undefined;
-      };
+      return undefined;
     }
 
-    return field?.setValue(fieldValue);
+    var value = field?.setValue!(fieldValue);
+
+    return value();
   };
 
   var getValue = (fieldName: string) => {
-    return fieldsMap.get(fieldName)?.getValue();
+    return fieldsMap.get(fieldName)?.getValue!();
   };
 
   var getValues = () => {
@@ -210,13 +216,10 @@ export var createForm = () => {
 
     var i = 0;
     fieldsMap.forEach((field, key) => {
-      // console.log(field, key);
-
-      fieldsEntries[i++] = [key, field?.getValue()];
-      // fieldsEntries[i++] = [key, fieldsMap.get()];
+      fieldsEntries[i++] = [key, field.getValue!()];
     });
 
-    return Object.fromEntries(fieldsEntries);
+    return object_fromEntries(fieldsEntries);
   };
 
   var getDefaultValue = (fieldName: string) => {
@@ -224,12 +227,12 @@ export var createForm = () => {
   };
 
   var getDefaultValues = () => {
-    return Object.fromEntries(defaultValuesMap);
+    return object_fromEntries(defaultValuesMap);
   };
 
   var reset = () => {
     fieldsMap.forEach((field, key) => {
-      field?.setValue(defaultValuesMap.get(key));
+      field.setValue!(defaultValuesMap.get(key));
     });
   };
 
@@ -238,34 +241,25 @@ export var createForm = () => {
     const field = fieldsMap.get(fieldName);
 
     if (defaultFieldValue == null || field == null) {
-      return undefined;
+      return () => {
+        return undefined;
+      };
     }
 
-    return field.setValue(defaultFieldValue);
+    return field.setValue!(defaultFieldValue);
   };
 
   var submit = (event: Event) => {
     event.preventDefault();
 
     var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      var promise = onSubmit(event);
-
-      promise
-        .then(() => {
-          // console.log('on then');
-        })
-        .catch(() => {
-          // console.log('on catch');
-        })
-        .finally(() => {
-          // console.log('on finally');
-        });
-
-      return promise;
+      return onSubmit(event);
     };
 
     return submitter;
   };
+
+  // createEffect(on(date))
 
   return {
     [FIELDS_MAP]: fieldsMap,
