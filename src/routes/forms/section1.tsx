@@ -50,7 +50,8 @@ export var Section1 = () => {
   // var form = useForm();
 
   // var form = createForm();
-  var form = withEvents(withState(createForm()));
+  var form = withState(createForm());
+  // var form = withEvents(withState(createForm()));
   window.form1 = form;
 
   var nameField = form.register(field.name, 'test');
@@ -60,37 +61,30 @@ export var Section1 = () => {
   // var agreeFieldValue = agreeField.setValue(true);
 
   onMount(() => {
-    form.on('register', () => {
-      console.log('"register" event');
-    });
-
-    form.on('unregister', () => {
-      console.log('"unregister" event');
-    });
-
-    form.on('submit-start', () => {
-      console.log('"submit-start" event');
-    });
-
-    form.on('submit-success', () => {
-      console.log('"submit-success" event');
-    });
-
-    form.on('submit-fail', () => {
-      console.log('"submit-fail" event');
-    });
-
-    form.on('submit-end', () => {
-      console.log('"submit-end" event');
-    });
-
-    form.on('reset', () => {
-      console.log('"reset" event');
-    });
-
-    form.on('reset-field', () => {
-      console.log('"reset-field" event');
-    });
+    // form?.on?.('register', () => {
+    //   console.log('"register" event');
+    // });
+    // form?.on?.('unregister', () => {
+    //   console.log('"unregister" event');
+    // });
+    // form?.on?.('submit-start', () => {
+    //   console.log('"submit-start" event');
+    // });
+    // form?.on?.('submit-success', () => {
+    //   console.log('"submit-success" event');
+    // });
+    // form?.on?.('submit-fail', () => {
+    //   console.log('"submit-fail" event');
+    // });
+    // form?.on?.('submit-end', () => {
+    //   console.log('"submit-end" event');
+    // });
+    // form?.on?.('reset', () => {
+    //   console.log('"reset" event');
+    // });
+    // form?.on?.('reset-field', () => {
+    //   console.log('"reset-field" event');
+    // });
   });
 
   var onSubmit = async (event: Event) => {
@@ -132,15 +126,15 @@ export var Section1 = () => {
             name={nameField()?.name}
             // value={nameField.setValue('hfsuf7674')()}
             // value={nameFieldValue()}
-            value={nameField()?.getValue()}
+            value={nameField()?.getValue?.()}
             ref={(el) => {
               // form.setValue(field.name, el.value);
             }}
             onChange={(event) => {
-              nameField()?.onChange((event.target as HTMLInputElement).value);
+              nameField()?.onChange?.((event.target as HTMLInputElement).value);
             }}
             onBlur={(event) => {
-              nameField()?.onBlur();
+              nameField()?.onBlur?.();
             }}
           />
           <div>
@@ -150,17 +144,17 @@ export var Section1 = () => {
               name={agreeField()?.name}
               // checked={agreeField.setValue(true)()}
               // checked={agreeFieldValue()}
-              checked={agreeField()?.getValue()}
+              checked={agreeField()?.getValue?.()}
               ref={(el) => {
                 // form.setValue(field.agree, el.checked);
               }}
               onChange={(event) => {
-                agreeField()?.onChange(
+                agreeField()?.onChange?.(
                   (event.target as HTMLInputElement).checked
                 );
               }}
               onBlur={(event) => {
-                agreeField()?.onBlur();
+                agreeField()?.onBlur?.();
               }}
             />
             <label for="fsjhf675">Agree</label>
@@ -217,7 +211,7 @@ export var Section1 = () => {
           <code>
             {() => {
               return JSON.stringify(
-                form?.state.getDirtyFields() || {},
+                form?.state?.getDirtyFields() || {},
                 null,
                 2
               );
@@ -232,7 +226,7 @@ export var Section1 = () => {
           <code>
             {() => {
               return JSON.stringify(
-                form?.state.getTouchedFields() || {},
+                form?.state?.getTouchedFields() || {},
                 null,
                 2
               );
