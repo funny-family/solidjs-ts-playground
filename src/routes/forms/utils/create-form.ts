@@ -155,7 +155,7 @@ export var createForm = () => {
   ) => {
     var keepDefaultValue = option?.keepDefaultValue || false;
 
-    var field = fieldsMap.get(fieldName);
+    var field = fieldsMap.get(fieldName, false);
 
     if (field == null) {
       return false;
@@ -237,8 +237,8 @@ export var createForm = () => {
   };
 
   var resetField = (fieldName: string) => {
-    const defaultFieldValue = defaultValuesMap.get(fieldName);
-    const field = fieldsMap.get(fieldName);
+    const defaultFieldValue = defaultValuesMap.get(fieldName, false);
+    const field = fieldsMap.get(fieldName, false);
 
     if (defaultFieldValue == null || field == null) {
       return () => {
@@ -253,13 +253,21 @@ export var createForm = () => {
     event.preventDefault();
 
     var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      return onSubmit(event);
+      var promise = onSubmit(event);
+
+      promise
+        .then(() => {
+          // console.log('then');
+        })
+        .catch(() => {
+          // console.log('catch');
+        });
+
+      return promise;
     };
 
     return submitter;
   };
-
-  // createEffect(on(date))
 
   return {
     [FIELDS_MAP]: fieldsMap,
