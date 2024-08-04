@@ -9,6 +9,7 @@ import {
   type createForm,
 } from '../create-form';
 import { ReactiveMap } from '../utils/reactive-map';
+import { object_fromEntries } from '../utils/main';
 
 export var withValidation = (form: ReturnType<typeof createForm>) => {
   var fieldsMap = form[FIELDS_MAP] as ReactiveMap<string, Field>;
@@ -19,6 +20,36 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
   >;
 
   var errorMessagesMap = new ReactiveMap<string, string>();
+
+  var trigger = (fieldNames?: string[]) => {
+    fieldNames != null
+      ? fieldNames.forEach((fieldName) => {
+          //
+        })
+      : 1;
+  };
+
+  var getFieldError = (fieldName: string) => {
+    return errorMessagesMap.get(fieldName);
+  };
+
+  var getFieldsErrors = () => {
+    var entries = Array(errorMessagesMap.size);
+
+    var i = 0;
+    errorMessagesMap.forEach((value, key) => {
+      entries[i++] = [key, value];
+    });
+
+    return object_fromEntries(entries);
+  };
+
+  var validation = createMutable({
+    isValid: false,
+    trigger,
+    getFieldError,
+    getFieldsErrors,
+  });
 
   var register = (fieldName: string, fieldValue: any) => {
     form.register(fieldName, fieldValue)();
@@ -59,35 +90,25 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
     return isDeleted;
   };
 
-  var trigger = (fieldNames?: string[]) => {
-    fieldNames != null
-      ? fieldNames.forEach((fieldName) => {
-          //
+  var submit = (event: Event) => {
+    event.preventDefault();
+
+    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
+      var promise = onSubmit(event);
+
+      promise
+        .then(() => {
+          // console.log('then');
         })
-      : 1;
+        .catch(() => {
+          // console.log('catch');
+        });
+
+      return promise;
+    };
+
+    return submitter;
   };
-
-  var getFieldError = (fieldName: string) => {
-    return errorMessagesMap.get(fieldName);
-  };
-
-  var getFieldsErrors = () => {
-    var entries = Array(errorMessagesMap.size);
-
-    var i = 0;
-    errorMessagesMap.forEach((value, key) => {
-      entries[i++] = [key, value];
-    });
-
-    return Object.fromEntries(entries);
-  };
-
-  var validation = createMutable({
-    isValid: false,
-    trigger,
-    getFieldError,
-    getFieldsErrors,
-  });
 
   return {
     ...form,

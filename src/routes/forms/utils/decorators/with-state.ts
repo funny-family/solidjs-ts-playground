@@ -74,7 +74,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   var register = (fieldName: string, fieldValue: any) => {
     form.register(fieldName, fieldValue);
 
-    var field = fieldsMap.get(fieldName)!;
+    var field = fieldsMap.get(fieldName, false)!;
 
     batch(() => {
       dirtyFieldsMap.set(fieldName, false);
@@ -123,7 +123,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
     var keepFormDirty = option?.keepFormDirty || false;
     var keepFormTouched = option?.keepFormTouched || false;
 
-    var field = fieldsMap.get(fieldName);
+    var field = fieldsMap.get(fieldName, false);
 
     if (field == null) {
       return false;
@@ -294,9 +294,11 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       promise
         .then(() => {
           state.isSubmitSuccessful = true;
+          // console.log('then1');
         })
         .catch(() => {
           state.isSubmitSuccessful = false;
+          // console.log('catch2');
         })
         .finally(() => {
           batch(() => {
