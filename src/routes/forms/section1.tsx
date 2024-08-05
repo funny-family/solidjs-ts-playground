@@ -119,24 +119,30 @@ export var Section1 = () => {
             form.submit(event)(onSubmit);
           }}
         >
-          <input
-            type="text"
-            placeholder="name"
-            autocomplete="off"
-            name={nameField()?.name}
-            // value={nameField.setValue('hfsuf7674')()}
-            // value={nameFieldValue()}
-            value={nameField()?.getValue?.()}
-            ref={(el) => {
-              // form.setValue(field.name, el.value);
-            }}
-            onChange={(event) => {
-              nameField()?.onChange?.((event.target as HTMLInputElement).value);
-            }}
-            onBlur={(event) => {
-              nameField()?.onBlur?.();
-            }}
-          />
+          <div>
+            <input
+              type="text"
+              placeholder="name"
+              autocomplete="off"
+              name={nameField()?.name}
+              // value={nameField.setValue('hfsuf7674')()}
+              // value={nameFieldValue()}
+              value={nameField()?.getValue?.()}
+              ref={(el) => {
+                // form.setValue(field.name, el.value);
+              }}
+              onChange={(event) => {
+                nameField()?.onChange?.(
+                  (event.target as HTMLInputElement).value
+                );
+              }}
+              onBlur={(event) => {
+                nameField()?.onBlur?.();
+              }}
+            />
+
+            <div style={{ color: 'red' }}>{null}</div>
+          </div>
           <div>
             <input
               id="fsjhf675"
@@ -158,6 +164,8 @@ export var Section1 = () => {
               }}
             />
             <label for="fsjhf675">Agree</label>
+
+            <div style={{ color: 'red' }}>{null}</div>
           </div>
           <button type="submit" disabled={form?.state?.isSubmitting}>
             submit!
