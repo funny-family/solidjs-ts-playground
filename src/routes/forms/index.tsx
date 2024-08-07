@@ -2,6 +2,7 @@ import { createForm } from '~/hooks/form/form';
 import { useForm } from '~/hooks/form/use-form.hook';
 import { Section1 } from './section1';
 import { Show } from 'solid-js';
+import { Section2 } from './section2';
 
 {
   const form = createForm({
@@ -175,6 +176,7 @@ const Forms = () => {
       <hr />
 
       <Section1 />
+      <Section2 />
     </div>
   );
 };

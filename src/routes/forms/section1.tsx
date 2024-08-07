@@ -2,10 +2,11 @@ import { createEffect, onMount } from 'solid-js';
 import { createForm } from './utils/create-form';
 import { withState } from './utils/decorators/with-state';
 import { withEvents } from './utils/decorators/with-evens';
+import { withValidation } from './utils/decorators/with-validation';
 
 var sleep = (ms: number) => {
   return new Promise((resolve, reject) => {
-    if (ms > 3000) {
+    if (ms > 1000) {
       setTimeout(resolve, ms);
 
       return;
@@ -51,6 +52,7 @@ export var Section1 = () => {
 
   // var form = createForm();
   var form = withState(createForm());
+  // var form = withValidation(withState(createForm()));
   // var form = withEvents(withState(createForm()));
   window.form1 = form;
 
@@ -91,15 +93,16 @@ export var Section1 = () => {
     // await sleep(randInt(1000, 6000));
 
     try {
-      await sleep(randInt(1000, 6000));
+      await sleep(randInt(500, 2000));
 
-      console.log({ event, field: form.getValues() });
+      // console.log({ event, field: form.getValues() });
+      console.log('Nice!');
     } catch {
       console.log('Ooops...');
 
       throw undefined;
     } finally {
-      console.log('Finally!');
+      // console.log('Finally!');
     }
   };
 
