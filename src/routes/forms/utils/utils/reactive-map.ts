@@ -43,8 +43,14 @@ export class ReactiveMap<K, V> extends Map<K, V> {
     return super.has(key);
   }
 
-  get(key: K): V | undefined {
-    this.valueTriggers.track(key);
+  get(key: K, trigger?: boolean): V | undefined {
+    if (trigger == null) {
+      trigger = true;
+    }
+
+    if (trigger) {
+      this.valueTriggers.track(key);
+    }
 
     return super.get(key);
   }
@@ -86,18 +92,27 @@ export class ReactiveMap<K, V> extends Map<K, V> {
   }
 
   // writes
-  set(key: K, value: V): this {
+  set(key: K, value: V, trigger?: boolean): this {
+    if (trigger == null) {
+      trigger = true;
+    }
+
     batch(() => {
       if (super.has(key)) {
         if (super.get(key)! === value) {
           return;
         }
       } else {
-        this.keyTriggers.dirty(key);
-        this.keyTriggers.dirty($KEYS);
+        if (trigger) {
+          this.keyTriggers.dirty(key);
+          this.keyTriggers.dirty($KEYS);
+        }
       }
 
-      this.valueTriggers.dirty(key);
+      if (trigger) {
+        this.valueTriggers.dirty(key);
+      }
+
       super.set(key, value);
     });
 
