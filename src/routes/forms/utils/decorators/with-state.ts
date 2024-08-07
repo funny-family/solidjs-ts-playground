@@ -286,29 +286,47 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   };
 
   var submit = (event: Event) => {
-    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      var promise = form.submit(event)(onSubmit);
+    // event.preventDefault();
+    var s = form.submit(event);
+    state.isSubmitting = true;
 
-      state.isSubmitting = true;
+    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+      // var promise = form.submit(event)(onSubmit);
 
-      promise
-        .then(() => {
-          state.isSubmitSuccessful = true;
-          // console.log('then1');
-        })
-        .catch(() => {
-          state.isSubmitSuccessful = false;
-          // console.log('catch2');
-        })
-        .finally(() => {
-          batch(() => {
-            state.isSubmitted = true;
-            state.isSubmitting = false;
-            state.submitCount = state.submitCount + 1;
-          });
+      // promise
+      //   .then(() => {
+      //     state.isSubmitSuccessful = true;
+      //     console.log('then1');
+      //   })
+      //   .catch(() => {
+      //     state.isSubmitSuccessful = false;
+      //     console.log('catch1');
+      //   })
+      //   .finally(() => {
+      //     batch(() => {
+      //       state.isSubmitted = true;
+      //       state.isSubmitting = false;
+      //       state.submitCount++;
+      //     });
+      //   });
+
+      // return promise;
+
+      try {
+        await s(onSubmit);
+
+        state.isSubmitSuccessful = true;
+        console.log('then1');
+      } catch {
+        state.isSubmitSuccessful = false;
+        console.log('catch1');
+      } finally {
+        batch(() => {
+          state.isSubmitted = true;
+          state.isSubmitting = false;
+          state.submitCount++;
         });
-
-      return promise;
+      }
     };
 
     return submitter;

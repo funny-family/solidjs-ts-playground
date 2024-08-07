@@ -10,14 +10,36 @@ import {
 } from '../create-form';
 import { ReactiveMap } from '../utils/reactive-map';
 import { object_fromEntries } from '../utils/main';
+import { withState } from './with-state';
+import { Writeable } from '../../types';
 
-export var withValidation = (form: ReturnType<typeof createForm>) => {
+// https://kellenmace.com/blog/list-paths-to-all-deeply-nested-javascript-object-keys
+
+var v = () => {
+  return new Promise((resolve, reject) => {
+    const min = 500;
+    const max = 2000;
+    // var ms = Math.floor(Math.random() * (max - min + 1) + min);
+    var ms = 1100;
+
+    if (ms > 1000) {
+      setTimeout(resolve, ms);
+
+      return;
+    }
+
+    setTimeout(reject, ms);
+  });
+};
+
+export var withValidation = (form: ReturnType<typeof withState>) => {
   var fieldsMap = form[FIELDS_MAP] as ReactiveMap<string, Field>;
   var defaultValuesMap = form[DEFAULT_VALUES_MAP] as ReactiveMap<string, Field>;
   var nullableFieldsMap = form[NULLABLE_FIELDS_MAP] as ReactiveMap<
     string,
     Field
   >;
+  var state = form.state as Writeable<typeof form.state>;
 
   var errorMessagesMap = new ReactiveMap<string, string>();
 
@@ -59,52 +81,58 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
     errorMessagesMap.set(fieldName, '');
 
     var onBlur = field.onBlur!;
-    field.onBlur = () => {
-      onBlur();
-
-      //
-    };
-
     var onChange = field.onChange!;
-    field.onChange = (fieldValue: any) => {
-      onChange(fieldValue);
 
-      //
+    var updatedField = {
+      name: field.name,
+      getValue: field.getValue,
+      setValue: field.setValue,
+      onBlur: () => {
+        onBlur();
+      },
+      onChange: (fieldValue: any) => {
+        onChange(fieldValue);
+      },
     };
 
-    var defaultValue = defaultValuesMap.get(fieldName);
-    var map = fieldsMap.set(fieldName, field);
+    var map = fieldsMap.set(fieldName, updatedField);
 
     return () => {
       return map.get(fieldName) || nullableFieldsMap.get(fieldName);
     };
   };
 
-  var unregister = (fieldName: string) => {
-    var isDeleted = form.unregister(fieldName);
+  // var unregister = (fieldName: string) => {
+  //   var isDeleted = form.unregister(fieldName);
 
-    if (isDeleted) {
-      errorMessagesMap.delete(fieldName);
-    }
+  //   if (isDeleted) {
+  //     errorMessagesMap.delete(fieldName);
+  //   }
 
-    return isDeleted;
-  };
+  //   return isDeleted;
+  // };
+
+  // var p = v()
+  // .then(() => {
+  //   console.log('Validation succeeded!');
+  // })
+  // .catch(() => {
+  //   console.log('Validation failed!');
+  // });
 
   var submit = (event: Event) => {
-    event.preventDefault();
+    var _submit = form.submit(event);
 
-    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      var promise = onSubmit(event);
-
-      promise
-        .then(() => {
-          // console.log('then');
-        })
-        .catch(() => {
-          // console.log('catch');
-        });
-
-      return promise;
+    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+      try {
+        await Promise.reject();
+        // await onSubmit(event);
+        console.log('Validation succeeded!');
+      } catch {
+        console.log('Validation failed!');
+      } finally {
+        //
+      }
     };
 
     return submitter;
@@ -114,6 +142,7 @@ export var withValidation = (form: ReturnType<typeof createForm>) => {
     ...form,
     validation: validation as Readonly<typeof validation>,
     register,
-    unregister,
+    // unregister,
+    submit,
   };
 };
