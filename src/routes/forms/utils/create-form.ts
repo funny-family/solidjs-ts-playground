@@ -88,7 +88,7 @@ export namespace CreateFormHook {
 
 export type CreateFormFunction = () => UseFormHook;
 
-// =================================================================
+// ======================================================================
 
 export var nullableField = {
   name: null,
@@ -249,22 +249,70 @@ export var createForm = () => {
     return field.setValue!(defaultFieldValue);
   };
 
+  // var thenListeners = new Array();
+  // var catchListeners = new Array();
+  // var finallyListeners = new Array();
+
   var submit = (event: Event) => {
     event.preventDefault();
 
-    var submitter = (onSubmit: (event: Event) => Promise<any>) => {
-      var promise = onSubmit(event);
+    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+      // try {
+      //   thenListeners.forEach((listener) => {
+      //     listener();
+      //   });
 
-      promise
-        .then(() => {
-          // console.log('then');
-        })
-        .catch(() => {
-          // console.log('catch');
-        });
+      //   await onSubmit(event);
+      //   console.log('then');
+      // } catch (error) {
+      //   catchListeners.forEach((listener) => {
+      //     listener();
+      //   });
+      //   console.log('catch');
+      // } finally {
+      //   finallyListeners.forEach((listener) => {
+      //     listener();
+      //   });
+      // }
 
-      return promise;
+      await onSubmit(event);
+
+      /* ============================================ */
+      // promise
+      //   .then(() => {
+      //     console.log('then');
+      //   })
+      //   .catch(() => {
+      //     console.log('catch');
+      //   });
+
+      // return promise;
+      /* ============================================ */
+
+      /* ============================================ */
+      // new Promise((resolve, reject) => {
+      //   try {
+      //     resolve(onSubmit(event));
+      //   } catch (error) {
+      //     reject(error);
+      //   }
+      // });
+      /* ============================================ */
     };
+
+    // submitter.on = (type: string, listener: Function) => {
+    //   if (type === 'then') {
+    //     thenListeners.push(listener);
+    //   }
+
+    //   if (type === 'catch') {
+    //     catchListeners.push(listener);
+    //   }
+
+    //   if (type === 'finally') {
+    //     finallyListeners.push(listener);
+    //   }
+    // };
 
     return submitter;
   };
@@ -286,4 +334,4 @@ export var createForm = () => {
   };
 };
 
-// =================================================================
+// ======================================================================
