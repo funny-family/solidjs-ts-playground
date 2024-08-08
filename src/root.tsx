@@ -13,6 +13,8 @@ import {
 } from 'solid-start';
 import './root.css';
 
+import 'core-js/proposals/promise-try';
+
 export default function Root() {
   return (
     <Html lang="en">
