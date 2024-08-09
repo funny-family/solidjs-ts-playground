@@ -287,7 +287,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
 
   var submit = (event: Event) => {
     // event.preventDefault();
-    var s = form.submit(event);
+    var _submitter = form.submit(event);
     state.isSubmitting = true;
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
@@ -313,7 +313,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       // return promise;
 
       try {
-        await s(onSubmit);
+        await _submitter(onSubmit);
 
         state.isSubmitSuccessful = true;
         console.log('then1');

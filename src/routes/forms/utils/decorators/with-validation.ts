@@ -120,19 +120,48 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
   //   console.log('Validation failed!');
   // });
 
+  var s = () => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject();
+      }, 1000);
+    });
+  };
+
   var submit = (event: Event) => {
-    var _submit = form.submit(event);
+    var _submitter = form.submit(event);
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
       try {
-        await Promise.reject();
-        // await onSubmit(event);
+        var isValidationSuccessful = false;
+
+        // await Promise.reject();
+        // await onSubmit(() => {
+        //   new Promise((resolve, reject) => {
+        //     setTimeout(() => {
+        //       reject();
+        //     }, 1000);
+        //   });
+        // });
+
+        await _submitter(s);
+
+        await onSubmit(event);
+
         console.log('Validation succeeded!');
       } catch {
         console.log('Validation failed!');
       } finally {
         //
       }
+
+      // try {
+      //   setTimeout(() => {
+      //     Promise.reject();
+      //   }, 1000);
+      // } catch (error) {
+      //   console.log('Validation failed!');
+      // }
     };
 
     return submitter;
