@@ -286,7 +286,6 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   };
 
   var submit = (event: Event) => {
-    // event.preventDefault();
     var formSubmit = form.submit;
     var _submitter = formSubmit(event);
     var queue = _submitter.queue;
@@ -294,27 +293,6 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
     state.isSubmitting = true;
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
-      // var promise = form.submit(event)(onSubmit);
-
-      // promise
-      //   .then(() => {
-      //     state.isSubmitSuccessful = true;
-      //     console.log('then1');
-      //   })
-      //   .catch(() => {
-      //     state.isSubmitSuccessful = false;
-      //     console.log('catch1');
-      //   })
-      //   .finally(() => {
-      //     batch(() => {
-      //       state.isSubmitted = true;
-      //       state.isSubmitting = false;
-      //       state.submitCount++;
-      //     });
-      //   });
-
-      // return promise;
-
       try {
         await _submitter(onSubmit);
 

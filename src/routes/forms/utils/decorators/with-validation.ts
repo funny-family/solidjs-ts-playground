@@ -167,15 +167,13 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
 
     validation.isValidating = true;
 
-    // console.log({ formSubmit, _submitter });
-
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
       queue.unshift(
         new Promise((resolve, reject) => {
           setTimeout(() => {
             resolve(undefined);
             // reject();
-          }, 2000);
+          }, 1300);
         })
           .then(() => {
             console.log('Validating (fake) successful!');
@@ -191,78 +189,17 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
           })
       );
 
-      console.log(333, { _submitter, onSubmit, formSubmit });
-
-      await _submitter(onSubmit);
-
-      // try {
-      //   await _submitter(async () => {
-      //     var { data, error } = await fakeValidation();
-
-      //     if (error != null) {
-      //       validation.isValid = false;
-
-      //       console.log('Validation failed!');
-
-      //       throw undefined;
-      //     }
-      //     validation.isValid = true;
-      //   });
-      // } catch (error) {
-      //   console.log(645, error);
-      // } finally {
-      //   validation.isValidating = false;
-      // }
-
-      // await _submitter(onSubmit);
-
-      // try {
-      //   await _submitter(s);
-
-      //   validation.isValid = true;
-
-      //   console.log(94904856, onSubmit);
-
-      //   // await onSubmit(event);
-      // } catch (error) {
-      //   validation.isValid = false;
-
-      //   console.log('catch2', error);
-      // } finally {
-      //   validation.isValidating = false;
-      // }
-
-      // _submitter(s)
-      //   .then(() => {
-      //     onSubmit(event);
-
-      //     console.log('Validation succeeded!');
-      //   })
-      //   .catch(() => {
-      //     console.log('Validation failed!');
-      //   })
-      //   .finally(() => {
-      //     //
-      //   });
-
-      // nice????
-      // s()
-      //   .then(() => {
-      //     console.log('Validation succeeded!');
-
-      //     _submitter(onSubmit);
-      //   })
-      //   .catch(() => {
-      //     console.log('Validation failed!');
-      //   })
-      //   .finally(() => {
-      //     //
-      //   });
+      try {
+        await _submitter(onSubmit);
+      } catch {
+        //
+      } finally {
+        //
+      }
     };
 
     submitter.queue = queue;
 
-    // return _submitter;
     return submitter;
   };
 

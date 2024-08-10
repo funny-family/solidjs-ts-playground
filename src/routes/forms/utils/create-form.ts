@@ -249,44 +249,12 @@ export var createForm = () => {
     return field.setValue!(defaultFieldValue);
   };
 
-  // var thenListeners = new Array();
-  // var catchListeners = new Array();
-  // var finallyListeners = new Array();
-
   var submit = (event: Event) => {
     event.preventDefault();
 
     var queue = new Array();
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
-      // try {
-      //   thenListeners.forEach((listener) => {
-      //     listener();
-      //   });
-
-      //   await onSubmit(event);
-      //   console.log('then');
-      // } catch (error) {
-      //   catchListeners.forEach((listener) => {
-      //     listener();
-      //   });
-      //   console.log('catch');
-      // } finally {
-      //   finallyListeners.forEach((listener) => {
-      //     listener();
-      //   });
-      // }
-
-      // Promise.all(queue)
-      //   .then(() => {
-      //     onSubmit(event);
-
-      //     console.log('submitted!');
-      //   })
-      //   .catch(() => {
-      //     console.log('cannot submit!');
-      //   });
-
       try {
         await Promise.all(queue);
         await onSubmit(event);
@@ -295,28 +263,6 @@ export var createForm = () => {
       } finally {
         //
       }
-
-      /* ============================================ */
-      // promise
-      //   .then(() => {
-      //     console.log('then');
-      //   })
-      //   .catch(() => {
-      //     console.log('catch');
-      //   });
-
-      // return promise;
-      /* ============================================ */
-
-      /* ============================================ */
-      // new Promise((resolve, reject) => {
-      //   try {
-      //     resolve(onSubmit(event));
-      //   } catch (error) {
-      //     reject(error);
-      //   }
-      // });
-      /* ============================================ */
     };
 
     submitter.queue = queue;
