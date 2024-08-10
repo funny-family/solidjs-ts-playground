@@ -256,6 +256,8 @@ export var createForm = () => {
   var submit = (event: Event) => {
     event.preventDefault();
 
+    var queue = new Array();
+
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
       // try {
       //   thenListeners.forEach((listener) => {
@@ -275,7 +277,24 @@ export var createForm = () => {
       //   });
       // }
 
-      await onSubmit(event);
+      // Promise.all(queue)
+      //   .then(() => {
+      //     onSubmit(event);
+
+      //     console.log('submitted!');
+      //   })
+      //   .catch(() => {
+      //     console.log('cannot submit!');
+      //   });
+
+      try {
+        await Promise.all(queue);
+        await onSubmit(event);
+      } catch (error) {
+        throw undefined;
+      } finally {
+        //
+      }
 
       /* ============================================ */
       // promise
@@ -300,19 +319,7 @@ export var createForm = () => {
       /* ============================================ */
     };
 
-    // submitter.on = (type: string, listener: Function) => {
-    //   if (type === 'then') {
-    //     thenListeners.push(listener);
-    //   }
-
-    //   if (type === 'catch') {
-    //     catchListeners.push(listener);
-    //   }
-
-    //   if (type === 'finally') {
-    //     finallyListeners.push(listener);
-    //   }
-    // };
+    submitter.queue = queue;
 
     return submitter;
   };

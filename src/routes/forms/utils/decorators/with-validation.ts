@@ -163,34 +163,58 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
   var submit = (event: Event) => {
     var formSubmit = form.submit;
     var _submitter = formSubmit(event);
+    var queue = _submitter.queue;
 
     validation.isValidating = true;
 
     // console.log({ formSubmit, _submitter });
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
-      console.log({ formSubmit, _submitter, onSubmit });
-
-      try {
-        await _submitter(async () => {
-          var { data, error } = await fakeValidation();
-
-          if (error != null) {
+      queue.unshift(
+        new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(undefined);
+            // reject();
+          }, 2000);
+        })
+          .then(() => {
+            console.log('Validating (fake) successful!');
+          })
+          .catch(() => {
             validation.isValid = false;
-
-            console.log('Validation failed!');
+            console.log('Validating (fake) failed!');
 
             throw undefined;
-          }
-          validation.isValid = true;
-        });
-      } catch (error) {
-        console.log(645, error);
-      } finally {
-        validation.isValidating = false;
-      }
+          })
+          .finally(() => {
+            validation.isValidating = false;
+          })
+      );
+
+      console.log(333, { _submitter, onSubmit, formSubmit });
 
       await _submitter(onSubmit);
+
+      // try {
+      //   await _submitter(async () => {
+      //     var { data, error } = await fakeValidation();
+
+      //     if (error != null) {
+      //       validation.isValid = false;
+
+      //       console.log('Validation failed!');
+
+      //       throw undefined;
+      //     }
+      //     validation.isValid = true;
+      //   });
+      // } catch (error) {
+      //   console.log(645, error);
+      // } finally {
+      //   validation.isValidating = false;
+      // }
+
+      // await _submitter(onSubmit);
 
       // try {
       //   await _submitter(s);
@@ -235,6 +259,8 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
       //     //
       //   });
     };
+
+    submitter.queue = queue;
 
     // return _submitter;
     return submitter;
