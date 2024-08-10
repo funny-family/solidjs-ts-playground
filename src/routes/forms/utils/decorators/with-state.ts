@@ -290,6 +290,22 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
     var _submitter = form.submit(event);
     state.isSubmitting = true;
 
+    // var onThenCallback = null as unknown as () => void;
+    // var onCatchCallback = null as unknown as () => void;
+    // var onFinallyCallback = null as unknown as () => void;
+
+    // (submit as any).onThen = (callback: () => void) => {
+    //   onThenCallback = callback;
+    // };
+
+    // (submit as any).onCatch = (callback: () => void) => {
+    //   onCatchCallback = callback;
+    // };
+
+    // (submit as any).onFinally = (callback: () => void) => {
+    //   onFinallyCallback = callback;
+    // };
+
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
       // var promise = form.submit(event)(onSubmit);
 
@@ -313,14 +329,29 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       // return promise;
 
       try {
+        // if (onThenCallback != null) {
+        //   onThenCallback();
+        // }
+
+        console.log(1231313, onSubmit);
+
         await _submitter(onSubmit);
 
         state.isSubmitSuccessful = true;
         console.log('then1');
       } catch {
+        // if (onCatchCallback != null) {
+        //   onCatchCallback();
+        // }
+
         state.isSubmitSuccessful = false;
+
         console.log('catch1');
       } finally {
+        // if (onFinallyCallback != null) {
+        //   onFinallyCallback();
+        // }
+
         batch(() => {
           state.isSubmitted = true;
           state.isSubmitting = false;

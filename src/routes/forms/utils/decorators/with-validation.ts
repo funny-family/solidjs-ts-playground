@@ -67,7 +67,8 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
   };
 
   var validation = createMutable({
-    isValid: false,
+    isValid: true,
+    isValidating: false,
     trigger,
     getFieldError,
     getFieldsErrors,
@@ -124,46 +125,118 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject();
-      }, 1000);
+      }, 1500);
     });
   };
 
-  var submit = (event: Event) => {
-    var _submitter = form.submit(event);
+  var testS = () => {
+    return new Promise((resolve, reject) => {
+      var min = 500;
+      var max = 800;
+      var ms = Math.floor(Math.random() * (max - min + 1) + min);
 
-    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
-      try {
-        var isValidationSuccessful = false;
+      setTimeout(() => {
+        resolve(undefined);
+      }, ms);
 
-        // await Promise.reject();
-        // await onSubmit(() => {
-        //   new Promise((resolve, reject) => {
-        //     setTimeout(() => {
-        //       reject();
-        //     }, 1000);
-        //   });
-        // });
+      setTimeout(() => {
+        reject('Saaaaaad!!!');
+      }, ms);
+    });
+  };
 
-        await _submitter(s);
-
-        await onSubmit(event);
-
-        console.log('Validation succeeded!');
-      } catch {
-        console.log('Validation failed!');
-      } finally {
-        //
-      }
-
-      // try {
-      //   setTimeout(() => {
-      //     Promise.reject();
-      //   }, 1000);
-      // } catch (error) {
-      //   console.log('Validation failed!');
-      // }
+  var fakeValidation = async () => {
+    var returnValue = {
+      data: null as any,
+      error: null as any,
     };
 
+    try {
+      returnValue.data = await testS();
+    } catch (error) {
+      returnValue.error = error;
+    }
+
+    return returnValue;
+  };
+
+  var submit = (event: Event) => {
+    var formSubmit = form.submit;
+    var _submitter = formSubmit(event);
+
+    validation.isValidating = true;
+
+    // console.log({ formSubmit, _submitter });
+
+    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+      console.log({ formSubmit, _submitter, onSubmit });
+
+      try {
+        await _submitter(async () => {
+          var { data, error } = await fakeValidation();
+
+          if (error != null) {
+            validation.isValid = false;
+
+            console.log('Validation failed!');
+
+            throw undefined;
+          }
+          validation.isValid = true;
+        });
+      } catch (error) {
+        console.log(645, error);
+      } finally {
+        validation.isValidating = false;
+      }
+
+      await _submitter(onSubmit);
+
+      // try {
+      //   await _submitter(s);
+
+      //   validation.isValid = true;
+
+      //   console.log(94904856, onSubmit);
+
+      //   // await onSubmit(event);
+      // } catch (error) {
+      //   validation.isValid = false;
+
+      //   console.log('catch2', error);
+      // } finally {
+      //   validation.isValidating = false;
+      // }
+
+      // _submitter(s)
+      //   .then(() => {
+      //     onSubmit(event);
+
+      //     console.log('Validation succeeded!');
+      //   })
+      //   .catch(() => {
+      //     console.log('Validation failed!');
+      //   })
+      //   .finally(() => {
+      //     //
+      //   });
+
+      // nice????
+      // s()
+      //   .then(() => {
+      //     console.log('Validation succeeded!');
+
+      //     _submitter(onSubmit);
+      //   })
+      //   .catch(() => {
+      //     console.log('Validation failed!');
+      //   })
+      //   .finally(() => {
+      //     //
+      //   });
+    };
+
+    // return _submitter;
     return submitter;
   };
 
