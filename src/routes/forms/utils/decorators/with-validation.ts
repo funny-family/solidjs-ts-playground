@@ -6,6 +6,7 @@ import {
   FIELDS_MAP,
   NULLABLE_FIELDS_MAP,
   nullableField,
+  SUBMIT_QUEUE,
   type createForm,
 } from '../create-form';
 import { ReactiveMap } from '../utils/reactive-map';
@@ -15,31 +16,16 @@ import { Writeable } from '../../types';
 
 // https://kellenmace.com/blog/list-paths-to-all-deeply-nested-javascript-object-keys
 
-var v = () => {
-  return new Promise((resolve, reject) => {
-    const min = 500;
-    const max = 2000;
-    // var ms = Math.floor(Math.random() * (max - min + 1) + min);
-    var ms = 1100;
-
-    if (ms > 1000) {
-      setTimeout(resolve, ms);
-
-      return;
-    }
-
-    setTimeout(reject, ms);
-  });
-};
-
-export var withValidation = (form: ReturnType<typeof withState>) => {
+export var withValidation = <TForm extends ReturnType<typeof createForm>>(
+  form: TForm
+) => {
   var fieldsMap = form[FIELDS_MAP] as ReactiveMap<string, Field>;
   var defaultValuesMap = form[DEFAULT_VALUES_MAP] as ReactiveMap<string, Field>;
   var nullableFieldsMap = form[NULLABLE_FIELDS_MAP] as ReactiveMap<
     string,
     Field
   >;
-  var state = form.state as Writeable<typeof form.state>;
+  // var state = form.state as Writeable<typeof form.state>;
 
   var errorMessagesMap = new ReactiveMap<string, string>();
 
@@ -113,62 +99,34 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
   //   return isDeleted;
   // };
 
-  // var p = v()
-  // .then(() => {
-  //   console.log('Validation succeeded!');
-  // })
-  // .catch(() => {
-  //   console.log('Validation failed!');
-  // });
+  var reset = <TArgs extends Record<string, any>>(
+    option?: TArgs & { keepIsValid?: boolean }
+  ) => {
+    var keepIsValid = option?.keepIsValid || false;
 
-  var s = () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject();
-      }, 1500);
-    });
-  };
+    var formReset = form.reset as Function;
 
-  var testS = () => {
-    return new Promise((resolve, reject) => {
-      var min = 500;
-      var max = 800;
-      var ms = Math.floor(Math.random() * (max - min + 1) + min);
+    validation.isValid = false;
 
-      setTimeout(() => {
-        resolve(undefined);
-      }, ms);
-
-      setTimeout(() => {
-        reject('Saaaaaad!!!');
-      }, ms);
-    });
-  };
-
-  var fakeValidation = async () => {
-    var returnValue = {
-      data: null as any,
-      error: null as any,
-    };
-
-    try {
-      returnValue.data = await testS();
-    } catch (error) {
-      returnValue.error = error;
+    if (keepIsValid) {
+      validation.isValid = true;
     }
 
-    return returnValue;
+    if (formReset.length === 0 || option == null) {
+      formReset();
+    } else {
+      formReset(option);
+    }
   };
 
   var submit = (event: Event) => {
-    var formSubmit = form.submit;
-    var _submitter = formSubmit(event);
-    var queue = _submitter.queue;
+    var _submitter = form.submit(event);
+    var queue = _submitter[SUBMIT_QUEUE] as Promise<void>[];
 
     validation.isValidating = true;
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
-      queue.unshift(
+      queue.push(
         new Promise((resolve, reject) => {
           setTimeout(() => {
             resolve(undefined);
@@ -176,6 +134,7 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
           }, 1300);
         })
           .then(() => {
+            validation.isValid = true;
             console.log('Validating (fake) successful!');
           })
           .catch(() => {
@@ -198,7 +157,7 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
       }
     };
 
-    submitter.queue = queue;
+    submitter[SUBMIT_QUEUE] = queue;
 
     return submitter;
   };
@@ -206,6 +165,7 @@ export var withValidation = (form: ReturnType<typeof withState>) => {
   return {
     ...form,
     validation: validation as Readonly<typeof validation>,
+    reset,
     register,
     // unregister,
     submit,
