@@ -11,11 +11,12 @@ import {
 } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
 import { ReactiveMap } from './utils/reactive-map';
-import { object_fromEntries } from './utils/main';
+import { object_fromEntries, ReversIterableArray } from './utils/main';
 
 export var DEFAULT_VALUES_MAP = Symbol('DEFAULT_VALUES_MAP_SYMBOL') as symbol;
 export var FIELDS_MAP = Symbol('FIELDS_MAP_SYMBOL') as symbol;
 export var NULLABLE_FIELDS_MAP = Symbol('NULLABLE_FIELDS_MAP_SYMBOL') as symbol;
+export var SUBMIT_QUEUE = Symbol('SUBMIT_QUEUE_SYMBOL') as symbol;
 
 export type UseFormHook_On = (type: string, listener: () => void) => void;
 
@@ -252,7 +253,7 @@ export var createForm = () => {
   var submit = (event: Event) => {
     event.preventDefault();
 
-    var queue = new Array();
+    var queue = new ReversIterableArray<Promise<void>>();
 
     var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
       try {
@@ -265,7 +266,7 @@ export var createForm = () => {
       }
     };
 
-    submitter.queue = queue;
+    submitter[SUBMIT_QUEUE] = queue;
 
     return submitter;
   };
