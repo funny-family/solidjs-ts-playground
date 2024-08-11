@@ -4,6 +4,7 @@ import {
   FIELDS_MAP,
   NULLABLE_FIELDS_MAP,
   nullableField,
+  SUBMIT_QUEUE,
   type createForm,
 } from '../create-form';
 import { createMutable, createStore } from 'solid-js/store';
@@ -217,8 +218,10 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
         form.reset();
       }
 
-      state.isSubmitted = false;
-      state.isSubmitSuccessful = false;
+      batch(() => {
+        state.isSubmitted = false;
+        state.isSubmitSuccessful = false;
+      });
     });
   };
 
@@ -286,9 +289,8 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   };
 
   var submit = (event: Event) => {
-    var formSubmit = form.submit;
-    var _submitter = formSubmit(event);
-    var queue = _submitter.queue;
+    var _submitter = form.submit(event);
+    var queue = _submitter[SUBMIT_QUEUE] as Promise<void>[];
 
     state.isSubmitting = true;
 
@@ -310,7 +312,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       }
     };
 
-    submitter.queue = queue;
+    submitter[SUBMIT_QUEUE] = queue;
 
     return submitter;
   };
