@@ -5,8 +5,9 @@ import {
   Field,
   FIELDS_MAP,
   NULLABLE_FIELDS_MAP,
-  nullableField,
   SUBMIT_QUEUE,
+  SubmitFunction,
+  SubmitterFunction,
   type createForm,
 } from '../create-form';
 import { ReactiveMap } from '../utils/reactive-map';
@@ -15,6 +16,9 @@ import { withState } from './with-state';
 import { Writeable } from '../../types';
 
 // https://kellenmace.com/blog/list-paths-to-all-deeply-nested-javascript-object-keys
+
+var isValid_defaultValue = false;
+var isValidating_defaultValue = false;
 
 export var withValidation = <TForm extends ReturnType<typeof createForm>>(
   form: TForm
@@ -53,8 +57,8 @@ export var withValidation = <TForm extends ReturnType<typeof createForm>>(
   };
 
   var validation = createMutable({
-    isValid: true,
-    isValidating: false,
+    isValid: isValid_defaultValue,
+    isValidating: isValidating_defaultValue,
     trigger,
     getFieldError,
     getFieldsErrors,
@@ -112,20 +116,20 @@ export var withValidation = <TForm extends ReturnType<typeof createForm>>(
       validation.isValid = true;
     }
 
-    if (formReset.length === 0 || option == null) {
+    if (option == null) {
       formReset();
     } else {
       formReset(option);
     }
   };
 
-  var submit = (event: Event) => {
+  var submit: SubmitFunction = (event) => {
     var _submitter = form.submit(event);
-    var queue = _submitter[SUBMIT_QUEUE] as Promise<void>[];
+    var queue = _submitter[SUBMIT_QUEUE];
 
     validation.isValidating = true;
 
-    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+    var submitter = (async (onSubmit) => {
       queue.push(
         new Promise((resolve, reject) => {
           setTimeout(() => {
@@ -148,6 +152,23 @@ export var withValidation = <TForm extends ReturnType<typeof createForm>>(
           })
       );
 
+      // queue.push(
+      //   new Promise((resolve, reject) => {
+      //     setTimeout(() => {
+      //       // resolve(undefined);
+      //       reject();
+      //     }, 1000);
+      //   })
+      //     .then(() => {
+      //       console.log('MMMMMMMmmm...');
+      //     })
+      //     .catch(() => {
+      //       console.log('NONONONON');
+
+      //       throw undefined;
+      //     })
+      // );
+
       try {
         await _submitter(onSubmit);
       } catch {
@@ -155,7 +176,7 @@ export var withValidation = <TForm extends ReturnType<typeof createForm>>(
       } finally {
         //
       }
-    };
+    }) as SubmitterFunction;
 
     submitter[SUBMIT_QUEUE] = queue;
 

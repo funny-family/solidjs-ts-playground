@@ -16,104 +16,29 @@ import { object_fromEntries, ReversIterableArray } from './utils/main';
 export var DEFAULT_VALUES_MAP = Symbol('DEFAULT_VALUES_MAP_SYMBOL') as symbol;
 export var FIELDS_MAP = Symbol('FIELDS_MAP_SYMBOL') as symbol;
 export var NULLABLE_FIELDS_MAP = Symbol('NULLABLE_FIELDS_MAP_SYMBOL') as symbol;
-export var SUBMIT_QUEUE = Symbol('SUBMIT_QUEUE_SYMBOL') as symbol;
-
-export type UseFormHook_On = (type: string, listener: () => void) => void;
-
-export type UseFormHook_Register = (name: string, value: any) => void;
-
-export type UseFormHook_Unregister = (name: string) => void;
-
-export type UseFormHook_Field = Record<string, any>;
-
-export type UseFormHook_Submit = Function;
-
-export type UseFormHookReturn = {
-  // on: UseFormHook_On;
-  fieldsMap: Map<string, any>;
-  register: UseFormHook_Register;
-  unregister: UseFormHook_Unregister;
-  // field: Readonly<UseFormHook_Field>;
-  submit: UseFormHook_Submit;
-};
-
-export interface UseFormHook extends UseFormHookReturn {
-  (): UseFormHookReturn;
-}
-
-export namespace CreateFormHook {
-  export type FieldsMap<
-    TName extends string = string,
-    TValue extends ReturnType<Register> = ReturnType<Register>
-  > = Map<TName, TValue>;
-
-  export type ValuesMap<
-    TName extends string = string,
-    TValue extends unknown = unknown
-  > = Map<TName, TValue>;
-
-  export type Register<TName extends string = string> = (name: TName) => {
-    name: TName;
-    // ref: <TElement extends HTMLElement>(element: TElement) => void;
-    onChange: <T extends any>(fieldValue: T) => void;
-    onBlur: () => void;
-    getValue: <T extends any>() => T;
-    setValue: <T extends any>(fieldName: T) => T;
-  };
-
-  export type Unregister = <TName extends string = string>(name: TName) => void;
-
-  export type SetValue<
-    TFieldName extends string = string,
-    TFieldValue extends unknown = unknown
-  > = (name: TFieldName, value: TFieldValue) => TFieldValue;
-
-  export type GetValue<
-    TFieldName extends string = string,
-    TFieldValue extends unknown = unknown
-  > = (name: TFieldName) => TFieldValue;
-
-  export type GetValues<T extends Record<string, any> = Record<string, any>> =
-    () => T;
-
-  export type Submit = <
-    TElement extends HTMLElement = HTMLElement,
-    TEvent extends Event = Event,
-    TEventArg = Parameters<JSX.EventHandler<TElement, TEvent>>[0]
-  >(
-    event: TEventArg
-  ) => (
-    onSubmit: (event: TEventArg) => Promise<void>
-  ) => ReturnType<typeof onSubmit>;
-}
-
-export type CreateFormFunction = () => UseFormHook;
-
-// ======================================================================
-
-export var nullableField = {
-  name: null,
-  getValue: () => {
-    return null;
-  },
-  setValue: () => {
-    return null;
-  },
-  onBlur: () => {
-    //
-  },
-  onChange: () => {
-    //
-  },
-};
+// typescript... ;((((((
+export var SUBMIT_QUEUE = Symbol(
+  'SUBMIT_QUEUE_SYMBOL'
+) as unknown as 'SUBMIT_QUEUE';
 
 export type Field = {
   name: string | null;
   getValue: (() => any) | null;
-  setValue: ((fieldValue: any) => () => any) | null;
+  setValue: Setter<any> | null;
   onBlur: (() => void) | null;
   onChange: ((fieldValue: any) => void) | null;
 };
+
+export type PromiseQueue = ReversIterableArray<Promise<any>>;
+
+export interface SubmitterFunction extends Function {
+  [SUBMIT_QUEUE]: PromiseQueue;
+  (onSubmit: (event: Event) => Promise<any>): Promise<any>;
+}
+
+export type SubmitFunction<TEvent extends Event = Event> = (
+  event: TEvent
+) => SubmitterFunction;
 
 export var createForm = () => {
   var fieldsMap = new ReactiveMap<string, Field>();
@@ -125,7 +50,7 @@ export var createForm = () => {
 
     defaultValuesMap.set(fieldName, fieldValue);
 
-    var field = {
+    var field: any = {
       name: fieldName,
       getValue: value,
       setValue: (fieldValue: Setter<any>) => {
@@ -152,11 +77,12 @@ export var createForm = () => {
     fieldName: string,
     option?: {
       keepDefaultValue?: boolean;
+      onCleanup?: () => void;
     }
   ) => {
     var keepDefaultValue = option?.keepDefaultValue || false;
 
-    var field = fieldsMap.get(fieldName, false);
+    var field = fieldsMap.get(fieldName, false)!;
 
     if (field == null) {
       return false;
@@ -178,7 +104,7 @@ export var createForm = () => {
       nullableFieldsMap.set(fieldName, {
         name: null,
         getValue: () => {
-          return field?.getValue!();
+          return field.getValue!();
         },
         setValue: null,
         onBlur: null,
@@ -189,6 +115,11 @@ export var createForm = () => {
     batch(() => {
       defaultValuesMap.delete(fieldName);
       fieldsMap.delete(fieldName);
+
+      var option_onCleanup = option?.onCleanup;
+      if (option_onCleanup != null) {
+        option_onCleanup();
+      }
     });
 
     nullableFieldsMap.delete(fieldName);
@@ -250,12 +181,12 @@ export var createForm = () => {
     return field.setValue!(defaultFieldValue);
   };
 
-  var submit = (event: Event) => {
+  var submit: SubmitFunction = (event) => {
     event.preventDefault();
 
-    var queue = new ReversIterableArray<Promise<void>>();
+    var queue = new ReversIterableArray<Promise<any>>();
 
-    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+    var submitter = (async (onSubmit) => {
       try {
         await Promise.all(queue);
         await onSubmit(event);
@@ -264,7 +195,7 @@ export var createForm = () => {
       } finally {
         //
       }
-    };
+    }) as SubmitterFunction;
 
     submitter[SUBMIT_QUEUE] = queue;
 

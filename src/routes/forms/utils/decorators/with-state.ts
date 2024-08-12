@@ -3,30 +3,25 @@ import {
   Field,
   FIELDS_MAP,
   NULLABLE_FIELDS_MAP,
-  nullableField,
   SUBMIT_QUEUE,
+  SubmitFunction,
+  SubmitterFunction,
   type createForm,
 } from '../create-form';
-import { createMutable, createStore } from 'solid-js/store';
-import { batch, createEffect, on } from 'solid-js';
+import { createMutable } from 'solid-js/store';
+import { batch } from 'solid-js';
 import { ReactiveMap } from '../utils/reactive-map';
 import { object_fromEntries } from '../utils/main';
 
 export var DIRTY_FIELDS_MAP = Symbol('DIRTY_FIELDS_MAP_SYMBOL') as symbol;
 export var TOUCHED_FIELDS_MAP = Symbol('TOUCHED_FIELDS_MAP_SYMBOL') as symbol;
 
-var stateKey = {
-  isTouched: 'isTouched',
-  isDirty: 'isDirty',
-  isSubmitted: 'isSubmitted',
-  isSubmitSuccessful: 'isSubmitSuccessful',
-  isSubmitting: 'isSubmitting',
-  isLoading: 'isLoading',
-  submitCount: 'submitCount',
-  getFieldState: 'getFieldState',
-  getDirtyFields: 'getDirtyFields',
-  getTouchedFields: 'getTouchedFields',
-} as const;
+export var isTouched_defaultValue = false;
+export var isDirty_defaultValue = false;
+export var isSubmitted_defaultValue = false;
+export var isSubmitSuccessful_defaultValue = false;
+export var isSubmitting_defaultValue = false;
+export var submitCount_defaultValue = 0;
 
 export var withState = <TForm extends ReturnType<typeof createForm>>(
   form: TForm
@@ -48,25 +43,33 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
 
   var getFieldState = (fieldName: string) => {
     var fieldState = {
-      isDirty: false,
-      isTouched: false,
+      isDirty: isDirty_defaultValue,
+      isTouched: isTouched_defaultValue,
     };
 
     batch(() => {
-      fieldState.isDirty = dirtyFieldsMap.get(fieldName)!;
-      fieldState.isTouched = touchedFieldsMap.get(fieldName)!;
+      var dirtyField = dirtyFieldsMap.get(fieldName);
+      var touchedField = touchedFieldsMap.get(fieldName);
+
+      if (dirtyField != null) {
+        fieldState.isDirty = dirtyField;
+      }
+
+      if (touchedField != null) {
+        fieldState.isTouched = touchedField;
+      }
     });
 
     return fieldState;
   };
 
   var state = createMutable({
-    isTouched: false,
-    isDirty: false,
-    isSubmitted: false,
-    isSubmitSuccessful: false,
-    isSubmitting: false,
-    submitCount: 0,
+    isDirty: isDirty_defaultValue,
+    isTouched: isTouched_defaultValue,
+    isSubmitted: isSubmitted_defaultValue,
+    isSubmitSuccessful: isSubmitSuccessful_defaultValue,
+    isSubmitting: isSubmitting_defaultValue,
+    submitCount: submitCount_defaultValue,
     getFieldState,
     getDirtyFields,
     getTouchedFields,
@@ -112,51 +115,93 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
     };
   };
 
+  // var unregister = (
+  //   fieldName: string,
+  //   option?: {
+  //     keepDefaultValue?: boolean;
+  //     keepFormDirty?: boolean;
+  //     keepFormTouched?: boolean;
+  //   }
+  // ) => {
+  //   var keepDefaultValue = option?.keepDefaultValue || false;
+  //   var keepFormDirty = option?.keepFormDirty || false;
+  //   var keepFormTouched = option?.keepFormTouched || false;
+
+  //   var field = fieldsMap.get(fieldName, false);
+
+  //   if (field == null) {
+  //     return false;
+  //   }
+
+  //   var defaultValue = defaultValuesMap.get(fieldName);
+
+  //   if (keepDefaultValue) {
+  //     nullableFieldsMap.set(fieldName, {
+  //       name: null,
+  //       getValue: () => {
+  //         return defaultValue;
+  //       },
+  //       setValue: null,
+  //       onBlur: null,
+  //       onChange: null,
+  //     });
+  //   } else {
+  //     nullableFieldsMap.set(fieldName, {
+  //       name: null,
+  //       getValue: () => {
+  //         return field?.getValue!();
+  //       },
+  //       setValue: null,
+  //       onBlur: null,
+  //       onChange: null,
+  //     });
+  //   }
+
+  //   batch(() => {
+  //     defaultValuesMap.delete(fieldName);
+  //     fieldsMap.delete(fieldName);
+  //     dirtyFieldsMap.delete(fieldName);
+  //     touchedFieldsMap.delete(fieldName);
+
+  //     if (keepFormDirty) {
+  //       state.isDirty = true;
+  //     } else {
+  //       if (dirtyFieldsMap.size === 0) {
+  //         state.isDirty = false;
+  //       }
+  //     }
+
+  //     if (keepFormTouched) {
+  //       state.isTouched = true;
+  //     } else {
+  //       if (touchedFieldsMap.size === 0) {
+  //         state.isTouched = false;
+  //       }
+  //     }
+  //   });
+
+  //   nullableFieldsMap.delete(fieldName);
+
+  //   return true;
+  // };
+
+  // type r = Parameters<>;
+
+  // type Unregister = TForm['unregister'] extends (...args: infer U) => infer R
+  //   ? (...args: U) => R
+  //   : never;
+
   var unregister = (
-    fieldName: string,
-    option?: {
-      keepDefaultValue?: boolean;
+    fieldName: Parameters<TForm['unregister']>[0],
+    option: Parameters<TForm['unregister']>[1] & {
       keepFormDirty?: boolean;
       keepFormTouched?: boolean;
     }
   ) => {
-    var keepDefaultValue = option?.keepDefaultValue || false;
     var keepFormDirty = option?.keepFormDirty || false;
     var keepFormTouched = option?.keepFormTouched || false;
 
-    var field = fieldsMap.get(fieldName, false);
-
-    if (field == null) {
-      return false;
-    }
-
-    var defaultValue = defaultValuesMap.get(fieldName);
-
-    if (keepDefaultValue) {
-      nullableFieldsMap.set(fieldName, {
-        name: null,
-        getValue: () => {
-          return defaultValue;
-        },
-        setValue: null,
-        onBlur: null,
-        onChange: null,
-      });
-    } else {
-      nullableFieldsMap.set(fieldName, {
-        name: null,
-        getValue: () => {
-          return field?.getValue!();
-        },
-        setValue: null,
-        onBlur: null,
-        onChange: null,
-      });
-    }
-
-    batch(() => {
-      defaultValuesMap.delete(fieldName);
-      fieldsMap.delete(fieldName);
+    option.onCleanup = () => {
       dirtyFieldsMap.delete(fieldName);
       touchedFieldsMap.delete(fieldName);
 
@@ -175,11 +220,9 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
           state.isTouched = false;
         }
       }
-    });
+    };
 
-    nullableFieldsMap.delete(fieldName);
-
-    return true;
+    return form.unregister(fieldName, option);
   };
 
   var reset = (option?: {
@@ -288,13 +331,13 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
     return value();
   };
 
-  var submit = (event: Event) => {
+  var submit: SubmitFunction = (event) => {
     var _submitter = form.submit(event);
-    var queue = _submitter[SUBMIT_QUEUE] as Promise<void>[];
+    var queue = _submitter[SUBMIT_QUEUE];
 
     state.isSubmitting = true;
 
-    var submitter = async (onSubmit: (event: Event) => Promise<any>) => {
+    var submitter = (async (onSubmit) => {
       try {
         await _submitter(onSubmit);
 
@@ -310,7 +353,7 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
           state.submitCount++;
         });
       }
-    };
+    }) as SubmitterFunction;
 
     submitter[SUBMIT_QUEUE] = queue;
 
