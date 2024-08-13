@@ -51,16 +51,15 @@ export var Section1 = () => {
   // var form = useForm();
 
   // var form = createForm();
-  var form = withState(createForm());
-  // var form = withValidation(withState(createForm()));
+  // var form = withState(createForm());
+  var form = withValidation(withState(createForm()));
+
+  // var form = withValidation(createForm());
   // var form = withEvents(withState(createForm()));
   window.form1 = form;
 
   var nameField = form.register(field.name, 'test');
   var agreeField = form.register(field.agree, true);
-
-  // var nameFieldValue = nameField.setValue('hfsuf7674');
-  // var agreeFieldValue = agreeField.setValue(true);
 
   onMount(() => {
     // form?.on?.('register', () => {
@@ -100,7 +99,7 @@ export var Section1 = () => {
     } catch {
       console.log('Ooops...');
 
-      throw undefined;
+      // throw undefined;
     } finally {
       // console.log('Finally!');
     }
@@ -122,66 +121,71 @@ export var Section1 = () => {
             form.submit(event)(onSubmit);
           }}
         >
-          <div>
-            <input
-              type="text"
-              placeholder="name"
-              autocomplete="off"
-              name={nameField()?.name}
-              // value={nameField.setValue('hfsuf7674')()}
-              // value={nameFieldValue()}
-              value={nameField()?.getValue?.()}
-              ref={(el) => {
-                // form.setValue(field.name, el.value);
-              }}
-              onChange={(event) => {
-                nameField()?.onChange?.(
-                  (event.target as HTMLInputElement).value
-                );
-              }}
-              onBlur={(event) => {
-                nameField()?.onBlur?.();
-              }}
-            />
-
-            <div style={{ color: 'red' }}>{null}</div>
-          </div>
-          <div>
-            <input
-              id="fsjhf675"
-              type="checkbox"
-              name={agreeField()?.name}
-              // checked={agreeField.setValue(true)()}
-              // checked={agreeFieldValue()}
-              checked={agreeField()?.getValue?.()}
-              ref={(el) => {
-                // form.setValue(field.agree, el.checked);
-              }}
-              onChange={(event) => {
-                agreeField()?.onChange?.(
-                  (event.target as HTMLInputElement).checked
-                );
-              }}
-              onBlur={(event) => {
-                agreeField()?.onBlur?.();
-              }}
-            />
-            <label for="fsjhf675">Agree</label>
-
-            <div style={{ color: 'red' }}>{null}</div>
-          </div>
-          <button type="submit" disabled={form?.state?.isSubmitting}>
-            submit!
-          </button>
-          <button
-            type="button"
-            disabled={form?.state?.isSubmitting}
-            onClick={() => {
-              form.reset();
-            }}
+          <fieldset
+            disabled={
+              form?.state?.isSubmitting || form?.validation?.isValidating
+            }
           >
-            reset
-          </button>
+            <div>
+              <input
+                type="text"
+                placeholder="name"
+                autocomplete="off"
+                name={nameField()?.name}
+                // value={nameField.setValue('hfsuf7674')()}
+                // value={nameFieldValue()}
+                value={nameField()?.getValue?.()}
+                ref={(el) => {
+                  // form.setValue(field.name, el.value);
+                }}
+                onChange={(event) => {
+                  nameField()?.onChange?.(
+                    (event.target as HTMLInputElement).value
+                  );
+                }}
+                onBlur={(event) => {
+                  nameField()?.onBlur?.();
+                }}
+              />
+
+              <div style={{ color: 'red' }}>{null}</div>
+            </div>
+            <div>
+              <input
+                id="fsjhf675"
+                type="checkbox"
+                name={agreeField()?.name}
+                // checked={agreeField.setValue(true)()}
+                // checked={agreeFieldValue()}
+                checked={agreeField()?.getValue?.()}
+                ref={(el) => {
+                  // form.setValue(field.agree, el.checked);
+                }}
+                onChange={(event) => {
+                  agreeField()?.onChange?.(
+                    (event.target as HTMLInputElement).checked
+                  );
+                }}
+                onBlur={(event) => {
+                  agreeField()?.onBlur?.();
+                }}
+              />
+              <label for="fsjhf675">Agree</label>
+
+              <div style={{ color: 'red' }}>{null}</div>
+            </div>
+            <button type="submit" disabled={form?.state?.isSubmitting}>
+              submit!
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                form.reset();
+              }}
+            >
+              reset
+            </button>
+          </fieldset>
         </form>
 
         <pre>
@@ -270,6 +274,15 @@ export var Section1 = () => {
         </pre>
 
         <hr />
+
+        <pre>
+          <h1>Form "validation state"</h1>
+          <code>
+            {() => {
+              return JSON.stringify(form?.validation || {}, null, 2);
+            }}
+          </code>
+        </pre>
       </div>
     </section>
   );
