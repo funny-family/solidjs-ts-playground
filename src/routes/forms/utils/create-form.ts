@@ -11,7 +11,7 @@ import {
 } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
 import { ReactiveMap } from './utils/reactive-map';
-import { object_fromEntries, ReversIterableArray } from './utils/main';
+import { Object_fromEntries, ReversIterableArray } from './utils/main';
 
 export var DEFAULT_VALUES_MAP = Symbol('DEFAULT_VALUES_MAP_SYMBOL') as symbol;
 export var FIELDS_MAP = Symbol('FIELDS_MAP_SYMBOL') as symbol;
@@ -21,12 +21,30 @@ export var SUBMIT_QUEUE = Symbol(
   'SUBMIT_QUEUE_SYMBOL'
 ) as unknown as 'SUBMIT_QUEUE';
 
+export var nullableField_name = null as any as undefined;
+
+export var nullableField_getValue = () => {
+  return null;
+};
+
+export var nullableField_setValue = (fieldValue: any) => {
+  return null;
+};
+
+export var nullableField_onBlur = () => {
+  //
+};
+
+export var nullableField_onChange = () => {
+  //
+};
+
 export type Field = {
-  name: string | null;
-  getValue: (() => any) | null;
-  setValue: Setter<any> | null;
-  onBlur: (() => void) | null;
-  onChange: ((fieldValue: any) => void) | null;
+  name: string;
+  getValue: () => any;
+  setValue: Setter<any> | ((fieldValue: any) => any);
+  onBlur: () => void;
+  onChange: (fieldValue: any) => void;
 };
 
 export type PromiseQueue = ReversIterableArray<Promise<any>>;
@@ -68,18 +86,28 @@ export var createForm = () => {
 
     var map = fieldsMap.set(fieldName, field);
 
-    return () => {
-      return map.get(fieldName) || nullableFieldsMap.get(fieldName);
+    var commutateField = (
+      _fieldsMap: typeof fieldsMap,
+      _nullableFieldsMap: typeof nullableFieldsMap,
+      _createMemo: typeof createMemo
+    ) => {
+      return _createMemo(() => {
+        return (map.get(fieldName) || nullableFieldsMap.get(fieldName))!;
+      });
     };
+
+    return commutateField(map, nullableFieldsMap, createMemo);
   };
 
-  var unregister = (
+  var unregister = function (
+    this: {
+      onCleanup?: () => void;
+    },
     fieldName: string,
     option?: {
       keepDefaultValue?: boolean;
-      onCleanup?: () => void;
     }
-  ) => {
+  ) {
     var keepDefaultValue = option?.keepDefaultValue || false;
 
     var field = fieldsMap.get(fieldName, false)!;
@@ -88,37 +116,35 @@ export var createForm = () => {
       return false;
     }
 
-    var defaultValue = defaultValuesMap.get(fieldName);
+    var defaultValue = defaultValuesMap.get(fieldName, false); // ??? (false)
+
+    var nullableField = {
+      name: nullableField_name as any,
+      getValue: () => {
+        return defaultValue;
+      },
+      setValue: nullableField_setValue,
+      onBlur: nullableField_onBlur,
+      onChange: nullableField_onChange,
+    };
 
     if (keepDefaultValue) {
-      nullableFieldsMap.set(fieldName, {
-        name: null,
-        getValue: () => {
-          return defaultValue;
-        },
-        setValue: null,
-        onBlur: null,
-        onChange: null,
-      });
+      nullableFieldsMap.set(fieldName, nullableField);
     } else {
-      nullableFieldsMap.set(fieldName, {
-        name: null,
-        getValue: () => {
-          return field.getValue!();
-        },
-        setValue: null,
-        onBlur: null,
-        onChange: null,
-      });
+      nullableField.getValue = () => {
+        return field.getValue();
+      };
+
+      nullableFieldsMap.set(fieldName, nullableField);
     }
 
     batch(() => {
       defaultValuesMap.delete(fieldName);
       fieldsMap.delete(fieldName);
 
-      var option_onCleanup = option?.onCleanup;
-      if (option_onCleanup != null) {
-        option_onCleanup();
+      var cleanup = this?.onCleanup;
+      if (cleanup != null) {
+        cleanup();
       }
     });
 
@@ -151,7 +177,7 @@ export var createForm = () => {
       fieldsEntries[i++] = [key, field.getValue!()];
     });
 
-    return object_fromEntries(fieldsEntries);
+    return Object_fromEntries(fieldsEntries);
   };
 
   var getDefaultValue = (fieldName: string) => {
@@ -159,7 +185,7 @@ export var createForm = () => {
   };
 
   var getDefaultValues = () => {
-    return object_fromEntries(defaultValuesMap);
+    return Object_fromEntries(defaultValuesMap);
   };
 
   var reset = () => {

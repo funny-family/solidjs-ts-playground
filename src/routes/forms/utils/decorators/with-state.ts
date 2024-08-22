@@ -11,7 +11,7 @@ import {
 import { createMutable } from 'solid-js/store';
 import { batch } from 'solid-js';
 import { ReactiveMap } from '../utils/reactive-map';
-import { object_fromEntries } from '../utils/main';
+import { Object_fromEntries } from '../utils/main';
 
 export var DIRTY_FIELDS_MAP = Symbol('DIRTY_FIELDS_MAP_SYMBOL') as symbol;
 export var TOUCHED_FIELDS_MAP = Symbol('TOUCHED_FIELDS_MAP_SYMBOL') as symbol;
@@ -34,11 +34,11 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   var touchedFieldsMap = new ReactiveMap<string, boolean>();
 
   var getDirtyFields = () => {
-    return object_fromEntries(dirtyFieldsMap);
+    return Object_fromEntries(dirtyFieldsMap);
   };
 
   var getTouchedFields = () => {
-    return object_fromEntries(touchedFieldsMap);
+    return Object_fromEntries(touchedFieldsMap);
   };
 
   var getFieldState = (fieldName: string) => {
@@ -76,9 +76,9 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   });
 
   var register = (fieldName: string, fieldValue: any) => {
-    form.register(fieldName, fieldValue);
-
-    var field = fieldsMap.get(fieldName, false)!;
+    var getField = form.register(fieldName, fieldValue);
+    var field = getField();
+    // var field = fieldsMap.get(fieldName, false)!;
 
     batch(() => {
       dirtyFieldsMap.set(fieldName, false);
@@ -108,11 +108,15 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
       },
     };
 
-    var map = fieldsMap.set(fieldName, updatedField);
+    fieldsMap.set(fieldName, updatedField);
 
-    return () => {
-      return map.get(fieldName) || nullableFieldsMap.get(fieldName);
-    };
+    // var map = fieldsMap.set(fieldName, updatedField);
+
+    // return () => {
+    //   return map.get(fieldName) || nullableFieldsMap.get(fieldName);
+    // };
+
+    return getField;
   };
 
   // var unregister = (
@@ -191,38 +195,48 @@ export var withState = <TForm extends ReturnType<typeof createForm>>(
   //   ? (...args: U) => R
   //   : never;
 
-  var unregister = (
+  var unregister = function (
+    this: {
+      onCleanup?: () => void;
+    },
     fieldName: Parameters<TForm['unregister']>[0],
     option: Parameters<TForm['unregister']>[1] & {
       keepFormDirty?: boolean;
       keepFormTouched?: boolean;
     }
-  ) => {
+  ) {
     var keepFormDirty = option?.keepFormDirty || false;
     var keepFormTouched = option?.keepFormTouched || false;
 
-    option.onCleanup = () => {
-      dirtyFieldsMap.delete(fieldName);
-      touchedFieldsMap.delete(fieldName);
+    var formUnregister = form.unregister.bind({
+      onCleanup: () => {
+        dirtyFieldsMap.delete(fieldName);
+        touchedFieldsMap.delete(fieldName);
 
-      if (keepFormDirty) {
-        state.isDirty = true;
-      } else {
-        if (dirtyFieldsMap.size === 0) {
-          state.isDirty = false;
+        if (keepFormDirty) {
+          state.isDirty = true;
+        } else {
+          if (dirtyFieldsMap.size === 0) {
+            state.isDirty = false;
+          }
         }
-      }
 
-      if (keepFormTouched) {
-        state.isTouched = true;
-      } else {
-        if (touchedFieldsMap.size === 0) {
-          state.isTouched = false;
+        if (keepFormTouched) {
+          state.isTouched = true;
+        } else {
+          if (touchedFieldsMap.size === 0) {
+            state.isTouched = false;
+          }
         }
-      }
-    };
 
-    return form.unregister(fieldName, option);
+        var cleanup = this?.onCleanup;
+        if (cleanup != null) {
+          cleanup();
+        }
+      },
+    });
+
+    return formUnregister(fieldName, option);
   };
 
   var reset = (option?: {

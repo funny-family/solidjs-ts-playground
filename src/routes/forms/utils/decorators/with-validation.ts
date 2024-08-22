@@ -11,7 +11,7 @@ import {
   type createForm,
 } from '../create-form';
 import { ReactiveMap } from '../utils/reactive-map';
-import { object_fromEntries } from '../utils/main';
+import { Object_fromEntries } from '../utils/main';
 import { withState } from './with-state';
 import { Writeable } from '../../types';
 
@@ -53,7 +53,7 @@ export var withValidation = <TForm extends ReturnType<typeof createForm>>(
       entries[i++] = [key, value];
     });
 
-    return object_fromEntries(entries);
+    return Object_fromEntries(entries);
   };
 
   var validation = createMutable({
