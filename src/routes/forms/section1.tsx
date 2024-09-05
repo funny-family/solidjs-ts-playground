@@ -1,5 +1,5 @@
-import { createEffect, onMount } from 'solid-js';
-import { createForm } from './utils/create-form';
+import { createEffect, For, onMount } from 'solid-js';
+import { createForm, FIELDS_MAP } from './utils/create-form';
 import { withState } from './utils/decorators/with-state';
 import { withEvents } from './utils/decorators/with-evens';
 import { withValidation } from './utils/decorators/with-validation';
@@ -52,11 +52,14 @@ export var Section1 = () => {
 
   // var form = createForm();
   // var form = withState(createForm());
-  var form = withValidation(withState(createForm()));
+  // var form = withValidation(withState(createForm()));
+  var form = withState(withValidation(createForm()));
 
   // var form = withValidation(createForm());
   // var form = withEvents(withState(createForm()));
   window.form1 = form;
+
+  var fieldsMap = form[FIELDS_MAP];
 
   var nameField = form.register(field.name, 'test');
   var agreeField = form.register(field.agree, true);
@@ -108,6 +111,16 @@ export var Section1 = () => {
   return (
     <section>
       <h1>test1</h1>
+
+      <div>
+        <For each={() => fieldsMap} fallback={<div>sad((</div>}>
+          {(v) => {
+            console.log(v);
+
+            return 1;
+          }}
+        </For>
+      </div>
 
       <div>
         <form
