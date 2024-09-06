@@ -1,4 +1,4 @@
-export var object_fromEntries = Object.fromEntries;
+export var Object_fromEntries = Object.fromEntries;
 
 export class ReversIterableArray<T> extends Array<T> {
   *[Symbol.iterator]() {
@@ -12,4 +12,8 @@ export class ReversIterableArray<T> extends Array<T> {
       yield this[i];
     }
   }
+}
+
+export class PseudoPromiseQueue<TKey, TValue> extends Map<TKey, TValue> {
+  //
 }
