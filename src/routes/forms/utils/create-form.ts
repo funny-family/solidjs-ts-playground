@@ -94,7 +94,7 @@ export var createForm = () => {
       return _createMemo(() => {
         return (map.get(fieldName) || nullableFieldsMap.get(fieldName))!;
       });
-    };
+  };
 
     return commutateField(map, nullableFieldsMap, createMemo);
   };
