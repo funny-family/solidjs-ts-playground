@@ -11,47 +11,43 @@ export type BinaryDefinition = {
 
 export var Number_isNaN = Number.isNaN;
 
-type BinaryOp = '+' | '-' | '*' | '/' | '%';
-type BinaryOpFunc = (lhs: number, rhs: number) => number;
-enum BinaryPrec {
-  PREC0 = 0,
-  PREC1,
-  COUNT_PRECS,
-}
-interface BinaryOpDef {
-  func: BinaryOpFunc;
-  prec: BinaryPrec;
-}
-type UnaryOp = '-';
-type UnaryOpFunc = (arg: number) => number;
-const BINARY_OPS: { [op in BinaryOp]: BinaryOpDef } = {
-  '+': {
-    func: (lhs, rhs) => lhs + rhs,
-    prec: BinaryPrec.PREC0,
+export var BINARY_OPERATOR = {
+  PLUS: '+',
+  MINUS: '-',
+  MULTIPLE: '*',
+  DIVIDE: '/',
+} as const;
+
+export var BINARY_OPERATORS_RECORD: {
+  [T in BinaryOperand]: {
+    calculate: (a: number, b: number) => number;
+    precedence: number;
+  };
+} = {
+  [BINARY_OPERATOR.PLUS]: {
+    calculate: (a, b) => a + b,
+    precedence: 0,
   },
-  '-': {
-    func: (lhs, rhs) => lhs - rhs,
-    prec: BinaryPrec.PREC0,
+  [BINARY_OPERATOR.MINUS]: {
+    calculate: (a, b) => a - b,
+    precedence: 0,
   },
-  '*': {
-    func: (lhs, rhs) => lhs * rhs,
-    prec: BinaryPrec.PREC1,
+  [BINARY_OPERATOR.MULTIPLE]: {
+    calculate: (a, b) => a * b,
+    precedence: 1,
   },
-  '/': {
-    func: (lhs, rhs) => lhs / rhs,
-    prec: BinaryPrec.PREC1,
-  },
-  '%': {
-    func: (lhs, rhs) => lhs % rhs,
-    prec: BinaryPrec.PREC1,
+  [BINARY_OPERATOR.DIVIDE]: {
+    calculate: (a, b) => a / b,
+    precedence: 1,
   },
 };
-const UNARY_OPS: { [op in UnaryOp]: UnaryOpFunc } = {
-  '-': (arg: number) => -arg,
+
+export type TokenSet = Set<any>;
+
+export var TOKEN_TYPE = {
+  NUMBER: 0,
+  BINARY_OPERATION: 1,
 };
-export type TokenSet = Set<{
-  token: string;
-}>;
 
 export class Lexer {
   #src: string = '';
@@ -62,29 +58,42 @@ export class Lexer {
   }
 
   tokenize(): TokenSet | never {
-    for (var i = 0; i < this.#src.length; i++) {
+    loop: for (var i = 0; i < this.#src.length; i++) {
       var char = this.#src[i];
       var token = char;
+      var type = TOKEN_TYPE.NUMBER;
+      var value = null;
+      var possibleNumber = parseFloat(char);
 
       switch (true) {
         case char === ' ':
         case char === '\n': {
-          break;
+          continue loop;
         }
 
         case char === '+':
         case char === '-':
         case char === '*':
         case char === '/': {
+          type = TOKEN_TYPE.BINARY_OPERATION;
           this.#tokenSet.add({
+            type,
             token,
+            value,
           });
+
+          continue loop;
         }
 
-        case Number_isNaN(parseFloat(char)) === false: {
+        case Number_isNaN(possibleNumber) === false: {
+          value = possibleNumber;
           this.#tokenSet.add({
+            type,
             token,
+            value,
           });
+
+          continue loop;
         }
 
         default: {
