@@ -20,24 +20,32 @@ export var BINARY_OPERATOR = {
 
 export var BINARY_OPERATORS_RECORD: {
   [T in BinaryOperand]: {
-    calculate: (a: number, b: number) => number;
+    calculate: (lhs: number, rhs: number) => number;
     precedence: number;
   };
 } = {
   [BINARY_OPERATOR.PLUS]: {
-    calculate: (a, b) => a + b,
+    calculate: (lhs, rhs) => {
+      return lhs + rhs;
+    },
     precedence: 0,
   },
   [BINARY_OPERATOR.MINUS]: {
-    calculate: (a, b) => a - b,
+    calculate: (lhs, rhs) => {
+      return lhs - rhs;
+    },
     precedence: 0,
   },
   [BINARY_OPERATOR.MULTIPLE]: {
-    calculate: (a, b) => a * b,
+    calculate: (lhs, rhs) => {
+      return lhs * rhs;
+    },
     precedence: 1,
   },
   [BINARY_OPERATOR.DIVIDE]: {
-    calculate: (a, b) => a / b,
+    calculate: (lhs, rhs) => {
+      return lhs / rhs;
+    },
     precedence: 1,
   },
 };
