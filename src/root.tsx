@@ -57,6 +57,8 @@ export default function Root() {
             <A href="/date-picker">date-picker</A>
             <br />
             <A href="/calculator">calculator</A>
+            <br />
+            <A href="/modal">modal</A>
             <hr />
 
             <Routes>
