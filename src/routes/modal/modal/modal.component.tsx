@@ -13,28 +13,31 @@ import type { ModalComponent, ModalRef } from './modal.types';
 
 var isArray = Array.isArray;
 
+export var ModalExposeSymbol = Symbol('expose');
+
 export var Modal: ModalComponent = (attrsAndProps) => {
-  var splittedProps = splitProps(attrsAndProps, [
-    'shouldCloseOnBackgroundClick',
-    'onOpen',
-  ]);
-  var props = splittedProps[0];
-  var attrs = splittedProps[1];
+  var splittedProps = splitProps(
+    attrsAndProps,
+    ['classList', 'ref', '$ServerOnly', 'children'],
+    ['shouldCloseOnBackgroundClick', 'onOpen']
+  );
+  var customAttr = splittedProps[0];
+  var props = splittedProps[1];
+  var attrs = splittedProps[2];
 
-  var attr_children = attrs?.children;
-  var children = toChildren(() => attrs?.children);
-  var attr_open = attrs?.open;
+  var customAttr_ref: ModalRef | null = null;
+  var customAttr_children = customAttr?.children;
 
-  var attr_signal_open = createSignal(attr_open == null ? false : attr_open);
-  var open = attr_signal_open[0];
-  var setOpen = attr_signal_open[1];
+  var open_signal = createSignal(false);
+  var open = open_signal[0];
+  var setOpen = open_signal[1];
 
   var shouldCloseOnBackgroundClick = () =>
     props?.shouldCloseOnBackgroundClick == null
       ? true
       : props.shouldCloseOnBackgroundClick;
 
-  var ref = attrs?.ref as ModalRef;
+  var innerRef: ModalRef | null = null;
 
   var openEvent = new CustomEvent('open');
 
@@ -43,6 +46,8 @@ export var Modal: ModalComponent = (attrsAndProps) => {
     event
   ) {
     var prop_onOpen = props?.onOpen;
+
+    setOpen(true);
 
     if (prop_onOpen != null) {
       if (typeof prop_onOpen === 'function') {
@@ -67,7 +72,7 @@ export var Modal: ModalComponent = (attrsAndProps) => {
       event.offsetY > target.offsetHeight
     ) {
       if (shouldCloseOnBackgroundClick()) {
-        ref.close();
+        innerRef!.close();
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
@@ -86,45 +91,109 @@ export var Modal: ModalComponent = (attrsAndProps) => {
     }
   };
 
-  createEffect(() => {
-    console.log('open:', open());
-  });
+  var onClose: JSX.EventHandler<HTMLDialogElement, Event> = (event) => {
+    var attr_OnClose = attrs?.onClose;
 
-  createEffect(
-    on(children, (v) => {
-      console.log(v);
-    })
-  );
+    setOpen(false);
 
-  onMount(() => {
-    var showModal = ref.showModal;
-    ref.showModal = function () {
+    if (attr_OnClose != null) {
+      if (typeof attr_OnClose === 'function') {
+        attr_OnClose(event);
+      }
+
+      if (isArray(attr_OnClose)) {
+        // handler(data, event);
+        attr_OnClose[0](attr_OnClose[1], event);
+      }
+    }
+  };
+
+  var ref = (element: HTMLDialogElement) => {
+    // modalRef = element;
+    innerRef = element;
+
+    var showModal = element.showModal;
+    element.showModal = function () {
       showModal.call(this);
 
       this.dispatchEvent(openEvent);
     };
-    ref.addEventListener('open', onOpen);
+
+    // var proxyfiedElement = new Proxy(element, {
+    //   get(target, property, receiver) {
+    //     if (property === 'open') {
+    //       return open;
+    //     }
+
+    //     if (property === 'showModal') {
+    //       element.dispatchEvent(openEvent);
+
+    //       setOpen(true);
+
+    //       return target[property].bind(target);
+    //     }
+
+    //     var value = Reflect.get(target, property, target);
+
+    //     return value;
+    //   },
+    // });
+
+    // modalRef = proxyfiedElement;
+
+    // console.log({ modalRef, proxyfiedElement });
+
+    if (customAttr?.ref != null) {
+      // Reflect.apply(customAttr?.ref as any, undefined, [proxyfiedElement]);
+      Reflect.apply(customAttr?.ref as any, undefined, [element]);
+    }
+  };
+
+  var children =
+    typeof customAttr_children === 'function'
+      ? customAttr_children({ open })
+      : customAttr_children;
+
+  onMount(() => {
+    // var showModal = innerRef!.showModal;
+    // innerRef!.showModal = function () {
+    //   showModal.call(this);
+
+    //   this.dispatchEvent(openEvent);
+
+    //   setOpen(true);
+    // };
+    innerRef!.addEventListener('open', onOpen);
   });
 
   onCleanup(() => {
-    ref.removeEventListener('open', onOpen);
+    innerRef!.removeEventListener('open', onOpen);
+  });
+
+  createEffect(() => {
+    console.log(open());
   });
 
   return (
     <dialog
       {...attrs}
-      ref={(el) => (ref = el)}
+      classList={customAttr?.classList}
+      $ServerOnly={customAttr?.$ServerOnly}
+      ref={ref}
       class={`${attrs?.class || ''} solid-js-modal`}
       role={attrs?.role || 'dialog'}
       aria-modal={attrs?.['aria-modal'] || true}
       onClick={(event) => {
         onClick(event);
       }}
-      // /* ------------------------- omitted attrs ------------------------- */
-      open={open()}
-      // /* ------------------------- omitted attrs ------------------------- */
+      onClose={(event) => {
+        onClose(event);
+      }}
+      /* ------------------------- omitted attrs ------------------------- */
+      open={null}
+      /* ------------------------- omitted attrs ------------------------- */
     >
-      {typeof attr_children === 'function' ? attr_children() : attr_children}
+      {children}
     </dialog>
   );
 };

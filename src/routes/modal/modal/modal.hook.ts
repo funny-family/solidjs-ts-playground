@@ -1,5 +1,7 @@
+export var active: HTMLDialogElement | null = null;
+
 export var useModal = () => {
-  var current: HTMLDialogElement | null = null;
+  var modalsMap = new Map<string, HTMLDialogElement>();
 
   // var showModal: HTMLDialogElement['showModal'] = () => {
   //   //
@@ -10,7 +12,8 @@ export var useModal = () => {
   // };
 
   return {
-    current,
+    active,
+    modalsMap,
     // showModal,
     // close,
   };

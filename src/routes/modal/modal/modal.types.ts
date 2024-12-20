@@ -1,9 +1,8 @@
-import type { Component, JSX } from 'solid-js';
+import type { Component, JSX, Accessor } from 'solid-js';
 
 export type ModalChildren =
   | JSX.Element
-  | Element
-  | (() => JSX.Element | Element);
+  | ((args: { open: Accessor<boolean> }) => JSX.Element);
 
 export type ModalRef = HTMLDialogElement;
 
@@ -21,11 +20,9 @@ export type ModalRef = HTMLDialogElement;
 
 type ModalAttrs = Omit<
   JSX.HTMLElementTags['dialog'],
-  // /* --------------------------------- omitted attrs ------------------------- */
-  // | 'open'
-  // /* --------------------------------- omitted attrs ------------------------- */
-
-  'ref'
+  /* --------------------------------- omitted attrs ------------------------- */
+  'open' | 'ref' | 'children'
+  /* --------------------------------- omitted attrs ------------------------- */
 > & {
   ref?: ModalRef | ((element: ModalRef) => void) | undefined;
   children?: ModalChildren;
