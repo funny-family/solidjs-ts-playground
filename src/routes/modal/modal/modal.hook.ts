@@ -1,7 +1,11 @@
-export var active: HTMLDialogElement | null = null;
+import { createSignal } from 'solid-js';
+
+export var activeModalSignal = createSignal<HTMLDialogElement | null>(null);
 
 export var useModal = () => {
-  var modalsMap = new Map<string, HTMLDialogElement>();
+  var active = activeModalSignal[0];
+
+  // var modalsMap = new Map<string, HTMLDialogElement>();
 
   // var showModal: HTMLDialogElement['showModal'] = () => {
   //   //
@@ -13,7 +17,7 @@ export var useModal = () => {
 
   return {
     active,
-    modalsMap,
+    // modalsMap,
     // showModal,
     // close,
   };
