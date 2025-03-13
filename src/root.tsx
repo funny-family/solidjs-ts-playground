@@ -59,6 +59,10 @@ export default function Root() {
             <A href="/calculator">calculator</A>
             <br />
             <A href="/modal">modal</A>
+            <br />
+            <A href="/virtual-list">virtual-list</A>
+            <br />
+            <A href="/timers">timers</A>
             <hr />
 
             <Routes>
