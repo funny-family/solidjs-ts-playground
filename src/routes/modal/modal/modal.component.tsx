@@ -32,10 +32,16 @@ export var Modal: ModalComponent = (attrsAndProps) => {
   var open = open_signal[0];
   var setOpen = open_signal[1];
 
-  var shouldCloseOnBackgroundClick = () =>
-    props?.shouldCloseOnBackgroundClick == null
-      ? true
-      : props.shouldCloseOnBackgroundClick;
+  var shouldCloseOnBackgroundClick = () => {
+    // prettier-ignore
+    return (
+      props?.shouldCloseOnBackgroundClick == null
+      ?
+      true
+      :
+      props.shouldCloseOnBackgroundClick
+    );
+  };
 
   var innerRef: ModalRef | null = null;
 
@@ -45,124 +51,135 @@ export var Modal: ModalComponent = (attrsAndProps) => {
     this: Element,
     event
   ) {
-    var prop_onOpen = props?.onOpen;
+    const prop_onOpen = props?.onOpen;
+    const prop_onOpenExists = prop_onOpen != null;
+
+    // prettier-ignore
+    (
+      prop_onOpenExists
+      &&
+      typeof prop_onOpen === 'function'
+    ) && (
+      prop_onOpen(event as any)
+    );
+
+    // prettier-ignore
+    (
+      prop_onOpenExists
+      &&
+      isArray(prop_onOpen)
+    ) && (
+      // handler(data, event);
+      prop_onOpen[0](prop_onOpen[1], event)
+    );
 
     setOpen(true);
-
-    if (prop_onOpen != null) {
-      if (typeof prop_onOpen === 'function') {
-        prop_onOpen(event as any);
-      }
-
-      if (isArray(prop_onOpen)) {
-        // handler(data, event);
-        prop_onOpen[0](prop_onOpen[1], event);
-      }
-    }
   };
 
   var onClick: JSX.EventHandler<HTMLDialogElement, MouseEvent> = (event) => {
     var attr_onClick = attrs?.onClick;
-    var target = event.target as HTMLElement;
+    const target = event.target as HTMLElement;
 
-    if (
-      event.offsetX < 0 ||
-      event.offsetX > target.offsetWidth ||
-      event.offsetY < 0 ||
+    // prettier-ignore
+    const isInBackdropArea = (
+      event.offsetX < 0
+      ||
+      event.offsetX > target.offsetWidth
+      ||
+      event.offsetY < 0
+      ||
       event.offsetY > target.offsetHeight
-    ) {
-      if (shouldCloseOnBackgroundClick()) {
-        innerRef!.close();
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-      }
-    }
+    );
 
-    if (attr_onClick != null) {
-      if (typeof attr_onClick === 'function') {
-        attr_onClick(event);
-      }
+    // prettier-ignore
+    isInBackdropArea
+    &&
+    shouldCloseOnBackgroundClick()
+    && (
+      innerRef!.close(),
+      event.preventDefault(),
+      event.stopImmediatePropagation(),
+      event.stopPropagation(),
+      console.log(1231321)
+    );
 
-      if (isArray(attr_onClick)) {
+    const attr_onClickExists = attr_onClick != null;
+
+    // prettier-ignore
+    (
+      attr_onClickExists
+      &&
+      typeof attr_onClick === 'function'
+    ) && (
+      attr_onClick(event)
+    );
+
+    // prettier-ignore
+    (
+      attr_onClickExists
+      &&
+      isArray(attr_onClick)
+    ) && (
         // handler(data, event);
-        attr_onClick[0](attr_onClick[1], event);
-      }
-    }
+      attr_onClick[0](attr_onClick[1], event)
+    );
   };
 
   var onClose: JSX.EventHandler<HTMLDialogElement, Event> = (event) => {
-    var attr_OnClose = attrs?.onClose;
+    const attr_OnClose = attrs?.onClose;
+    const attr_OnCloseExists = attr_OnClose != null;
+
+    // prettier-ignore
+    (
+      attr_OnCloseExists
+      &&
+      typeof attr_OnClose === 'function'
+    ) && (
+      attr_OnClose(event)
+    );
+
+    // prettier-ignore
+    (
+      attr_OnCloseExists
+      &&
+      isArray(attr_OnClose)
+    ) && (
+      // handler(data, event);
+      attr_OnClose[0](attr_OnClose[1], event)
+    );
 
     setOpen(false);
-
-    if (attr_OnClose != null) {
-      if (typeof attr_OnClose === 'function') {
-        attr_OnClose(event);
-      }
-
-      if (isArray(attr_OnClose)) {
-        // handler(data, event);
-        attr_OnClose[0](attr_OnClose[1], event);
-      }
-    }
   };
 
   var ref = (element: HTMLDialogElement) => {
     // modalRef = element;
     innerRef = element;
 
-    var showModal = element.showModal;
+    const showModal = element.showModal;
     element.showModal = function () {
       showModal.call(this);
 
       this.dispatchEvent(openEvent);
     };
 
-    // var proxyfiedElement = new Proxy(element, {
-    //   get(target, property, receiver) {
-    //     if (property === 'open') {
-    //       return open;
-    //     }
-
-    //     if (property === 'showModal') {
-    //       element.dispatchEvent(openEvent);
-
-    //       setOpen(true);
-
-    //       return target[property].bind(target);
-    //     }
-
-    //     var value = Reflect.get(target, property, target);
-
-    //     return value;
-    //   },
-    // });
-
-    // modalRef = proxyfiedElement;
-
-    // console.log({ modalRef, proxyfiedElement });
-
-    if (customAttr?.ref != null) {
-      // Reflect.apply(customAttr?.ref as any, undefined, [proxyfiedElement]);
-      Reflect.apply(customAttr?.ref as any, undefined, [element]);
-    }
+    // prettier-ignore
+    customAttr?.ref != null && (
+      Reflect.apply(customAttr?.ref as any, undefined, [element])
+    );
   };
 
-  var children =
-    typeof customAttr_children === 'function'
-      ? customAttr_children({ open })
-      : customAttr_children;
+  var children = toChildren(() => {
+    // prettier-ignore
+    return (
+      typeof customAttr_children === 'function'
+      ?
+      customAttr_children({ open })
+      :
+      customAttr_children
+    );
+  });
 
   onMount(() => {
-    // var showModal = innerRef!.showModal;
-    // innerRef!.showModal = function () {
-    //   showModal.call(this);
-
-    //   this.dispatchEvent(openEvent);
-
-    //   setOpen(true);
-    // };
     innerRef!.addEventListener('open', onOpen);
   });
 
@@ -171,7 +188,7 @@ export var Modal: ModalComponent = (attrsAndProps) => {
   });
 
   createEffect(() => {
-    console.log(open());
+    console.log(open(), innerRef);
   });
 
   return (
@@ -193,7 +210,7 @@ export var Modal: ModalComponent = (attrsAndProps) => {
       open={null}
       /* ------------------------- omitted attrs ------------------------- */
     >
-      {children}
+      {children()}
     </dialog>
   );
 };
