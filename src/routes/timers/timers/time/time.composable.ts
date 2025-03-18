@@ -1,10 +1,13 @@
 import { createSignal } from 'solid-js';
 import { Time } from './time';
-import type { CreateTime, SetupCreateTime } from './time.composable.types';
+import type {
+  CreateTimeReturnRecord,
+  SetupCreateTime,
+} from './time.composable.types';
 
 export var setupCreateTime: SetupCreateTime = (predicate) => () => {
   var time = predicate();
-  window.time = time;
+
   var [state, setState] = createSignal(time.state);
   var [date, setDate] = createSignal(time.date, {
     equals: false,
@@ -14,7 +17,7 @@ export var setupCreateTime: SetupCreateTime = (predicate) => () => {
     setDate(time.date);
   });
 
-  const start: CreateTime['start'] = () => {
+  const start: CreateTimeReturnRecord['start'] = () => {
     const result = time.start();
 
     // prettier-ignore
@@ -30,7 +33,7 @@ export var setupCreateTime: SetupCreateTime = (predicate) => () => {
     )
   };
 
-  const stop: CreateTime['stop'] = () => {
+  const stop: CreateTimeReturnRecord['stop'] = () => {
     const result = time.stop();
 
     // prettier-ignore
@@ -46,17 +49,18 @@ export var setupCreateTime: SetupCreateTime = (predicate) => () => {
     )
   };
 
-  const eachTick: CreateTime['eachTick'] = (callback) => {
+  const eachTick: CreateTimeReturnRecord['eachTick'] = (callback) => {
     time.tickCallbacksSet.add(callback);
   };
 
-  const clear: CreateTime['clear'] = () => {
+  const clear: CreateTimeReturnRecord['clear'] = () => {
     time.clear();
   };
 
-  const clearEachTickCallbacks: CreateTime['clearEachTickCallbacks'] = () => {
-    time.tickCallbacksSet.clear();
-  };
+  const clearEachTickCallbacks: CreateTimeReturnRecord['clearEachTickCallbacks'] =
+    () => {
+      time.tickCallbacksSet.clear();
+    };
 
   return {
     state,

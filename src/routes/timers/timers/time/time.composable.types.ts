@@ -3,7 +3,7 @@ import type { TimeInterface } from './time.types';
 import type { Time } from './time';
 import type { Spread } from '../types';
 
-export type CreateTime = Spread<
+export type CreateTimeReturnRecord = Spread<
   [
     Pick<
       TimeInterface,
@@ -17,4 +17,6 @@ export type CreateTime = Spread<
   ]
 >;
 
-export type SetupCreateTime = (predicate: () => Time) => () => CreateTime;
+export type CreateTime = () => CreateTimeReturnRecord;
+
+export type SetupCreateTime = (predicate: () => Time) => CreateTime;
