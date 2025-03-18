@@ -1,4 +1,5 @@
 import { TimeSection } from './timers/time/TimeSection';
+import { StopwatchSection } from './timers/stopwatch/StopwatchSection';
 
 export default () => {
   return (
@@ -7,10 +8,7 @@ export default () => {
 
       <hr />
 
-      <section>
-        <h1>stopwatch:</h1>
-        <div>1</div>
-      </section>
+      <StopwatchSection />
 
       <hr />
 
