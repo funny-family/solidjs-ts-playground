@@ -1,8 +1,9 @@
 import { onMount } from 'solid-js';
-import { createTime } from './use-time.hook';
+import { createTime } from './time.composable';
+import { withBaseEvents } from './with-base-events';
 
 export var TimeSection = () => {
-  var time = createTime();
+  var time = withBaseEvents(createTime());
   var formatTime = (date: Date) =>
     new Intl.DateTimeFormat('en-EN', {
       hour: 'numeric',
@@ -13,6 +14,18 @@ export var TimeSection = () => {
 
   onMount(() => {
     time.start();
+
+    // time.eachTick(() => {
+    //   console.log(1);
+    // });
+
+    time?.on?.('start', () => {
+      console.log('started!');
+    });
+
+    time?.on?.('stop', () => {
+      console.log('stopped!');
+    });
   });
 
   return (
