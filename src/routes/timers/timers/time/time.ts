@@ -1,5 +1,6 @@
 import type { TimeInterface } from './time.types';
 import { BaseTimer } from '../utils/base-timer/base-timer';
+import { Date_now } from '../utils/date.util';
 
 export class Time implements TimeInterface {
   date: TimeInterface['date'] = new Date();
@@ -14,7 +15,7 @@ export class Time implements TimeInterface {
 
   start: TimeInterface['start'] = () => {
     return this.#baseTimer.start(() => {
-      this.date.setTime(Date.now());
+      this.date.setTime(Date_now());
     });
   };
 
