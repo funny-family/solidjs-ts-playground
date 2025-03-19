@@ -22,6 +22,8 @@ export var setupCreateStopwatch: SetupCreateStopwatch = (predicate) => () => {
     (predicate) => {
       stopwatch.milliseconds = predicate();
 
+      setState(stopwatch.state);
+
       return setter(stopwatch.milliseconds);
     };
   const setMilliseconds = _setMilliseconds(stopwatch, millisecondsSetter);
@@ -31,7 +33,7 @@ export var setupCreateStopwatch: SetupCreateStopwatch = (predicate) => () => {
   var setState = stateSignal[1];
 
   stopwatch.eachTick(() => {
-    millisecondsSetter(stopwatch.milliseconds);
+    setMilliseconds(() => stopwatch.milliseconds);
   });
 
   const start: CreateStopwatchReturnRecord['start'] = () => {
@@ -74,8 +76,7 @@ export var setupCreateStopwatch: SetupCreateStopwatch = (predicate) => () => {
       result
       ?
       (
-        setState(stopwatch.state),
-        millisecondsSetter(stopwatch.milliseconds),
+        setMilliseconds(() => stopwatch.milliseconds),
         result
       )
       :
