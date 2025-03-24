@@ -3,6 +3,12 @@ import { BaseTimer } from '../utils/base-timer/base-timer';
 import { Date_now } from '../utils/date.util';
 
 export class Time implements TimeInterface {
+  constructor() {
+    this.tickCallbacksSet.add(() => {
+      this.date.setTime(Date_now());
+    });
+  }
+
   date: TimeInterface['date'] = new Date();
 
   get state() {
@@ -14,9 +20,7 @@ export class Time implements TimeInterface {
   }
 
   start: TimeInterface['start'] = () => {
-    return this.#baseTimer.start(() => {
-      this.date.setTime(Date_now());
-    });
+    return this.#baseTimer.start(() => {});
   };
 
   stop: TimeInterface['stop'] = () => {

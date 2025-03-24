@@ -1,6 +1,7 @@
 import { onMount } from 'solid-js';
 import { createTime } from './time.composable';
 import { withBaseEvents } from './with-base-events';
+import { isRunning } from '../utils';
 
 export var TimeSection = () => {
   var time = withBaseEvents(createTime());
@@ -48,7 +49,7 @@ export var TimeSection = () => {
         >
           stop
         </button>
-        <div>is running: {`${time.state() === 1}`}</div>
+        <div>is running: {`${isRunning(time.state())}`}</div>
         <div>{formatTime(time.date())}</div>
       </div>
     </section>
