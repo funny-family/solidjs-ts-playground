@@ -7,33 +7,28 @@ import type {
 
 export var setupCreateStopwatch: SetupCreateStopwatch = (predicate) => () => {
   var stopwatch = predicate();
-  // @ts-ignore
-  window.stopwatch1 = stopwatch;
-
-  const millisecondsSignal = createSignal(stopwatch.milliseconds);
-
-  const milliseconds = millisecondsSignal[0];
-  var millisecondsSetter = millisecondsSignal[1];
-  const _setMilliseconds =
-    (
-      stopwatch: Stopwatch,
-      setter: typeof millisecondsSetter
-    ): CreateStopwatchReturnRecord['setMilliseconds'] =>
-    (predicate) => {
-      stopwatch.milliseconds = predicate();
-
-      setState(stopwatch.state);
-
-      return setter(stopwatch.milliseconds);
-    };
-  const setMilliseconds = _setMilliseconds(stopwatch, millisecondsSetter);
+  window.sw = stopwatch;
 
   const stateSignal = createSignal(stopwatch.state);
-  var state = stateSignal[0];
+  const state = stateSignal[0];
   var setState = stateSignal[1];
 
+  const millisecondsSignal = createSignal(stopwatch.milliseconds);
+  const milliseconds = millisecondsSignal[0];
+  var millisecondsSetter = millisecondsSignal[1];
+  const setMilliseconds: CreateStopwatchReturnRecord['setMilliseconds'] = (
+    predicate
+  ) => {
+    stopwatch.milliseconds = predicate(stopwatch.milliseconds);
+
+    setState(stopwatch.state);
+
+    return millisecondsSetter(stopwatch.milliseconds);
+  };
+  var setMillisecondsPredicate = () => stopwatch.milliseconds;
+
   stopwatch.eachTick(() => {
-    setMilliseconds(() => stopwatch.milliseconds);
+    setMilliseconds(setMillisecondsPredicate);
   });
 
   const start: CreateStopwatchReturnRecord['start'] = () => {
@@ -76,7 +71,7 @@ export var setupCreateStopwatch: SetupCreateStopwatch = (predicate) => () => {
       result
       ?
       (
-        setMilliseconds(() => stopwatch.milliseconds),
+        setMilliseconds(setMillisecondsPredicate),
         result
       )
       :

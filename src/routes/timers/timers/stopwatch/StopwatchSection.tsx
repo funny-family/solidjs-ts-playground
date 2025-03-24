@@ -1,4 +1,10 @@
-import { createStopwatch } from './stopwatch.composable';
+import {
+  createStopwatch,
+  elapsedSeconds,
+  elapsedMinutes,
+  elapsedHours,
+} from './';
+import { formatTime, isRunning } from '../utils';
 
 export const StopwatchSection = () => {
   var stopwatch = createStopwatch();
@@ -34,8 +40,14 @@ export const StopwatchSection = () => {
         </button>
       </div>
       <div>state: {stopwatch.state()}</div>
-      <div>isRunning: {`${stopwatch.state() === 1}`}</div>
+      <div>isRunning: {`${isRunning(stopwatch.state())}`}</div>
       <div>{stopwatch.milliseconds()}</div>
+      <div>
+        <span>{formatTime(elapsedHours(stopwatch.milliseconds()))}</span>:
+        <span>{formatTime(elapsedMinutes(stopwatch.milliseconds()))}</span>:
+        <span>{formatTime(elapsedSeconds(stopwatch.milliseconds()))}</span>:
+        <span>{formatTime(stopwatch.milliseconds())}</span>
+      </div>
     </section>
   );
 };

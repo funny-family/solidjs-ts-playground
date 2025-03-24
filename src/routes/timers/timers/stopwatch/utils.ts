@@ -1,6 +1,6 @@
-export type ElapsedSeconds = (ms: number) => number;
+import { Math_floor } from '../utils/math.utils';
 
-export var Math_floor = Math.floor;
+export type ElapsedSeconds = (ms: number) => number;
 
 /**
  * @description
@@ -22,9 +22,6 @@ export type ElapsedMinutes = (ms: number) => number;
  * elapsedMinutes(ms);
  */
 export const elapsedMinutes: ElapsedMinutes = (ms) =>
-  // Math_floor(ms / 60000);
-  // Math_floor((ms % 60000) / 1000 / 1000);
-  // Math_floor(ms / 1000 / 60);
   Math_floor(ms / (1000 * 60)) % 60;
 
 export type ElapsedHours = (ms: number) => number;
@@ -37,7 +34,6 @@ export type ElapsedHours = (ms: number) => number;
  * elapsedMinutes(ms);
  */
 export const elapsedHours: ElapsedMinutes = (ms) =>
-  // Math_floor(ms / (1000 * 60 * 60)) % 24;
   Math_floor(ms / (1000 * 60 * 60));
 
 export type ElapsedMilliseconds = (ms: number) => number;

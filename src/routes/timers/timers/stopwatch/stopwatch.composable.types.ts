@@ -7,6 +7,7 @@ export type CreateStopwatchReturnRecord = Spread<
     Pick<
       Stopwatch,
       | 'milliseconds'
+      // | 'date'
       | 'state'
       | 'start'
       | 'stop'
@@ -17,8 +18,9 @@ export type CreateStopwatchReturnRecord = Spread<
     {
       milliseconds: Accessor<Stopwatch['milliseconds']>;
       setMilliseconds: (
-        predicate: CreateStopwatchReturnRecord['milliseconds']
+        predicate: (ms: Stopwatch['milliseconds']) => Stopwatch['milliseconds']
       ) => Stopwatch['milliseconds'];
+      // date: Accessor<Stopwatch['date']>;
       state: Accessor<Stopwatch['state']>;
       clearEachTickCallbacks: VoidFunction;
     }
