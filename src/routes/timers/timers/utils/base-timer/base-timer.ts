@@ -17,9 +17,8 @@ export class BaseTimer implements BaseTimerInterface {
       :
       (
         this.state = RUNNING_STATE,
+        callback(),
         this.#timeRunner.start(() => {
-          callback()
-
           this.tickCallbacksSet.forEach((updateCallback) => {
             updateCallback();
           });
@@ -34,7 +33,7 @@ export class BaseTimer implements BaseTimerInterface {
   ): ReturnType<BaseTimerInterface['stop']> {
     // prettier-ignore
     return (
-      this.state === STOPPED_STATE
+      this.state === STOPPED_STATE || this.state === IDEL_STATE
       ?
       false
       :
