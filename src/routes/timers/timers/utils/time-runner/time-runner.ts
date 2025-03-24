@@ -7,9 +7,9 @@ export class TimeRunner implements TimeRunnerInterface {
     callback: Parameters<TimeRunnerInterface['start']>[0]
   ): ReturnType<TimeRunnerInterface['start']> {
     this.id = requestAnimationFrame(() => {
-      this.start(callback);
-
       callback();
+
+      this.start(callback);
     });
 
     return this.id;
