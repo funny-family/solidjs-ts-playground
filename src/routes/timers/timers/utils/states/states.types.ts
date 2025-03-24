@@ -9,3 +9,5 @@ export type TimerBaseState =
   | TimerIdelState
   | TimerRunningState
   | TimerStoppedState;
+
+export type IsRunningFunction = (state: TimerBaseState) => boolean;
