@@ -1,9 +1,9 @@
 import {
   createStopwatch,
-  elapsedSeconds,
-  elapsedMinutes,
   elapsedHours,
-} from './';
+  elapsedMinutes,
+  elapsedSeconds,
+} from '../timer';
 import { formatTime, isRunning } from '../utils';
 
 export const StopwatchSection = () => {
