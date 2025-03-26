@@ -1,6 +1,7 @@
 import { onMount } from 'solid-js';
-import { createCountdown } from './countdown.composable';
-import { isRunning } from '../utils';
+import { formatTime, isRunning } from '../utils';
+import { elapsedHours, elapsedMinutes, elapsedSeconds } from '../timer';
+import { createCountdown } from '../timer';
 
 export var CountdownSection = () => {
   var countdown = createCountdown();
@@ -66,8 +67,16 @@ export var CountdownSection = () => {
           />
         </div>
 
+        <div>state: {countdown.state()}</div>
         <div>is running: {`${isRunning(countdown.state())}`}</div>
         <div>{countdown.milliseconds()}</div>
+
+        <div>
+          <span>{formatTime(elapsedHours(countdown.milliseconds()))}</span>:
+          <span>{formatTime(elapsedMinutes(countdown.milliseconds()))}</span>:
+          <span>{formatTime(elapsedSeconds(countdown.milliseconds()))}</span>:
+          <span>{formatTime(countdown.milliseconds())}</span>
+        </div>
       </div>
     </section>
   );
