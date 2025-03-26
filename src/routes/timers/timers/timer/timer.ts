@@ -8,6 +8,8 @@ import { IDEL_STATE } from '../utils/states/states';
 export var MAX_TIMER_MILLISECONDS = 360000000;
 
 export class Timer implements TimerInterface {
+  baseTimer: BaseTimer = new BaseTimer();
+
   get milliseconds() {
     return this.#milliseconds;
   }
@@ -72,5 +74,4 @@ export class Timer implements TimerInterface {
   };
 
   #milliseconds: TimerInterface['milliseconds'] = 0;
-  baseTimer = new BaseTimer();
 }
