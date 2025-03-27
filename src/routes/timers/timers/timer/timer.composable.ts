@@ -1,5 +1,8 @@
 import { createSignal } from 'solid-js';
-import type { CreateTimerReturnRecord, SetupCreateTimer } from './timer.composable.types';
+import type {
+  CreateTimerReturnRecord,
+  SetupCreateTimer,
+} from './timer.composable.types';
 
 export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
   var timer = predicate();
@@ -16,8 +19,6 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
   ) => {
     timer.milliseconds = predicate(timer.milliseconds);
 
-    // console.log({ value, timer });
-
     setState(timer.state);
 
     return millisecondsSetter(timer.milliseconds);
@@ -29,50 +30,50 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
   });
 
   const start: CreateTimerReturnRecord['start'] = () => {
-    const result = timer.start();
+    const value = timer.start();
 
     // prettier-ignore
     return (
-        result
+        value
         ?
         (
           setState(timer.state),
-          result
+          value
         )
         :
-        result
+        value
       )
   };
 
   const stop: CreateTimerReturnRecord['stop'] = () => {
-    const result = timer.stop();
+    const value = timer.stop();
 
     // prettier-ignore
     return (
-        result
+        value
         ?
         (
           setState(timer.state),
-          result
+          value
         )
         :
-        result
+        value
       )
   };
 
   const reset: CreateTimerReturnRecord['reset'] = () => {
-    const result = timer.reset();
+    const value = timer.reset();
 
     // prettier-ignore
     return (
-        result
+        value
         ?
         (
           setMilliseconds(setMillisecondsPredicate),
-          result
+          value
         )
         :
-        result
+        value
       )
   };
 
