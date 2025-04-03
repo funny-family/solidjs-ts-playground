@@ -28,7 +28,7 @@ export var Modal: ModalComponent = (attrsAndProps) => {
   var customAttr_ref: ModalRef | null = null;
   var customAttr_children = customAttr?.children;
 
-  var open_signal = createSignal(false);
+  const open_signal = createSignal(false);
   var open = open_signal[0];
   var setOpen = open_signal[1];
 
@@ -92,15 +92,15 @@ export var Modal: ModalComponent = (attrsAndProps) => {
     );
 
     // prettier-ignore
-    isInBackdropArea
-    &&
-    shouldCloseOnBackgroundClick()
-    && (
+    (
+      isInBackdropArea
+      &&
+      shouldCloseOnBackgroundClick()
+    ) && (
       innerRef!.close(),
       event.preventDefault(),
       event.stopImmediatePropagation(),
-      event.stopPropagation(),
-      console.log(1231321)
+      event.stopPropagation()
     );
 
     const attr_onClickExists = attr_onClick != null;
