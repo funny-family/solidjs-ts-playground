@@ -62,8 +62,21 @@ var CurrentTime = () => {
   );
 };
 
-var UTCMinus2Time = () => {
+var UTCPlus9Time = () => {
   var clock = createClock();
+
+  var createDateTimeFormatter = () => {
+    var dateTimeFormat = new Intl.DateTimeFormat('en-EN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Tokyo',
+    });
+
+    return (date: Date) => dateTimeFormat.format(date);
+  };
+  var formatDateTime = createDateTimeFormatter();
 
   onMount(() => {
     clock.eachTick(() => {
@@ -76,7 +89,7 @@ var UTCMinus2Time = () => {
 
   return (
     <section>
-      <h3>UTC -2</h3>
+      <h3>UTC +9 (Tokyo)</h3>
 
       <div>
         <button
@@ -99,7 +112,7 @@ var UTCMinus2Time = () => {
 
         <div>
           <div>is running: {`${isRunning(clock.state())}`}</div>
-          <div>{formatTime(clock.date())}</div>
+          <div>{formatDateTime(clock.date())}</div>
         </div>
       </div>
     </section>
@@ -113,7 +126,7 @@ export var ClockSection = () => {
 
       <div style={{ border: '2px solid black' }}>
         <CurrentTime />
-        <UTCMinus2Time />
+        <UTCPlus9Time />
       </div>
     </section>
   );
