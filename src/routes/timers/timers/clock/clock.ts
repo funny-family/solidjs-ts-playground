@@ -6,8 +6,6 @@ export class Clock implements ClockInterface {
   constructor() {
     this.tickCallbacksSet.add(() => {
       this.date.setTime(Date_now());
-      // this.date.setMilliseconds(this.date.getMilliseconds() + 5);
-      // console.log(this.date);
     });
   }
 

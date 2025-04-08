@@ -85,6 +85,8 @@ var UTCPlus9Time = () => {
     });
 
     clock.start();
+
+    console.log(111, { date: clock.date() });
   });
 
   return (

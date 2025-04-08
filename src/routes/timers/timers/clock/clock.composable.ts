@@ -18,34 +18,34 @@ export var setupCreateClock: SetupCreateClock = (predicate) => () => {
   });
 
   const start: CreateClockReturnRecord['start'] = () => {
-    const result = clock.start();
+    const value = clock.start();
 
     // prettier-ignore
     return (
-      result
+      value
       ?
       (
         setState(clock.state),
-        result
+        value
       )
       :
-      result
+      value
     )
   };
 
   const stop: CreateClockReturnRecord['stop'] = () => {
-    const result = clock.stop();
+    const value = clock.stop();
 
     // prettier-ignore
     return (
-      result
+      value
       ?
       (
         setState(clock.state),
-        result
+        value
       )
       :
-      result
+      value
     )
   };
 
