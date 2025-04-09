@@ -1,7 +1,25 @@
 import { onMount } from 'solid-js';
-import { createClock } from './clock.composable';
-import { withBaseEvents } from './with-base-events';
-import { isRunning } from '../utils';
+import { setupClock, type SetupClockReturnRecord } from './index';
+import {
+  withBaseEvents,
+  type WithBaseEventsReturnRecord,
+} from './plugins/with-base-events';
+import { isRunning, transformEntries } from '../utils';
+
+// var createClock = () =>
+//   transformEntries<SetupClockReturnRecord & WithBaseEventsReturnRecord>(
+//     withBaseEvents(setupClock())
+//   );
+
+var f = <T extends any>(a: T) => {
+  return a;
+};
+
+var createClock1 = f(setupClock());
+var createClock2 = withBaseEvents(setupClock());
+var createClock3 = setupClock();
+var on = createClock2.get('on');
+var clearEvent = createClock2.get('clearEvent');
 
 var formatTime = (date: Date) =>
   new Intl.DateTimeFormat('en-EN', {
@@ -12,7 +30,7 @@ var formatTime = (date: Date) =>
   }).format(date);
 
 var CurrentTime = () => {
-  var clock = withBaseEvents(createClock());
+  var clock = createClock();
 
   onMount(() => {
     clock.start();
@@ -86,7 +104,7 @@ var UTCPlus9Time = () => {
 
     clock.start();
 
-    console.log(111, { date: clock.date() });
+    // console.log(111, { date: clock.date() });
   });
 
   return (

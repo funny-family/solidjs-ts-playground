@@ -1,9 +1,9 @@
 import type { Accessor } from 'solid-js';
 import type { ClockInterface } from './clock.types';
 import type { Clock } from './clock';
-import type { Spread } from '../types';
+import type { DependentMap, Entry, Spread } from '../types';
 
-export type CreateClockReturnRecord = Spread<
+export type SetupClockReturnRecord = Spread<
   [
     Pick<
       ClockInterface,
@@ -17,6 +17,8 @@ export type CreateClockReturnRecord = Spread<
   ]
 >;
 
-export type CreateClock = () => CreateClockReturnRecord;
+export type SetupClockReturnRecordEntry = Entry<SetupClockReturnRecord>;
 
-export type SetupCreateClock = (predicate: () => Clock) => CreateClock;
+export type SetupClock = () => DependentMap<SetupClockReturnRecordEntry>;
+
+export type CreateClockSetup = (predicate: () => Clock) => SetupClock;
