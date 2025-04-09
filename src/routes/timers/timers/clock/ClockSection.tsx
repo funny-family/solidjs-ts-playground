@@ -1,25 +1,10 @@
 import { onMount } from 'solid-js';
-import { setupClock, type SetupClockReturnRecord } from './index';
-import {
-  withBaseEvents,
-  type WithBaseEventsReturnRecord,
-} from './plugins/with-base-events';
-import { isRunning, transformEntries } from '../utils';
+import { setupClock } from './index';
+import { withBaseEvents } from './plugins/with-base-events';
+import { isRunning, fromEntries } from '../utils';
 
-// var createClock = () =>
-//   transformEntries<SetupClockReturnRecord & WithBaseEventsReturnRecord>(
-//     withBaseEvents(setupClock())
-//   );
-
-var f = <T extends any>(a: T) => {
-  return a;
-};
-
-var createClock1 = f(setupClock());
-var createClock2 = withBaseEvents(setupClock());
-var createClock3 = setupClock();
-var on = createClock2.get('on');
-var clearEvent = createClock2.get('clearEvent');
+var createClock = () => fromEntries(withBaseEvents(setupClock()));
+// var createClock = () => fromEntries(setupClock());
 
 var formatTime = (date: Date) =>
   new Intl.DateTimeFormat('en-EN', {
