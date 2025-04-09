@@ -30,16 +30,17 @@ export type PickKeyOf<
 > = keyof Pick<TRecord, TKeys>;
 
 // ------------------------------------------ "Type safe" Map ------------------------------------------
-/**
- * @see https://www.typescriptlang.org/play/?ssl=21&ssc=41&pln=1&pc=1#code/C4TwDgpgBAogdsATgSwgZygXigbQIZwgA0UBIAugFDIISIBmeAxtACISRwAmECAsnjAAeGFAgAPYLy4Z4SVGgB8UAN6UoUegHtEMZgAsAFEzwAbUwCNmAa3pwAXFCEBpMZOmycABnKLD6jSgANzMAVwhHGElEZmAREhxnEjJfHABGchJrCBBHJKgAW0FHdk4efkERRQCASixlIK1kLhJgfWQ0AEFEAHMAfkcyGsdG5oBuAJ6IONcJKW5PHz9s3KhnYdho2PjcfJTFdPIoAB8oUO4IehoILgmNNGmXN3mZWG9fQxW8khDTcMitkw4jAEntCKkMhs2h07lBEBA8FwtHBTCAoGhkAAvCJQOChAoWOiwnAAZRABK0pgAdMgpDFgDpyIYNgBJOl4CymCBsuh4BmIKqw3jydDMxw8mKc7ns-mCgIrNBiqASjlclWymDvRSw37hRWs9lS9U6ESHbUBeGI5Go3BkinUhkk+RwHoAFTwPXIjjQzp6EwAvpRqLQGMw2BxpMKBGAAMLIn2IUJAnSqAJwCAAdycojmHlgCBQ6D8AQ0wsLaEiOCoGg2pUjFWEMHNGnTWZEzzzcnLflrEYuDblGktSJRaLAiC0DNAkBKffKwGjQjI5sDlCY8eAUDr-YXgiwUGjpAw2-n0bjcATSf5EzXG6gK06jgAYucgchkfvmfVVFBA+uL5uKwAEKOCopCOHiBJ0L++5gXgjhpAATAAzL+Qb-j6hR7tgrZbnOUaVDgL5wG+yIkJBhKIEcpw4HBEH4pRv4kBYWiUgicC+EGRRgFSDzAJ8OSdCQSHIXUAD0YlQFo1iUNxvHTAJIBAa0iYQOJknSehd7wbiDHQac5w8Fc6ZcPuclTPxD41LeAFQBYjgsWxBAnGcFzGTcZmCFSFmKUB1myV5fGKUJUBIOE1lyUFwHCSh1lAA
- */
-type MapEntries = [any, any];
-type KeyToValue<K, E extends MapEntries> = E extends [infer EK, infer EV]
+
+export type MapEntries = [any, any];
+export type KeyToValue<K, E extends MapEntries> = E extends [infer EK, infer EV]
   ? K extends EK
     ? EV
     : never
   : never;
 
+/**
+ * @see https://www.typescriptlang.org/play/?ssl=21&ssc=41&pln=1&pc=1#code/C4TwDgpgBAogdsATgSwgZygXigbQIZwgA0UBIAugFDIISIBmeAxtACISRwAmECAsnjAAeGFAgAPYLy4Z4SVGgB8UAN6UoUegHtEMZgAsAFEzwAbUwCNmAa3pwAXFCEBpMZOmycABnKLD6jSgANzMAVwhHGElEZmAREhxnEjJfHABGchJrCBBHJKgAW0FHdk4efkERRQCASixlIK1kLhJgfWQ0AEFEAHMAfkcyGsdG5oBuAJ6IONcJKW5PHz9s3KhnYdho2PjcfJTFdPIoAB8oUO4IehoILgmNNGmXN3mZWG9fQxW8khDTcMitkw4jAEntCKkMhs2h07lBEBA8FwtHBTCAoGhkAAvCJQOChAoWOiwnAAZRABK0pgAdMgpDFgDpyIYNgBJOl4CymCBsuh4BmIKqw3jydDMxw8mKc7ns-mCgIrNBiqASjlclWymDvRSw37hRWs9lS9U6ESHbUBeGI5Go3BkinUhkk+RwHoAFTwPXIjjQzp6EwAvpRqLQGMw2BxpMKBGAAMLIn2IUJAnSqAJwCAAdycojmHlgCBQ6D8AQ0wsLaEiOCoGg2pUjFWEMHNGnTWZEzzzcnLflrEYuDblGktSJRaLAiC0DNAkBKffKwGjQjI5sDlCY8eAUDr-YXgiwUGjpAw2-n0bjcATSf5EzXG6gK06jgAYucgchkfvmfVVFBA+uL5uKwAEKOCopCOHiBJ0L++5gXgjhpAATAAzL+Qb-j6hR7tgrZbnOUaVDgL5wG+yIkJBhKIEcpw4HBEH4pRv4kBYWiUgicC+EGRRgFSDzAJ8OSdCQSHIXUAD0YlQFo1iUNxvHTAJIBAa0iYQOJknSehd7wbiDHQac5w8Fc6ZcPuclTPxD41LeAFQBYjgsWxBAnGcFzGTcZmCFSFmKUB1myV5fGKUJUBIOE1lyUFwHCSh1lAA
+ */
 export interface DependentMap<E extends MapEntries> {
   forEach(
     callbackfn: <K extends E[0]>(
@@ -71,3 +72,11 @@ export type Entry<T> = {
 }[keyof T];
 
 export type Entries<T> = Entry<T>[];
+
+/**
+ * @see https://github.com/type-challenges/type-challenges/blob/main/questions/02949-hard-objectfromentries/README.md
+ * @see https://github.com/type-challenges/type-challenges/issues/3382
+ */
+export type ObjectFromEntries<T extends [string, any]> = {
+  [K in T[0]]: T extends [ K, any ] ? T[1] : never
+}
