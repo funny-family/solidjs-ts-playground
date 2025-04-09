@@ -1,9 +1,9 @@
+import type { WithBaseEventsEntry, WithBaseEventsReturnRecord } from './types';
 import { DependentMap } from '../../../types';
 import type {
   SetupClockReturnRecord,
   SetupClockReturnRecordEntry,
 } from '../../index';
-import type { ClearEvent, OnMethod, WithBaseEventsEntry } from './types';
 
 export var withBaseEvents = <T extends SetupClockReturnRecordEntry>(
   returnRecordMap: T extends DependentMap<infer U>
@@ -51,12 +51,12 @@ export var withBaseEvents = <T extends SetupClockReturnRecordEntry>(
     )
   };
 
-  const on: OnMethod = (type, listener) => {
+  const on: WithBaseEventsReturnRecord['on'] = (type, listener) => {
     type === 'start' && startEventsSet.add(listener);
     type === 'stop' && stopEventsSet.add(listener);
   };
 
-  const clearEvent: ClearEvent = (type) => {
+  const clearEvent: WithBaseEventsReturnRecord['clearEvent'] = (type) => {
     type === 'start' && startEventsSet.clear();
     type === 'stop' && stopEventsSet.clear();
   };
