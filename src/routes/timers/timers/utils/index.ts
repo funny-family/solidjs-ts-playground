@@ -1,3 +1,4 @@
+import { Object_fromEntries } from './object.utils';
 export { isRunning } from './states/states';
 
 export type CreateFormat = (
@@ -24,4 +25,8 @@ export var formatTime = createFormat(
   })
 );
 
-// export var
+export var transformEntries: <T extends Record<string, any>>(
+  arg: Map<string | symbol, any>
+) => T = Object_fromEntries;
+
+export { Object_fromEntries };
