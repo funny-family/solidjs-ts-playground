@@ -1,5 +1,5 @@
 import { Object_fromEntries } from './object.utils';
-export { isRunning } from './states/states';
+import type { DependentMap, MapEntries, ObjectFromEntries } from '../types';
 
 export type CreateFormat = (
   numberFormat: Intl.NumberFormat
@@ -25,8 +25,17 @@ export var formatTime = createFormat(
   })
 );
 
-export var transformEntries: <T extends Record<string, any>>(
-  arg: Map<string | symbol, any>
-) => T = Object_fromEntries;
+export var fromEntries: <
+  T extends DependentMap<MapEntries>,
+  R extends MapEntries = T extends DependentMap<infer U> ? U : T
+>(
+  entries: T
+) => ObjectFromEntries<R> = Object_fromEntries;
 
+export {
+  isRunning,
+  IDEL_STATE,
+  RUNNING_STATE,
+  STOPPED_STATE,
+} from './states/states';
 export { Object_fromEntries };
