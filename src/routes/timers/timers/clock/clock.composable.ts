@@ -8,7 +8,7 @@ import type {
 import type { DependentMapConstructor } from '../types';
 
 export var createClockSetup: CreateClockSetup = (predicate) => () => {
-  const returnRecordMap =
+  const timerRecordMap =
     new (Map as DependentMapConstructor)<SetupClockReturnRecordEntry>();
 
   var clock = predicate();
@@ -67,15 +67,15 @@ export var createClockSetup: CreateClockSetup = (predicate) => () => {
       clock.tickCallbacksSet.clear();
     };
 
-  returnRecordMap.set('state', state);
-  returnRecordMap.set('date', date);
-  returnRecordMap.set('start', start);
-  returnRecordMap.set('stop', stop);
-  returnRecordMap.set('eachTick', eachTick);
-  returnRecordMap.set('clear', clear);
-  returnRecordMap.set('clearEachTickCallbacks', clearEachTickCallbacks);
+  timerRecordMap.set('state', state);
+  timerRecordMap.set('date', date);
+  timerRecordMap.set('start', start);
+  timerRecordMap.set('stop', stop);
+  timerRecordMap.set('eachTick', eachTick);
+  timerRecordMap.set('clear', clear);
+  timerRecordMap.set('clearEachTickCallbacks', clearEachTickCallbacks);
 
-  return returnRecordMap;
+  return timerRecordMap;
 };
 
 export var setupClock = createClockSetup(() => new Clock());
