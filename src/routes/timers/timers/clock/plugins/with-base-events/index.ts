@@ -1,3 +1,6 @@
 export * from './types';
 
-export { withBaseEvents } from './with-base-events.plugin';
+export {
+  withBaseEvents,
+  LISTENER_TYPE_SYMBOL,
+} from './with-base-events.plugin';
