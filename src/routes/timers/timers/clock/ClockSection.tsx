@@ -1,4 +1,4 @@
-import { onMount } from 'solid-js';
+import { onCleanup, onMount } from 'solid-js';
 import { setupClock } from './index';
 import { withBaseEvents } from './plugins/with-base-events';
 import { isRunning, fromEntries } from '../utils';
@@ -17,6 +17,14 @@ var formatTime = (date: Date) =>
 var CurrentTime = () => {
   var clock = createClock();
 
+  var startEvent = () => {
+    console.log('started!');
+  };
+
+  var stopEvent = () => {
+    console.log('stopped!');
+  };
+
   onMount(() => {
     clock.start();
 
@@ -24,13 +32,13 @@ var CurrentTime = () => {
     //   console.log(1);
     // });
 
-    clock?.on?.('start', () => {
-      console.log('started!');
-    });
+    clock?.on?.('start', startEvent);
+    clock?.on?.('stop', stopEvent);
+  });
 
-    clock?.on?.('stop', () => {
-      console.log('stopped!');
-    });
+  onCleanup(() => {
+    clock?.clearEventsOf?.('start');
+    clock?.clearEventsOf?.('stop');
   });
 
   return (

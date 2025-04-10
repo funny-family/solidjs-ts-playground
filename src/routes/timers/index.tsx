@@ -1,7 +1,7 @@
 import { TimeSection } from './timers/time/TimeSection';
 import { ClockSection } from './timers/clock/ClockSection';
-import { StopwatchSection } from './timers/stopwatch/StopwatchSection';
-import { CountdownSection } from './timers/countdown/CountdownSelect';
+import { StopwatchSection } from './timers/timer/stopwatch/StopwatchSection';
+import { CountdownSection } from './timers/timer/countdown/CountdownSelect';
 
 export default () => {
   // let requestID = 0;

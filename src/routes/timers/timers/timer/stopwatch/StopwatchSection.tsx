@@ -3,8 +3,8 @@ import {
   elapsedHours,
   elapsedMinutes,
   elapsedSeconds,
-} from '../timer';
-import { formatTime, isRunning } from '../utils';
+} from '..';
+import { formatTime, isRunning } from '../../utils';
 
 export const StopwatchSection = () => {
   var stopwatch = createStopwatch();

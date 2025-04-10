@@ -1,7 +1,7 @@
 import { onMount } from 'solid-js';
-import { formatTime, isRunning } from '../utils';
-import { elapsedHours, elapsedMinutes, elapsedSeconds } from '../timer';
-import { createCountdown } from '../timer';
+import { formatTime, isRunning } from '../../utils';
+import { elapsedHours, elapsedMinutes, elapsedSeconds } from '..';
+import { createCountdown } from '..';
 
 export var CountdownSection = () => {
   var countdown = createCountdown();
