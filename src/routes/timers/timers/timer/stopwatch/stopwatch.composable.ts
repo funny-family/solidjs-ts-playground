@@ -1,4 +1,4 @@
-import { setupCreateTimer } from '../timer.composable';
+import { createTimerSetup } from '../timer.composable';
 import { Stopwatch } from './stopwatch';
 
-export var createStopwatch = setupCreateTimer(() => new Stopwatch());
+export var setupStopwatch = createTimerSetup(() => new Stopwatch());

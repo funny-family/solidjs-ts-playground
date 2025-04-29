@@ -1,14 +1,38 @@
-import {
-  createStopwatch,
-  elapsedHours,
-  elapsedMinutes,
-  elapsedSeconds,
-} from '..';
-import { formatTime, isRunning } from '../../utils';
+import { elapsedHours, elapsedMinutes, elapsedSeconds } from '../index';
+import { formatTime, fromEntries, isRunning } from '../../utils';
+import { setupStopwatch } from './stopwatch.composable';
+import { withBaseEvents } from '../../plugins/with-events';
+import { onCleanup, onMount } from 'solid-js';
+
+// var createStopwatch = () => fromEntries(setupStopwatch());
+var createStopwatch = () => fromEntries(withBaseEvents(setupStopwatch()));
 
 export const StopwatchSection = () => {
   var stopwatch = createStopwatch();
   window.stopwatch = stopwatch;
+
+  var start = () => {
+    console.log('started!');
+  };
+
+  var stop = () => {
+    console.log('stopped!');
+  };
+
+  onMount(() => {
+    // stopwatch.eachTick(() => {
+    //   console.log(1);
+    // });
+
+    stopwatch?.on?.('start', start);
+
+    stopwatch?.on?.('stop', stop);
+  });
+
+  onCleanup(() => {
+    stopwatch?.clearEvent?.(start);
+    stopwatch?.clearEvent?.(stop);
+  });
 
   return (
     <section>
