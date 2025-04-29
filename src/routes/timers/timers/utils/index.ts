@@ -1,5 +1,10 @@
 import { Object_fromEntries } from './object.utils';
-import type { DependentMap, MapEntries, ObjectFromEntries } from '../types';
+import type {
+  DependentMap,
+  FilterUnion,
+  MapEntries,
+  ObjectFromEntries,
+} from '../types';
 
 export type CreateFormat = (
   numberFormat: Intl.NumberFormat
@@ -9,7 +14,8 @@ export type CreateFormat = (
 export var createFormat: CreateFormat =
   (numberFormat) =>
   (milliseconds) =>
-    numberFormat.format(milliseconds)
+    numberFormat
+      .format(milliseconds)
       .slice(-2);
 
 /**
@@ -25,12 +31,11 @@ export var formatTime = createFormat(
   })
 );
 
-export var fromEntries: <
-  T extends DependentMap<MapEntries>,
-  R extends MapEntries = T extends DependentMap<infer U> ? U : T
->(
+export var fromEntries: <T extends DependentMap<MapEntries>>(
   entries: T
-) => ObjectFromEntries<R> = Object_fromEntries;
+) =>
+  ObjectFromEntries<T extends DependentMap<infer U> ? U : never>
+ = Object_fromEntries;
 
 export {
   isRunning,
