@@ -1,4 +1,4 @@
-import { setupCreateTimer } from '../timer.composable';
+import { createTimerSetup } from '../timer.composable';
 import { Countdown } from './countdown';
 
-export var createCountdown = setupCreateTimer(() => new Countdown());
+export var setupCountdown = createTimerSetup(() => new Countdown());

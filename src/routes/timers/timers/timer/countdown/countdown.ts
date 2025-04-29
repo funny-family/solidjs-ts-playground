@@ -21,9 +21,15 @@ export class Countdown extends Timer implements TimerInterface {
   }
 
   start: TimerInterface['start'] = () => {
-    return this.baseTimer.start(() => {
-      this.#offsetTime = this.milliseconds + Date_now();
-    });
+    return (
+      this.milliseconds <= 0
+      ?
+      false
+      :
+      this.baseTimer.start(() => {
+        this.#offsetTime = this.milliseconds + Date_now();
+      })
+    );
   };
 
   #offsetTime: number = 0;

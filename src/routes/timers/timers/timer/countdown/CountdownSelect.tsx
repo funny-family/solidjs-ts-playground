@@ -1,27 +1,48 @@
-import { onMount } from 'solid-js';
-import { formatTime, isRunning } from '../../utils';
+import { onCleanup, onMount } from 'solid-js';
+import { formatTime, fromEntries, isRunning } from '../../utils';
 import { elapsedHours, elapsedMinutes, elapsedSeconds } from '..';
-import { createCountdown } from '..';
+import { setupCountdown } from '..';
+import { withBaseEvents } from '../../plugins/with-events';
+import { withResetEvent } from '../../plugins/with-events/with-reset-event/with-reset-event.plugin';
+
+// var createCountdown = () => fromEntries(setupCountdown());
+// var createCountdown = () => fromEntries(withBaseEvents(setupCountdown()));
+var createCountdown = () =>
+  fromEntries(withResetEvent(withBaseEvents(setupCountdown())));
+
+// var createCountdown = () => fromEntries(withResetEvent(setupCountdown()));
 
 export var CountdownSection = () => {
   var countdown = createCountdown();
   window.countdown = countdown;
 
-  // onMount(() => {
-  //   countdown.start();
+  var start = () => {
+    console.log('started!');
+  };
 
-  //   // countdown.eachTick(() => {
-  //   //   console.log(1);
-  //   // });
+  var stop = () => {
+    console.log('stopped!');
+  };
 
-  //   countdown?.on?.('start', () => {
-  //     console.log('started!');
-  //   });
+  var reset = () => {
+    console.log('reset!');
+  };
 
-  //   countdown?.on?.('stop', () => {
-  //     console.log('stopped!');
-  //   });
-  // });
+  onMount(() => {
+    // countdown.eachTick(() => {
+    //   console.log(1);
+    // });
+
+    countdown?.on?.('start', start);
+    countdown?.on?.('stop', stop);
+    countdown?.on?.('reset', reset);
+  });
+
+  onCleanup(() => {
+    countdown?.clearEventsOf?.('start');
+    countdown?.clearEventsOf?.('stop');
+    countdown?.clearEventsOf?.('reset');
+  });
 
   return (
     <section>
