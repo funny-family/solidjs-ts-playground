@@ -67,6 +67,30 @@ export interface DependentMapConstructor {
 }
 // ------------------------------------------ "Type safe" Map ------------------------------------------
 
+// ------------------------------------------ Union to array ------------------------------------------
+// https://catchts.com/union-array
+// credits goes to https://stackoverflow.com/a/50375286
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+  k: infer I
+) => void
+  ? I
+  : never;
+
+// Converts union to overloaded function
+type UnionToOvlds<U> = UnionToIntersection<
+  U extends any ? (f: U) => void : never
+>;
+
+type PopUnion<U> = UnionToOvlds<U> extends (a: infer A) => void ? A : never;
+
+type IsUnion<T> = [T] extends [UnionToIntersection<T>] ? false : true;
+
+// Finally me)
+export type UnionToArray<T, A extends unknown[] = []> = IsUnion<T> extends true
+  ? UnionToArray<Exclude<T, PopUnion<T>>, [PopUnion<T>, ...A]>
+  : [T, ...A];
+// ------------------------------------------ Union to array ------------------------------------------
+
 export type Entry<T> = {
   [K in keyof T]: [K, T[K]];
 }[keyof T];
@@ -78,5 +102,29 @@ export type Entries<T> = Entry<T>[];
  * @see https://github.com/type-challenges/type-challenges/issues/3382
  */
 export type ObjectFromEntries<T extends [string, any]> = {
-  [K in T[0]]: T extends [ K, any ] ? T[1] : never
-}
+  [K in T[0]]: T extends [K, any] ? T[1] : never;
+};
+
+export type BooleanFunction = () => boolean;
+
+export type StartFunctionRecord = {
+  start: BooleanFunction;
+};
+
+export type StopFunctionRecord = {
+  stop: BooleanFunction;
+};
+
+export type ResetFunctionRecord = {
+  reset: BooleanFunction;
+};
+
+type Trns<T extends [any, any]> = {
+  [Key in T[0]]: [Key, any];
+}[T[0]];
+
+export type PluginFunction<TEntry extends MapEntries> = <
+  TRecordMapEntry extends MapEntries
+>(
+  recordMap: DependentMap<TRecordMapEntry>
+) => DependentMap<TEntry | Exclude<TRecordMapEntry, Trns<TEntry>>>;
