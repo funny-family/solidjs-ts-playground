@@ -1,10 +1,14 @@
 import { createSignal } from 'solid-js';
 import type {
-  CreateTimerReturnRecord,
-  SetupCreateTimer,
+  TimerRecord,
+  CreateTimerSetup,
+  TimerRecordEntry,
 } from './timer.composable.types';
+import type { DependentMapConstructor } from '../types';
 
-export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
+export var createTimerSetup: CreateTimerSetup = (predicate) => () => {
+  const recordMap = new (Map as DependentMapConstructor)<TimerRecordEntry>();
+
   var timer = predicate();
 
   const stateSignal = createSignal(timer.state);
@@ -14,9 +18,7 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
   const millisecondsSignal = createSignal(timer.milliseconds);
   const milliseconds = millisecondsSignal[0];
   var millisecondsSetter = millisecondsSignal[1];
-  const setMilliseconds: CreateTimerReturnRecord['setMilliseconds'] = (
-    predicate
-  ) => {
+  const setMilliseconds: TimerRecord['setMilliseconds'] = (predicate) => {
     timer.milliseconds = predicate(timer.milliseconds);
 
     setState(timer.state);
@@ -29,7 +31,7 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
     setMilliseconds(setMillisecondsPredicate);
   });
 
-  const start: CreateTimerReturnRecord['start'] = () => {
+  const start: TimerRecord['start'] = () => {
     const value = timer.start();
 
     // prettier-ignore
@@ -45,7 +47,7 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
       )
   };
 
-  const stop: CreateTimerReturnRecord['stop'] = () => {
+  const stop: TimerRecord['stop'] = () => {
     const value = timer.stop();
 
     // prettier-ignore
@@ -61,7 +63,7 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
       )
   };
 
-  const reset: CreateTimerReturnRecord['reset'] = () => {
+  const reset: TimerRecord['reset'] = () => {
     const value = timer.reset();
 
     // prettier-ignore
@@ -77,28 +79,27 @@ export var setupCreateTimer: SetupCreateTimer = (predicate) => () => {
       )
   };
 
-  const eachTick: CreateTimerReturnRecord['eachTick'] = (callback) => {
+  const eachTick: TimerRecord['eachTick'] = (callback) => {
     timer.tickCallbacksSet.add(callback);
   };
 
-  const clear: CreateTimerReturnRecord['clear'] = () => {
+  const clear: TimerRecord['clear'] = () => {
     timer.clear();
   };
 
-  const clearEachTickCallbacks: CreateTimerReturnRecord['clearEachTickCallbacks'] =
-    () => {
-      timer.tickCallbacksSet.clear();
-    };
-
-  return {
-    milliseconds,
-    setMilliseconds,
-    state,
-    start,
-    stop,
-    reset,
-    eachTick,
-    clear,
-    clearEachTickCallbacks,
+  const clearEachTickCallbacks: TimerRecord['clearEachTickCallbacks'] = () => {
+    timer.tickCallbacksSet.clear();
   };
+
+  recordMap.set('milliseconds', milliseconds);
+  recordMap.set('setMilliseconds', setMilliseconds);
+  recordMap.set('state', state);
+  recordMap.set('start', start);
+  recordMap.set('stop', stop);
+  recordMap.set('reset', reset);
+  recordMap.set('eachTick', eachTick);
+  recordMap.set('clear', clear);
+  recordMap.set('clearEachTickCallbacks', clearEachTickCallbacks);
+
+  return recordMap;
 };

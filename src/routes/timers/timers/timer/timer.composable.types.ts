@@ -1,8 +1,8 @@
 import type { Accessor } from 'solid-js';
-import type { Spread } from '../types';
+import type { DependentMap, Entry, Spread } from '../types';
 import type { TimerInterface } from './timer.types';
 
-export type CreateTimerReturnRecord = Spread<
+export type TimerRecord = Spread<
   [
     Pick<
       TimerInterface,
@@ -27,8 +27,10 @@ export type CreateTimerReturnRecord = Spread<
   ]
 >;
 
-export type CreateTime = () => CreateTimerReturnRecord;
+export type TimerRecordEntry = Entry<TimerRecord>;
 
-export type SetupCreateTimer = <TTimer extends TimerInterface>(
+export type CreateTime = () => DependentMap<TimerRecordEntry>;
+
+export type CreateTimerSetup = <TTimer extends TimerInterface>(
   predicate: () => TTimer
 ) => CreateTime;
