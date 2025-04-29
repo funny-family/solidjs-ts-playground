@@ -3,7 +3,7 @@ import type { ClockInterface } from './clock.types';
 import type { Clock } from './clock';
 import type { DependentMap, Entry, Spread } from '../types';
 
-export type SetupClockReturnRecord = Spread<
+export type ClockRecord = Spread<
   [
     Pick<
       ClockInterface,
@@ -17,8 +17,8 @@ export type SetupClockReturnRecord = Spread<
   ]
 >;
 
-export type SetupClockReturnRecordEntry = Entry<SetupClockReturnRecord>;
+export type ClockRecordEntry = Entry<ClockRecord>;
 
-export type SetupClock = () => DependentMap<SetupClockReturnRecordEntry>;
+export type SetupClock = () => DependentMap<ClockRecordEntry>;
 
 export type CreateClockSetup = (predicate: () => Clock) => SetupClock;

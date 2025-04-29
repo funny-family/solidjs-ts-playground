@@ -1,15 +1,14 @@
 import { createSignal } from 'solid-js';
 import { Clock } from './clock';
 import type {
-  SetupClockReturnRecord,
+  ClockRecord,
   CreateClockSetup,
-  SetupClockReturnRecordEntry,
+  ClockRecordEntry,
 } from './clock.composable.types';
 import type { DependentMapConstructor } from '../types';
 
 export var createClockSetup: CreateClockSetup = (predicate) => () => {
-  const timerRecordMap =
-    new (Map as DependentMapConstructor)<SetupClockReturnRecordEntry>();
+  const recordMap = new (Map as DependentMapConstructor)<ClockRecordEntry>();
 
   var clock = predicate();
 
@@ -22,7 +21,7 @@ export var createClockSetup: CreateClockSetup = (predicate) => () => {
     setDate(clock.date);
   });
 
-  const start: SetupClockReturnRecord['start'] = () => {
+  const start: ClockRecord['start'] = () => {
     const value = clock.start();
 
     // prettier-ignore
@@ -38,7 +37,7 @@ export var createClockSetup: CreateClockSetup = (predicate) => () => {
     )
   };
 
-  const stop: SetupClockReturnRecord['stop'] = () => {
+  const stop: ClockRecord['stop'] = () => {
     const value = clock.stop();
 
     // prettier-ignore
@@ -54,28 +53,27 @@ export var createClockSetup: CreateClockSetup = (predicate) => () => {
     )
   };
 
-  const eachTick: SetupClockReturnRecord['eachTick'] = (callback) => {
+  const eachTick: ClockRecord['eachTick'] = (callback) => {
     clock.tickCallbacksSet.add(callback);
   };
 
-  const clear: SetupClockReturnRecord['clear'] = () => {
+  const clear: ClockRecord['clear'] = () => {
     clock.clear();
   };
 
-  const clearEachTickCallbacks: SetupClockReturnRecord['clearEachTickCallbacks'] =
-    () => {
-      clock.tickCallbacksSet.clear();
-    };
+  const clearEachTickCallbacks: ClockRecord['clearEachTickCallbacks'] = () => {
+    clock.tickCallbacksSet.clear();
+  };
 
-  timerRecordMap.set('state', state);
-  timerRecordMap.set('date', date);
-  timerRecordMap.set('start', start);
-  timerRecordMap.set('stop', stop);
-  timerRecordMap.set('eachTick', eachTick);
-  timerRecordMap.set('clear', clear);
-  timerRecordMap.set('clearEachTickCallbacks', clearEachTickCallbacks);
+  recordMap.set('state', state);
+  recordMap.set('date', date);
+  recordMap.set('start', start);
+  recordMap.set('stop', stop);
+  recordMap.set('eachTick', eachTick);
+  recordMap.set('clear', clear);
+  recordMap.set('clearEachTickCallbacks', clearEachTickCallbacks);
 
-  return timerRecordMap;
+  return recordMap;
 };
 
 export var setupClock = createClockSetup(() => new Clock());

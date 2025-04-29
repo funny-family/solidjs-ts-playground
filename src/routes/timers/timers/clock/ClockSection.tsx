@@ -1,7 +1,7 @@
 import { onCleanup, onMount } from 'solid-js';
 import { setupClock } from './index';
-import { withBaseEvents } from './plugins/with-base-events';
 import { isRunning, fromEntries } from '../utils';
+import { withBaseEvents } from '../plugins/with-events';
 
 var createClock = () => fromEntries(withBaseEvents(setupClock()));
 // var createClock = () => fromEntries(setupClock());
