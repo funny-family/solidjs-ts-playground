@@ -1,12 +1,12 @@
-import type { DependentMap, PluginFunction } from '../../../types';
-import { LISTENER_TYPE_SYMBOL } from '../utils';
-
 import type {
   BaseEventListener,
   WithResetEventEntry,
   WithResetEventRecord,
   WithResetEventRecordEntry,
 } from './types';
+import { LISTENER_TYPE_SYMBOL } from '../utils';
+import type { PluginFunction } from '../../types';
+import type { DependentMap } from '../../../types';
 
 export var withResetEvent = ((
   recordMap: DependentMap<WithResetEventEntry | WithResetEventRecordEntry>

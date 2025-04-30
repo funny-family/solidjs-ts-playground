@@ -1,11 +1,12 @@
-import { LISTENER_TYPE_SYMBOL } from '../utils';
 import type {
   BaseEventListener,
   TimerBaseEventsEntry,
   WithBaseEventsRecord,
   WithBaseEventsRecordEntry,
 } from './types';
-import type { DependentMap, PluginFunction } from '../../../types';
+import { LISTENER_TYPE_SYMBOL } from '../utils';
+import type { PluginFunction } from '../../types';
+import type { DependentMap } from '../../../types';
 
 export var withBaseEvents = ((
   recordMap: DependentMap<TimerBaseEventsEntry | WithBaseEventsRecordEntry>
