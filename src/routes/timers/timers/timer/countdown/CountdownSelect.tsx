@@ -17,15 +17,15 @@ export var CountdownSection = () => {
   window.countdown = countdown;
 
   var start = () => {
-    console.log('started!');
+    console.log('"countdown": started!');
   };
 
   var stop = () => {
-    console.log('stopped!');
+    console.log('"countdown": stopped!');
   };
 
   var reset = () => {
-    console.log('reset!');
+    console.log('"countdown": reset!');
   };
 
   onMount(() => {
@@ -43,6 +43,14 @@ export var CountdownSection = () => {
     countdown?.clearEventsOf?.('stop');
     countdown?.clearEventsOf?.('reset');
   });
+
+  var onMsSet = (event: Event) => {
+    var value = (event.target as HTMLInputElement).value;
+
+    countdown.setMilliseconds(() => {
+      return Number(eval(value));
+    });
+  };
 
   return (
     <section>
@@ -78,13 +86,8 @@ export var CountdownSection = () => {
         <div>
           <input
             type="text"
-            onInput={(event) => {
-              var value = (event.target as HTMLInputElement).value;
-
-              countdown.setMilliseconds(() => {
-                return Number(eval(value));
-              });
-            }}
+            onInput={(event) => onMsSet(event)}
+            onBlur={(event) => onMsSet(event)}
           />
         </div>
 

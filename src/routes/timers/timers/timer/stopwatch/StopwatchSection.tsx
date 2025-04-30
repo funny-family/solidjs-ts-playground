@@ -15,15 +15,15 @@ export const StopwatchSection = () => {
   window.stopwatch = stopwatch;
 
   var start = () => {
-    console.log('started!');
+    console.log('"stopwatch": started!');
   };
 
   var stop = () => {
-    console.log('stopped!');
+    console.log('"stopwatch": stopped!');
   };
 
   var reset = () => {
-    console.log('reset!');
+    console.log('"stopwatch": reset!');
   };
 
   onMount(() => {

@@ -18,11 +18,11 @@ var CurrentTime = () => {
   var clock = createClock();
 
   var startEvent = () => {
-    console.log('started!');
+    console.log('"clock": started!');
   };
 
   var stopEvent = () => {
-    console.log('stopped!');
+    console.log('"clock": stopped!');
   };
 
   onMount(() => {
