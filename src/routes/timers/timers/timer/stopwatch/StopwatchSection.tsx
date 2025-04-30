@@ -3,9 +3,12 @@ import { formatTime, fromEntries, isRunning } from '../../utils';
 import { setupStopwatch } from './stopwatch.composable';
 import { withBaseEvents } from '../../plugins/with-events';
 import { onCleanup, onMount } from 'solid-js';
+import { withResetEvent } from '../../plugins/with-events/with-reset-event/with-reset-event.plugin';
 
 // var createStopwatch = () => fromEntries(setupStopwatch());
-var createStopwatch = () => fromEntries(withBaseEvents(setupStopwatch()));
+// var createStopwatch = () => fromEntries(withBaseEvents(setupStopwatch()));
+var createStopwatch = () =>
+  fromEntries(withResetEvent(withBaseEvents(setupStopwatch())));
 
 export const StopwatchSection = () => {
   var stopwatch = createStopwatch();
@@ -19,19 +22,24 @@ export const StopwatchSection = () => {
     console.log('stopped!');
   };
 
+  var reset = () => {
+    console.log('reset!');
+  };
+
   onMount(() => {
     // stopwatch.eachTick(() => {
     //   console.log(1);
     // });
 
     stopwatch?.on?.('start', start);
-
     stopwatch?.on?.('stop', stop);
+    stopwatch?.on?.('reset', reset);
   });
 
   onCleanup(() => {
-    stopwatch?.clearEvent?.(start);
-    stopwatch?.clearEvent?.(stop);
+    stopwatch?.clearEventsOf?.('start');
+    stopwatch?.clearEventsOf?.('stop');
+    stopwatch?.clearEventsOf?.('reset');
   });
 
   return (
