@@ -41,6 +41,7 @@ export class Timer implements TimerInterface {
 
   start: TimerInterface['start'] = () => {
     return true;
+    // return this.baseTimer.start(() => {});
   };
 
   stop: TimerInterface['stop'] = () => {
@@ -52,7 +53,7 @@ export class Timer implements TimerInterface {
   reset: TimerInterface['stop'] = () => {
     // prettier-ignore
     return (
-      this.state === IDEL_STATE && this.milliseconds <= 0
+      this.state === IDEL_STATE || this.milliseconds <= 0
       ?
       false
       :
