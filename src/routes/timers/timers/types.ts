@@ -118,13 +118,3 @@ export type StopFunctionRecord = {
 export type ResetFunctionRecord = {
   reset: BooleanFunction;
 };
-
-type Trns<T extends [any, any]> = {
-  [Key in T[0]]: [Key, any];
-}[T[0]];
-
-export type PluginFunction<TEntry extends MapEntries> = <
-  TRecordMapEntry extends MapEntries
->(
-  recordMap: DependentMap<TRecordMapEntry>
-) => DependentMap<TEntry | Exclude<TRecordMapEntry, Trns<TEntry>>>;
