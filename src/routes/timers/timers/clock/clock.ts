@@ -39,5 +39,3 @@ export class Clock implements ClockInterface {
 
   #baseTimer = new BaseTimer();
 }
-
-// ====================================================================

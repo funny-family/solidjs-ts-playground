@@ -1,10 +1,12 @@
-import { onCleanup, onMount } from 'solid-js';
+import { For, onCleanup, onMount } from 'solid-js';
 import { setupClock } from './index';
 import { isRunning, fromEntries } from '../utils';
 import { withBaseEvents } from '../plugins/with-events';
+import { withLaps } from './plugins/with-laps/with-laps.plugin';
 
-var createClock = () => fromEntries(withBaseEvents(setupClock()));
 // var createClock = () => fromEntries(setupClock());
+// var createClock = () => fromEntries(withBaseEvents(setupClock()));
+var createClock = () => fromEntries(withLaps(withBaseEvents(setupClock())));
 
 var formatTime = (date: Date) =>
   new Intl.DateTimeFormat('en-EN', {
@@ -46,23 +48,65 @@ var CurrentTime = () => {
       <h3>Current time</h3>
 
       <div>
-        <button
-          type="button"
-          onClick={() => {
-            clock.start();
-          }}
-        >
-          start
-        </button>
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              clock?.addLap?.();
+            }}
+          >
+            add lap
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            clock.stop();
-          }}
-        >
-          stop
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              clock?.clearLaps?.();
+            }}
+          >
+            clear laps
+          </button>
+        </div>
+
+        <div>
+          <For each={clock?.laps()}>
+            {(lap) => {
+              return (
+                <div>
+                  <span>{formatTime(lap as unknown as Date)}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clock.deleteLap(lap);
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              );
+            }}
+          </For>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              clock.start();
+            }}
+          >
+            start
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              clock.stop();
+            }}
+          >
+            stop
+          </button>
+        </div>
 
         <div>
           <div>is running: {`${isRunning(clock.state())}`}</div>
