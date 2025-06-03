@@ -1,3 +1,5 @@
+import type { Accessor } from 'solid-js';
+
 // ------------------------------------------ Spread ------------------------------------------
 type OptionalPropertyNames<T> = {
   [K in keyof T]-?: {} extends { [P in K]: T[K] } ? K : never;
@@ -117,4 +119,15 @@ export type StopFunctionRecord = {
 
 export type ResetFunctionRecord = {
   reset: BooleanFunction;
+};
+
+export type Laps<T extends unknown> = Accessor<T[]>;
+export type AddLap<T extends unknown> = () => T;
+export type DeleteLap<T extends unknown> = (lap: T) => boolean;
+export type ClearLaps = () => void;
+export type WithBaseLapsRecord<T extends unknown> = {
+  laps: Laps<T>;
+  addLap: AddLap<T>;
+  deleteLap: DeleteLap<T>;
+  clearLaps: ClearLaps;
 };
