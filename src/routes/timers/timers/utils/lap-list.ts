@@ -1,35 +1,32 @@
 import { Array_from } from './array.utils';
 
-interface LapListInterface<T extends any = unknown> {
+export type LapUnit = Number;
+
+export interface LapListInterface<T = LapUnit> {
   get: () => T[];
   add: (lap: T) => this;
   remove: (lap: T) => boolean;
   clear: () => void;
 }
 
-export var LAP_ID_SYMBOL = Symbol('LAP_ID_SYMBOL');
+export class LapList implements LapListInterface {
+  #list = new Set<LapUnit>();
 
-export class LapList<T extends any> implements LapListInterface<T> {
-  #id = 0;
-  #list = new Map<string, T>();
-
-  get: LapListInterface<T>['get'] = () => {
-    return Array_from(this.#list, (entry) => entry[1]);
+  get: LapListInterface['get'] = () => {
+    return Array_from(this.#list);
   };
 
-  add(lap: Parameters<LapListInterface<T>['add']>[0]) {
-    lap[LAP_ID_SYMBOL] = this.#id;
-
-    this.#list.set(this.#id++, lap);
+  add(lap: Parameters<LapListInterface['add']>[0]) {
+    this.#list.add(lap);
 
     return this;
   }
 
-  remove: LapListInterface<T>['remove'] = (lap) => {
-    return this.#list.delete(lap[LAP_ID_SYMBOL]);
+  remove: LapListInterface['remove'] = (lap) => {
+    return this.#list.delete(lap);
   };
 
-  clear: LapListInterface<T>['clear'] = () => {
+  clear: LapListInterface['clear'] = () => {
     this.#list.clear();
   };
 }
