@@ -2,13 +2,17 @@ import { elapsedHours, elapsedMinutes, elapsedSeconds } from '../index';
 import { formatTime, fromEntries, isRunning } from '../../utils';
 import { setupStopwatch } from './stopwatch.composable';
 import { withBaseEvents } from '../../plugins/with-events';
-import { onCleanup, onMount } from 'solid-js';
+import { For, onCleanup, onMount, Show } from 'solid-js';
 import { withResetEvent } from '../../plugins/with-events/with-reset-event/with-reset-event.plugin';
+import { withLaps } from '../plugins/with-laps/with-laps.plugin';
 
 // var createStopwatch = () => fromEntries(setupStopwatch());
 // var createStopwatch = () => fromEntries(withBaseEvents(setupStopwatch()));
+// var createStopwatch = () =>
+//   fromEntries(withResetEvent(withBaseEvents(setupStopwatch())));
+
 var createStopwatch = () =>
-  fromEntries(withResetEvent(withBaseEvents(setupStopwatch())));
+  fromEntries(withLaps(withResetEvent(withBaseEvents(setupStopwatch()))));
 
 export const StopwatchSection = () => {
   var stopwatch = createStopwatch();
@@ -71,6 +75,49 @@ export const StopwatchSection = () => {
           reset
         </button>
       </div>
+
+      <div>
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              stopwatch.addLap();
+            }}
+          >
+            add lap
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              stopwatch.clearLaps();
+            }}
+          >
+            clear laps
+          </button>
+        </div>
+
+        <div>
+          <For each={stopwatch.laps()}>
+            {(lap) => {
+              return (
+                <div>
+                  <span>{`${lap}`}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      stopwatch.deleteLap(lap);
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              );
+            }}
+          </For>
+        </div>
+      </div>
+
       <div>state: {stopwatch.state()}</div>
       <div>isRunning: {`${isRunning(stopwatch.state())}`}</div>
       <div>{stopwatch.milliseconds()}</div>
