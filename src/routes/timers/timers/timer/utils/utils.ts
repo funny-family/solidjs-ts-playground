@@ -8,7 +8,7 @@ import type { ElapseFunction } from './utils.types';
  * @example
  * elapsedSeconds(ms);
  */
-export const elapsedSeconds: ElapseFunction = (ms) =>
+export var elapsedSeconds: ElapseFunction = (ms) =>
   Math_floor((ms % 60000) / 1000);
 
 /**
@@ -18,7 +18,7 @@ export const elapsedSeconds: ElapseFunction = (ms) =>
  * @example
  * elapsedMinutes(ms);
  */
-export const elapsedMinutes: ElapseFunction = (ms) =>
+export var elapsedMinutes: ElapseFunction = (ms) =>
   Math_floor(ms / (1000 * 60)) % 60;
 
 /**
@@ -28,5 +28,5 @@ export const elapsedMinutes: ElapseFunction = (ms) =>
  * @example
  * elapsedMinutes(ms);
  */
-export const elapsedHours: ElapseFunction = (ms) =>
+export var elapsedHours: ElapseFunction = (ms) =>
   Math_floor(ms / (1000 * 60 * 60));
