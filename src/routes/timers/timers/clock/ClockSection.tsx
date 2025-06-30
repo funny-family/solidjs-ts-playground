@@ -69,7 +69,7 @@ var CurrentTime = () => {
         </div>
 
         <div>
-          <For each={clock?.laps()}>
+          <For each={clock?.laps?.()}>
             {(lap) => {
               return (
                 <div>
@@ -77,7 +77,7 @@ var CurrentTime = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      clock.deleteLap(lap);
+                      clock?.deleteLap?.(lap);
                     }}
                   >
                     X

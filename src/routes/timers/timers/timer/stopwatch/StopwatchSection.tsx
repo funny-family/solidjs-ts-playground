@@ -3,7 +3,10 @@ import { formatTime, fromEntries, isRunning } from '../../utils';
 import { setupStopwatch } from './stopwatch.composable';
 import { withBaseEvents } from '../../plugins/with-events';
 import { For, onCleanup, onMount, Show } from 'solid-js';
-import { withResetEvent } from '../../plugins/with-events/with-reset-event/with-reset-event.plugin';
+import {
+  RESET_EVENTS_SET_SYMBOL,
+  withResetEvent,
+} from '../../plugins/with-events/with-reset-event/with-reset-event.plugin';
 import { withLaps } from '../plugins/with-laps/with-laps.plugin';
 
 // var createStopwatch = () => fromEntries(setupStopwatch());
@@ -16,6 +19,8 @@ var createStopwatch = () =>
 
 export const StopwatchSection = () => {
   var stopwatch = createStopwatch();
+  var resetEventsSet = stopwatch[RESET_EVENTS_SET_SYMBOL];
+  console.log({ resetEventsSet });
   window.stopwatch = stopwatch;
 
   var start = () => {
