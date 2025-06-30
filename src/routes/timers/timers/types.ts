@@ -131,3 +131,7 @@ export type WithBaseLapsRecord<T extends unknown> = {
   deleteLap: DeleteLap<T>;
   clearLaps: ClearLaps;
 };
+
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
