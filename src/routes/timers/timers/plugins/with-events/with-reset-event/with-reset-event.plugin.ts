@@ -1,17 +1,18 @@
 import type {
   BaseEventListener,
-  WithResetEventEntry,
+  RecordMapEntry,
   WithResetEventRecord,
-  WithResetEventRecordEntry,
 } from './types';
 import { LISTENER_TYPE_SYMBOL } from '../utils';
 import type { PluginFunction } from '../../types';
 import type { DependentMap } from '../../../types';
 
-export var withResetEvent = ((
-  recordMap: DependentMap<WithResetEventEntry | WithResetEventRecordEntry>
+export const RESET_EVENTS_SET_SYMBOL = Symbol('RESET_EVENTS_SET_SYMBOL');
+
+export var withResetEvent: PluginFunction<RecordMapEntry> = (
+  recordMap: DependentMap<RecordMapEntry>
 ) => {
-  var resetEventsSet = new Set<Function>();
+  var resetEventsSet = new Set<VoidFunction>();
 
   var timer_reset = recordMap.get('reset')!;
   const reset: typeof timer_reset = () => {
@@ -47,9 +48,10 @@ export var withResetEvent = ((
   const clearEvent = ((listener: BaseEventListener) => {
     timer_clearEvent(listener);
 
-    const type = listener[LISTENER_TYPE_SYMBOL];
-
-    type === 'reset' && resetEventsSet.delete(listener);
+    // prettier-ignore
+    listener[LISTENER_TYPE_SYMBOL] === 'reset' && (
+      resetEventsSet.delete(listener)
+    );
   }) as WithResetEventRecord['clearEvent'];
 
   var timer_clearEventsOf = recordMap.get('clearEventsOf')!;
@@ -63,6 +65,7 @@ export var withResetEvent = ((
   recordMap.set('on', on);
   recordMap.set('clearEvent', clearEvent);
   recordMap.set('clearEventsOf', clearEventsOf);
+  recordMap.set(RESET_EVENTS_SET_SYMBOL, resetEventsSet);
 
   return recordMap;
-}) as PluginFunction<WithResetEventRecordEntry>;
+};
