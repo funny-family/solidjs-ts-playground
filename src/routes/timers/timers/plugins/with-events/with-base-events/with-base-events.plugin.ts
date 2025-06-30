@@ -1,18 +1,20 @@
 import type {
   BaseEventListener,
-  TimerBaseEventsEntry,
+  RecordMapEntry,
   WithBaseEventsRecord,
-  WithBaseEventsRecordEntry,
 } from './types';
 import { LISTENER_TYPE_SYMBOL } from '../utils';
 import type { PluginFunction } from '../../types';
 import type { DependentMap } from '../../../types';
 
-export var withBaseEvents = ((
-  recordMap: DependentMap<TimerBaseEventsEntry | WithBaseEventsRecordEntry>
+export const START_EVENTS_SET_SYMBOL = Symbol('START_EVENTS_SET_SYMBOL');
+export const STOP_EVENTS_SET_SYMBOL = Symbol('STOP_EVENTS_SET_SYMBOL');
+
+export var withBaseEvents: PluginFunction<RecordMapEntry> = (
+  recordMap: DependentMap<RecordMapEntry>
 ) => {
-  var startEventsSet = new Set<Function>();
-  var stopEventsSet = new Set<Function>();
+  var startEventsSet = new Set<VoidFunction>();
+  var stopEventsSet = new Set<VoidFunction>();
 
   var timer_start = recordMap.get('start')!;
   const start: typeof timer_start = () => {
@@ -83,6 +85,8 @@ export var withBaseEvents = ((
   recordMap.set('on', on);
   recordMap.set('clearEvent', clearEvent);
   recordMap.set('clearEventsOf', clearEventsOf);
+  recordMap.set(START_EVENTS_SET_SYMBOL, startEventsSet);
+  recordMap.set(STOP_EVENTS_SET_SYMBOL, stopEventsSet);
 
   return recordMap;
-}) as PluginFunction<WithBaseEventsRecordEntry>;
+};
