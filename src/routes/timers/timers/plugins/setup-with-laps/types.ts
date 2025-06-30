@@ -4,3 +4,5 @@ import { LapUnit } from '../../utils/lap-list';
 export type WithLapsRecord = Omit<WithBaseLapsRecord<LapUnit>, 'addLap'>;
 
 export type WithLapsRecordEntry = Entry<WithLapsRecord>;
+
+export type Setup_addLap = (predicate: () => Number) => () => Number;
